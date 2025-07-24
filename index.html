@@ -1,36 +1,1209 @@
-<!-- index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-cm-hook="1">
 <head>
-  <meta charset="UTF-8">
-  <title>OEM Autos Project</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { font-family: sans-serif; padding: 2em; background: #f9f9f9; }
-    .card { background: white; padding: 1.5em; max-width: 700px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-radius: 12px; }
-    h1 { font-size: 2rem; color: #333; }
-    a { color: #007acc; text-decoration: none; }
-    pre { background: #eee; padding: 1em; border-radius: 6px; overflow-x: auto; }
-  </style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open ROE VIN Decoder & Parts Explorer | OEMautos</title>
+    <meta name="description" content="Shop OEM Parts Online for All Major Makes and Models and Find All The Parts You Need From Our Complete OEM Parts Catalogs!">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Open ROE VIN Decoder & Parts Explorer">
+    <meta property="og:description" content="Shop OEM Parts Online for All Major Makes and Models and Find All The Parts You Need From Our Complete OEM Parts Catalogs!">
+    <!-- IMPORTANT: Replace YOUR_USERNAME and YOUR_REPO_NAME with your actual GitHub details -->
+    <meta property="og:url" content="https://YOUR_USERNAME.github.io/YOUR_REPO_NAME/">
+    <meta property="og:site_name" content="OEMautos">
+    <meta property="og:locale" content="en">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Open ROE VIN Decoder & Parts Explorer">
+    <meta name="twitter:description" content="Shop OEM Parts Online for All Major Makes and Models and Find All The Parts You Need From Our Complete OEM Parts Catalogs!">
+    <!-- IMPORTANT: Replace YOUR_USERNAME and YOUR_REPO_NAME with your actual GitHub details -->
+    <link href="https://YOUR_USERNAME.github.io/YOUR_REPO_NAME/" rel="home">
+    <link href="https://YOUR_USERNAME.github.io/YOUR_REPO_NAME/" rel="canonical">
+    <link type="text/plain" rel="author" href="https://YOUR_USERNAME.github.io/YOUR_REPO_NAME/humans.txt">
+    <meta name="google-site-verification" content="QjdECWw3-_Xw-hlHGCq-J3oewSM_nEbnggKUSuk3QJ4">
+    <meta name="keywords" content="Audi Parts, Acura Parts, Ford Parts, GM Parts, Honda Parts, Hyundai Parts, Mopar Parts, Nissan Parts, Subaru Parts, Toyota Parts, Volkswagen Parts, OEM Parts, OEM Accessories, BMW Parts, Infiniti Parts, Jaguar Parts, Kia Parts, Land Rover Parts, Lexus Parts, Mazda Parts, Mitsubishi Parts, Porsche Parts, Toyota Parts, Volvo Parts, Audi OEM Parts, Acura OEM Parts, Ford OEM Parts, GM OEM Parts, Honda OEM Parts, Hyundai OEM Parts, Mopar OEM Parts, Nissan OEM Parts, Subaru OEM Parts, Toyota OEM Parts, Volkswagen OEM Parts, BMW OEM Parts, Infiniti OEM Parts, Jaguar OEM Parts, Kia OEM Parts, Land Rover OEM Parts, Lexus OEM Parts, Mazda OEM Parts, Mitsubishi OEM Parts, Porsche OEM Parts, Toyota OEM Parts, Volvo OEM Parts, Jeep Parts, Jeep OEM Parts, Ram Parts, Ram OEM Parts, Chrysler Parts, Chrysler OEM Parts, Dodge Parts, Dodge OEM Parts, Porsche Parts, Porsche OEM Parts, Buick Parts, Buick OEM Parts, Chevrolet Parts, Chevy Parts, Chevrolet OEM Parts, Chevy OEM Parts, Cadillac Parts, Cadillac OEM Parts">
+
+    <meta name="facebook-domain-verification" content="wkh1gmmhsjdto02pjvj9gmah02ckwk">
+
+    <!-- Tailwind CSS CDN (JIT mode for on-the-fly compilation) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Customer Reviews Badge Code (CDN) -->
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script>
+        window.renderBadge = function() {
+            var ratingBadgeContainer = document.createElement("div");
+            document.body.appendChild(ratingBadgeContainer);
+            window.gapi.load('ratingbadge', function() {
+                window.gapi.ratingbadge.render(
+                    ratingBadgeContainer, {
+                        "merchant_id": 112083035,
+                        "position": "BOTTOM_RIGHT"
+                    });
+            });
+        }
+    </script>
+
+    <!-- Microsoft Clarity Tracking Code (CDN) -->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "lvnxz7z9ep");
+    </script>
+
+    <!-- Google tag (gtag.js) (CDN) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8WWQDTHJMR"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-8WWQDTHJMR');
+    </script>
+
+    <!-- Google Fonts CDN -->
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- Using Inter as primary font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Favicon (local asset) -->
+    <link rel="shortcut icon" type="image/jpg" href="./favicon.png">
+
+    <!-- Slick Carousel CSS CDN -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"/>
+
+    <!-- Inline Custom Styles -->
+    <style>
+        /* Basic reset and font */
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter as per instructions */
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* Header Main (from oem-autos) */
+        #header-main {
+            background-color: #ffffff; /* White background for header */
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #header-main img {
+            max-height: 50px; /* Adjust logo size */
+            border-radius: 0.375rem; /* rounded corners */
+        }
+        #header-main p {
+            font-weight: bold;
+            color: #333;
+        }
+        #header-main nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #header-main nav a {
+            color: #2563EB; /* Blue for links */
+            text-decoration: none;
+            transition: opacity 0.2s ease-in-out;
+        }
+        #header-main nav a:hover {
+            opacity: 0.8;
+        }
+
+        /* Mobile Navigation (Hidden by default on desktop) */
+        .themeMobileNav {
+            display: none; /* Hidden by default, toggled by JS */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #f8f8f8;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            z-index: 50; /* Ensure it's above other content when active */
+        }
+        .themeMobileNav.active {
+            display: block;
+        }
+        .themeMobileNav .themeMobileTitle {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        .themeMobileNav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .themeMobileNav li a {
+            display: block;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+            color: #333;
+            text-decoration: none;
+        }
+        .themeMobileNav li:last-child a {
+            border-bottom: none;
+        }
+
+        /* Hamburger Icon (Hidden by default on desktop) */
+        .themeHamburger {
+            display: none; /* Hidden by default on desktop */
+            cursor: pointer;
+            position: absolute;
+            right: 1rem;
+            top: 1.5rem; /* Adjust positioning */
+            z-index: 60; /* Ensure it's above mobile nav */
+            width: 30px;
+            height: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .themeHamburger span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: #333;
+            border-radius: 0.125rem; /* rounded corners */
+        }
+
+        /* Sticky Navigation (from oem-autos) */
+        #sticky-nav {
+            background-color: #2D3748; /* Charcoal background */
+            padding: 0.5rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #sticky-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #sticky-nav a {
+            color: #ffffff;
+            text-decoration: none;
+            transition: background-color 0.2s ease-in-out;
+            border-radius: 0.375rem; /* rounded corners */
+        }
+        #sticky-nav a:hover {
+            background-color: #1A202C; /* Blackcoal on hover */
+        }
+
+        /* Top Banner Section (from oem-autos) - REMOVED */
+        /* .topBanner {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            border-radius: 0.375rem;
+            margin: 1rem;
+        }
+        .topBannerContainer {
+            padding: 2rem;
+            max-width: 900px;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 0.5rem;
+        }
+        .topBannerContent h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        .topBannerContent p {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+        } */
+
+        /* Search Container (from oem-autos) - REMOVED WITH TOP BANNER */
+        /* .search-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+        }
+        .dropdown, .search-box {
+            padding: 0.75rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 0.375rem;
+            flex-grow: 1;
+            min-width: 200px;
+        }
+        .search-box-container {
+            position: relative;
+            flex-grow: 1;
+            min-width: 200px;
+        }
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            fill: #6B7280;
+        }
+        .search-box {
+            padding-left: 2.5rem;
+        }
+        .search-button {
+            background-color: #2563EB;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s ease-in-out;
+            flex-shrink: 0;
+        }
+        .search-button:hover {
+            background-color: #1D4ED8;
+        } */
+
+        /* Error Message (from oem-autos) - REMOVED WITH TOP BANNER */
+        /* .error-message-container {
+            width: 100%;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+        .error-message {
+            color: #EF4444;
+            display: none;
+            font-size: 0.875rem;
+        } */
+
+        /* Loading Icon (from oem-autos) - REMOVED WITH TOP BANNER */
+        /* .loading_container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2rem;
+            width: 100%;
+        }
+        .loader_wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .loader img {
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        .searching {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .dot {
+            animation: dot-blink 1.5s infinite steps(1, start);
+            opacity: 0;
+        }
+        .dot:nth-child(2) { animation-delay: 0.5s; }
+        .dot:nth-child(3) { animation-delay: 1s; }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes dot-blink {
+            0%, 20% { opacity: 0; }
+            40%, 100% { opacity: 1; }
+        } */
+
+        /* Popular Searches (from oem-autos) - REMOVED WITH TOP BANNER */
+        /* .topBannerPopularSearch {
+            margin-top: 2rem;
+            color: white;
+        }
+        .topBannerPopularSearch p {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+        .themePopularList {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .themePopularList img {
+            width: 80px;
+            height: auto;
+            border-radius: 0.375rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease-in-out;
+        }
+        .themePopularList img:hover {
+            transform: translateY(-5px);
+        } */
+
+        /* Page Content Section (from oem-autos) */
+        .topPageSection {
+            padding: 2rem 1rem;
+            max-width: 1200px;
+            margin: 2rem auto;
+            background-color: #ffffff;
+            border-radius: 0.5rem; /* rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .topPageContentTitle h2 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .topPageContentTitle p {
+            font-size: 1.125rem;
+            color: #6B7280;
+            margin-bottom: 1.5rem;
+        }
+        .topPageContent p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #4B5563;
+            margin-bottom: 1rem;
+        }
+
+        /* Exit Intent Popup (from oem-autos) */
+        #exit-intent-popup {
+            display: none; /* Hidden by default */
+            z-index: 1000;
+        }
+        #exit-intent {
+            background-color: #ffffff; /* White background for popup */
+            padding: 2rem;
+            border-radius: 0.5rem; /* rounded corners */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            text-align: center;
+        }
+
+        /* VIN Decoder & Parts Explorer Specific Styles (from new HTML, adapted) */
+        header.vin-decoder-header { /* New header for VIN decoder section */
+            background-color: #003366;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            border-radius: 0.5rem; /* rounded corners */
+            margin-bottom: 20px;
+        }
+        main.vin-decoder-main { /* New main for VIN decoder section */
+            padding: 20px;
+            max-width: 1000px;
+            margin: auto;
+        }
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap; /* Added for responsiveness */
+        }
+        .input-group input {
+            flex: 1;
+            padding: 10px;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            border: 2px solid #0074d9;
+            min-width: 200px; /* Ensure input is not too small */
+        }
+        .input-group button {
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            color: white;
+            background-color: #0074d9;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .input-group button:hover {
+            background-color: #0056b3;
+        }
+        #vehicleInfo {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        #vehicleInfo h2 {
+            margin-top: 0;
+            color: #003366;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: scale(1.03);
+        }
+        .card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 6px 6px 0 0; /* Rounded top corners */
+        }
+        .caption {
+            padding: 10px;
+        }
+        .caption strong {
+            color: #003366;
+        }
+        .caption .tag {
+            display: inline-block;
+            background-color: #ffe28a;
+            padding: 3px 8px;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            border-radius: 5px;
+        }
+        .error {
+            color: red;
+            font-size: 1.1rem;
+            margin-top: 20px;
+        }
+        .ebay-link {
+            text-decoration: none;
+            color: #0074d9;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .ebay-link:hover {
+            color: #0056b3;
+        }
+
+        /* Dropdown Styles for Part Selection */
+        .dropdown {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .dropdown label {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .dropdown select {
+            padding: 10px;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            border: 2px solid #0074d9;
+            background-color: white;
+            cursor: pointer;
+        }
+        .dropdown select:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        /* Carousel Styles */
+        .carousel {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .carousel-item {
+            padding: 10px;
+            text-align: center;
+        }
+        .part-card {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+            transition: transform 0.2s ease-in-out;
+        }
+        .part-card:hover {
+            transform: translateY(-5px);
+        }
+        .part-card img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .part-card h3 {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #003366;
+            margin: 0;
+        }
+
+        /* Footer (merged from new HTML) */
+        footer {
+            text-align: center;
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            /* position: fixed; /* Removed fixed to allow scrolling */
+            width: 100%;
+            bottom: 0;
+            margin-top: 2rem; /* Add some space above the footer */
+            border-radius: 0.5rem 0.5rem 0 0; /* Rounded top corners */
+        }
+        footer p {
+            margin: 0;
+        }
+        footer a {
+            color: #ffe28a;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1023px) { /* Equivalent to lg breakpoint */
+            #header-main {
+                flex-direction: column;
+                align-items: flex-start;
+                position: relative; /* For hamburger positioning */
+            }
+            #header-main nav {
+                display: none; /* Hide desktop nav on mobile */
+            }
+            .themeHamburger {
+                display: flex; /* Show hamburger on mobile */
+            }
+            .sticky-wrap {
+                display: none !important; /* Hide sticky nav on mobile */
+            }
+        }
+
+        @media (max-width: 767px) { /* Equivalent to md breakpoint */
+            /* .topBannerContent h1 {
+                font-size: 2rem;
+            }
+            .topBannerContent p {
+                font-size: 1rem;
+            } */ /* REMOVED WITH TOP BANNER */
+            .search-container {
+                flex-direction: column;
+            }
+            .dropdown, .search-box, .search-button {
+                min-width: unset; /* Remove min-width for full flexibility */
+                width: 100%; /* Take full width */
+            }
+            .input-group {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
-<body>
-  <div class="card">
-    <h1>🔧 OEM.AUTOS — Factory Original Equipment Index</h1>
-    <p>Explore structured vehicle parts data using the FOE schema.</p>
+<body class="bg-gray-100 font-sans leading-normal text-grey-800">
+    <header>
+        <div id="header-main" class="xl:container flex flex-col lg:flex-row justify-between items-center px-4">
+            <div class="themeMobileNav">
+                <p class="themeMobileTitle">Select Your Vehicle Brand</p>
+                <ul>
+                    <li><a href="https://acura.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Acura</p></a></li>
+                    <li><a href="https://audi.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Audi</p></a></li>
+                    <li><a href="https://bmw.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>BMW</p></a></li>
+                    <li><a href="https://ford.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Ford</p></a></li>
+                    <li><a href="https://g.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>GM</p></a></li>
+                    <li><a href="https://honda.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Honda</p></a></li>
+                    <li><a href="https://hyundai.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Hyundai</p></a></li>
+                    <li><a href="https://infiniti.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Infiniti</p></a></li>
+                    <li><a href="https://jaguar.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Jaguar</p></a></li>
+                    <li><a href="https://kia.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Kia</p></a></li>
+                    <li><a href="https://landrover.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Land Rover</p></a></li>
+                    <li><a href="https://lexus.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Lexus</p></a></li>
+                    <li><a href="https://mazda.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Mazda</p></a></li>
+                    <li><a href="https://mitsubishi.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Mitsubishi</p></a></li>
+                    <li><a href="https://mopar.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Mopar</p></a></li>
+                    <li><a href="https://nissan.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Nissan</p></a></li>
+                    <li><a href="https://porsche.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Porsche</p></a></li>
+                    <li><a href="https://subaru.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Subaru</p></a></li>
+                    <li><a href="https://toyota.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Toyota</p></a></li>
+                    <li><a href="https://vw.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Volkswagen</p></a></li>
+                    <li><a href="https://volvo.oem.autos/?utm_source=splash&amp;utm_medium=main-nav"><p>Volvo</p></a></li>
+                </ul>
+            </div>
+            <div class="themeHamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <a href="./index.html" class="flex flex-col lg:flex-row items-center">
+                <img src="./images/logo.webp" alt="OEMautos Logo" class="rounded">
+                <p class="ml-6">OEMautos</p>
+            </a>
+            <nav>
+                <ul class="flex">
+                    <li class="px-5 py-4">
+                        <a href="./index.html" class="flex items-center group">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 fill-current text-blue-600" viewBox="0 0 20 20">
+                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                            </svg>
+                            <span class="group-hover:opacity-60">Home</span>
+                        </a>
+                    </li>
+                    <li class="px-5 py-4">
+                        <a href="./about.html" class="flex items-center group">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 fill-current text-blue-600" viewBox="0 0 20 20">
+                                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                            </svg>
+                            <span class="group-hover:opacity-60">About</span>
+                        </a>
+                    </li>
+                    <li class="px-5 py-4">
+                        <a href="./contact.html" class="flex items-center group">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 fill-current text-blue-600" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                            </svg>
+                            <span class="group-hover:opacity-60">Contact</span>
+                        </a>
+                    </li>
+                    <li class="px-5 py-4">
+                        <a href="./reviews.html" class="flex items-center group">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 fill-current text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="group-hover:opacity-60">Reviews</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
 
-    <h2>📂 Project Files</h2>
-    <ul>
-      <li><a href="/data/foe.json" download>foe.json</a></li>
-      <li><a href="/data/parts.csv" download>parts.csv</a></li>
-    </ul>
+        <div class="sticky-wrap hidden lg:block">
+            <div id="sticky-nav" class="hidden w-full md:block text-white bg-charcoal">
+                <div class="xl:container mx-auto px-6">
+                    <nav class="w-full">
+                        <ul class="w-full flex items-center justify-center flex-wrap">
+                            <li><a href="https://acura.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Acura</p></a></li>
+                            <li><a href="https://audi.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Audi</p></a></li>
+                            <li><a href="https://bmw.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">BMW</p></a></li>
+                            <li><a href="https://ford.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Ford</p></a></li>
+                            <li><a href="https://g.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">GM</p></a></li>
+                            <li><a href="https://honda.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Honda</p></a></li>
+                            <li><a href="https://hyundai.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Hyundai</p></a></li>
+                            <li><a href="https://infiniti.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Infiniti</p></a></li>
+                            <li><a href="https://jaguar.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Jaguar</p></a></li>
+                            <li><a href="https://kia.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Kia</p></a></li>
+                            <li><a href="https://landrover.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Land Rover</p></a></li>
+                            <li><a href="https://lexus.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Lexus</p></a></li>
+                            <li><a href="https://mazda.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Mazda</p></a></li>
+                            <li><a href="https://mitsubishi.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Mitsubishi</p></a></li>
+                            <li><a href="https://mopar.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Mopar</p></a></li>
+                            <li><a href="https://nissan.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Nissan</p></a></li>
+                            <li><a href="https://porsche.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Porsche</p></a></li>
+                            <li><a href="https://subaru.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Subaru</p></a></li>
+                            <li><a href="https://toyota.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Toyota</p></a></li>
+                            <li><a href="https://vw.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Volkswagen</p></a></li>
+                            <li><a href="https://volvo.oem.autos/?utm_source=splash&amp;utm_medium=main-nav" class="flex flex-col items-center justify-between px-1 xl:px-2 py-2 hover:bg-gray-800 rounded-md group"><p class="text-xs xl:text-sm uppercase font-semibold">Volvo</p></a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="mx-auto flex items-center justify-center">
+        <div id="homepage" class="w-full">
+            <main>
+                <!-- VIN Decoder Section (now the primary content) -->
+                <section class="topPageSection">
+                    <header class="vin-decoder-header">
+                        <h1>Open ROE VIN Decoder & Parts Explorer</h1>
+                        <p>Your source for Open Source Auto Parts Data & Recycling</p>
+                    </header>
+                    <main class="vin-decoder-main">
+                        <div class="input-group">
+                            <input type="text" id="vinInput" placeholder="Enter 17-character VIN..." maxlength="17" class="rounded-md" />
+                            <button id="decodeBtn" class="rounded-md">Decode VIN</button>
+                        </div>
+                        <div id="vehicleInfo"></div>
+                        <h2 class="text-center mt-8 mb-4">Select Auto Parts</h2>
+                        <div class="dropdown-group flex flex-wrap justify-center gap-4 mb-8">
+                            <div class="dropdown">
+                                <label for="location">Location</label>
+                                <select id="location" class="rounded-md">
+                                    <option value="">--Select Location--</option>
+                                    <option value="Engine">Engine</option>
+                                    <option value="Interior">Interior</option>
+                                    <option value="Exterior">Exterior</option>
+                                    <option value="Suspension">Suspension</option>
+                                    <option value="Electrical">Electrical</option>
+                                    <option value="Braking">Braking</option>
+                                </select>
+                            </div>
+                            <div class="dropdown">
+                                <label for="partType">Part Type</label>
+                                <select id="partType" disabled class="rounded-md">
+                                    <option value="">--Select Part Type--</option>
+                                </select>
+                            </div>
+                            <div class="dropdown">
+                                <label for="specificPart">Specific Part</label>
+                                <select id="specificPart" disabled class="rounded-md">
+                                    <option value="">--Select Specific Part--</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="partsCarousel" class="carousel">
+                            <!-- Parts will be populated here -->
+                        </div>
+                        <div id="partsGrid" class="grid"></div>
+                    </main>
+                </section>
+                <!-- End VIN Decoder Section -->
 
-    <h2>💡 About</h2>
-    <p>This site is powered by <strong>GitHub Pages</strong> and serves FOE (Factory Original Equipment) schema outputs generated by our automated scrapers.</p>
+                <!-- Original Page Content from OEMautos (retained for general info) -->
+                <section class="topPageSection">
+                    <div class="topPageContainer">
+                        <div class="topPageContentTitle">
+                            <h2>Shop Genuine Parts </h2>
+                            <p>at Discounted Pricing</p>
+                        </div>
+                        <div class="topPageContent">
+                            <p>At OEMautos, we make it easier to shop for auto parts online. Find the right part at the right price by searching our collection of OEM catalogs by part name, part number, or your VIN. Each brand is powered by our network of dealership parts departments to ensure full inventory availability and fast shipping speeds nationwide.</p><p>Don't wait longer than you need to for your parts , shop with OEMautos today. Select your brand to start shopping!</p>
+                        </div>
+                    </div>
+                </section>
+                <!-- end of Page Content -->
+            </main>
+            <div id="exit-intent-popup" class="popup fixed inset-0 flex items-center justify-center p-4 bg-black bg-opacity-80 z-50">
+                <article id="exit-intent" class="relative bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">Don't Leave Yet!</h3>
+                    <p class="mb-4">Get exclusive discounts on OEM parts when you sign up for our newsletter.</p>
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200 close-button">Sign Up & Save</button>
+                    <button class="text-gray-600 mt-2 block mx-auto close-button">No, thanks</button>
+                </article>
+            </div>
+        </div>
+    </div>
 
-    <h2>📡 APIs (Coming soon)</h2>
-    <pre>
-GET https://oem.autos/api/foe/{vin}
-    </pre>
-  </div>
+    <!-- Combined Footer -->
+    <footer>
+        <p>Open ROE - Open Source Auto Parts Recycling Database | <a href="https://github.com/OpenROE" target="_blank">GitHub Repository</a></p>
+    </footer>
+
+    <!-- jQuery and Slick Carousel CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+
+    <!-- Inlined Custom JavaScript -->
+    <script>
+        // Data for part dropdowns and carousel
+        const partsList = {
+            Engine: {
+                "Sensors": ["Mass Air Flow Sensor", "Throttle Body", "Oil Pressure Sensor"],
+                "Cooling": ["Radiator", "Water Pump", "Thermostat"],
+                "Fuel System": ["Fuel Injector", "Fuel Pump", "Fuel Filter"],
+                "Transmission": ["Torque Converter", "Transmission Cooler", "Transmission Pump"],
+            },
+            Interior: {
+                "Seats": ["Seat (Bucket)", "Seat (Bench)", "Seat Belt"],
+                "Dashboard": ["Instrument Cluster", "Speedometer", "Tachometer"],
+                "Electrical": ["Fuse Box", "Ignition Switch", "Interior Light"],
+                "Controls": ["Shift Lever", "Pedal Cluster", "Steering Wheel"],
+            },
+            Exterior: {
+                "Body Panels": ["Fender", "Door", "Hood", "Trunk"],
+                "Mirrors": ["Side View Mirror", "Interior Mirror"],
+                "Lights": ["Headlight", "Tail Light", "Fog Light"],
+                "Glass": ["Windshield", "Side Window", "Rear Window"],
+            },
+            Suspension: {
+                "Arms": ["Control Arm (Front)", "Lower Control Arm (Rear)"],
+                "Shocks": ["Shock Absorber", "Strut Mount"],
+                "Steering": ["Steering Column", "Steering Rack", "Steering Knuckle"],
+            },
+            Electrical: {
+                "Control Units": ["Body Control Module", "Engine Control Module"],
+                "Sensors": ["ABS Sensor", "Airbag Sensor", "Speed Sensor"],
+                "Motors": ["Wiper Motor", "Window Motor", "Blower Motor"],
+            },
+            Braking: {
+                "Components": ["Brake Caliper", "Brake Rotor", "Brake Pads"],
+                "System Parts": ["Master Cylinder", "Brake Booster", "ABS Module"],
+            }
+        };
+
+        // DOM elements for VIN Decoder and Part Selection
+        const vinInput = document.getElementById("vinInput");
+        const decodeBtn = document.getElementById("decodeBtn");
+        const vehicleInfo = document.getElementById("vehicleInfo");
+        const partsGrid = document.getElementById("partsGrid");
+        const locationDropdown = document.getElementById('location');
+        const partTypeDropdown = document.getElementById('partType');
+        const specificPartDropdown = document.getElementById('specificPart');
+        const partsCarousel = document.getElementById('partsCarousel');
+
+        // Event listener for VIN Decode button
+        decodeBtn.addEventListener("click", () => {
+            const vin = vinInput.value.trim().toUpperCase();
+            if (vin.length !== 17) {
+                vehicleInfo.innerHTML = '<p class="error">VIN must be exactly 17 characters.</p>';
+                partsGrid.innerHTML = '';
+                // Destroy slick carousel if it exists before clearing
+                if ($(partsCarousel).hasClass('slick-initialized')) {
+                    $(partsCarousel).slick('unslick');
+                }
+                partsCarousel.innerHTML = '';
+                return;
+            }
+            decodeVIN(vin);
+        });
+
+        // Function to decode VIN using NHTSA API
+        async function decodeVIN(vin) {
+            vehicleInfo.innerHTML = "<p>Loading vehicle info...</p>";
+            partsGrid.innerHTML = "";
+            // Destroy slick carousel if it exists before clearing
+            if ($(partsCarousel).hasClass('slick-initialized')) {
+                $(partsCarousel).slick('unslick');
+            }
+            partsCarousel.innerHTML = '';
+
+
+            try {
+                const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`);
+                const json = await res.json();
+                const data = json.Results[0];
+                const make = data.Make || "Unknown";
+                const model = data.Model || "Unknown";
+                const year = data.ModelYear || "Unknown";
+                // Extract WMI, VDS, VIS from VIN
+                const wmi = vin.slice(0, 3);
+                const vds = vin.slice(3, 9);
+                const vis = vin.slice(9);
+
+                vehicleInfo.innerHTML = `
+                    <h2>${make} ${model} (${year})</h2>
+                    <p><strong>WMI:</strong> ${wmi} | <strong>VDS:</strong> ${vds} | <strong>VIS:</strong> ${vis}</p>
+                `;
+
+                // Generate example parts for the grid based on decoded VIN
+                generateExamplePartsGrid(make, wmi);
+
+            } catch (err) {
+                console.error("Error decoding VIN:", err);
+                vehicleInfo.innerHTML = '<p class="error">Failed to fetch vehicle data. Please check your VIN or try again later.</p>';
+            }
+        }
+
+        // Function to generate and display example parts in the grid
+        function generateExamplePartsGrid(make, wmi) {
+            const exampleParts = [
+                { code: "AWZ", name: "Windshield Washer Zone", category: "Exterior", ebay: "https://www.ebay.com/sch/i.html?_nkw=windshield+washer+zone" },
+                { code: "BDY", name: "Front Body Panel", category: "Body", ebay: "https://www.ebay.com/sch/i.html?_nkw=front+body+panel" },
+                { code: "DRL", name: "Daytime Running Light", category: "Electrical", ebay: "https://www.ebay.com/sch/i.html?_nkw=daytime+running+light" },
+                { code: "ENB", name: "Engine Block", category: "Engine", ebay: "https://www.ebay.com/sch/i.html?_nkw=engine+block" },
+                { code: "TRN", name: "Transmission Unit", category: "Transmission", ebay: "https://www.ebay.com/sch/i.html?_nkw=transmission+unit" },
+                { code: "RAX", name: "Rear Axle Assembly", category: "Suspension", ebay: "https://www.ebay.com/sch/i.html?_nkw=rear+axle+assembly" },
+                { code: "SRS", name: "Airbag System", category: "Safety", ebay: "https://www.ebay.com/sch/i.html?_nkw=airbag+system" },
+                { code: "EXH", name: "Exhaust Manifold", category: "Exhaust", ebay: "https://www.ebay.com/sch/i.html?_nkw=exhaust+manifold" }
+            ];
+
+            partsGrid.innerHTML = ""; // Clear existing grid content
+            exampleParts.forEach(part => {
+                const code = `${wmi}-${part.code}`;
+                const img = `https://placehold.co/300x150/003366/FFFFFF?text=${encodeURIComponent(part.code)}`; // Updated placeholder for better contrast
+
+                const card = document.createElement("div");
+                card.className = "card rounded-md"; // Added rounded-md class
+                card.innerHTML = `
+                    <a href="${part.ebay}" target="_blank" title="Search ${part.name} on eBay">
+                        <img src="${img}" alt="${part.name}" class="rounded-t-md" />
+                        <div class="caption">
+                            <strong>${code}</strong><br />
+                            <span>${part.name}</span><br />
+                            <span class="tag rounded-md">${part.category}</span>
+                        </div>
+                    </a>
+                `;
+                partsGrid.appendChild(card);
+            });
+        }
+
+        // Update part type dropdown based on selected location
+        locationDropdown.addEventListener('change', function() {
+            const selectedLocation = locationDropdown.value;
+            partTypeDropdown.innerHTML = '<option value="">--Select Part Type--</option>';
+            specificPartDropdown.innerHTML = '<option value="">--Select Specific Part--</option>';
+            specificPartDropdown.disabled = true;
+
+            // Destroy slick carousel if it exists before updating
+            if ($(partsCarousel).hasClass('slick-initialized')) {
+                $(partsCarousel).slick('unslick');
+            }
+            partsCarousel.innerHTML = ''; // Clear carousel content
+
+            if (selectedLocation) {
+                partTypeDropdown.disabled = false;
+                for (const partType in partsList[selectedLocation]) {
+                    const option = document.createElement('option');
+                    option.value = partType;
+                    option.textContent = partType;
+                    partTypeDropdown.appendChild(option);
+                }
+                // Display all parts for the selected location in the carousel initially
+                const allPartsForLocation = [];
+                for (const type in partsList[selectedLocation]) {
+                    allPartsForLocation.push(...partsList[selectedLocation][type]);
+                }
+                fetchPartsAndDisplay(allPartsForLocation);
+            } else {
+                partTypeDropdown.disabled = true;
+            }
+        });
+
+        // Update specific part dropdown based on selected part type
+        partTypeDropdown.addEventListener('change', function() {
+            const selectedLocation = locationDropdown.value;
+            const selectedPartType = partTypeDropdown.value;
+            specificPartDropdown.innerHTML = '<option value="">--Select Specific Part--</option>';
+
+            // Destroy slick carousel if it exists before updating
+            if ($(partsCarousel).hasClass('slick-initialized')) {
+                $(partsCarousel).slick('unslick');
+            }
+            partsCarousel.innerHTML = ''; // Clear carousel content
+
+            if (selectedPartType) {
+                specificPartDropdown.disabled = false;
+                const parts = partsList[selectedLocation][selectedPartType];
+                parts.forEach(part => {
+                    const option = document.createElement('option');
+                    option.value = part;
+                    option.textContent = part;
+                    specificPartDropdown.appendChild(option);
+                });
+                fetchPartsAndDisplay(parts); // Display parts for the selected type in carousel
+            } else {
+                specificPartDropdown.disabled = true;
+                // If part type is cleared, show all parts for the selected location again
+                const allPartsForLocation = [];
+                if (selectedLocation) {
+                    for (const type in partsList[selectedLocation]) {
+                        allPartsForLocation.push(...partsList[selectedLocation][type]);
+                    }
+                }
+                fetchPartsAndDisplay(allPartsForLocation);
+            }
+        });
+
+        // Update carousel based on specific part selection (optional, as carousel already updates on partType change)
+        specificPartDropdown.addEventListener('change', function() {
+            const selectedPart = specificPartDropdown.value;
+            // Destroy slick carousel if it exists before updating
+            if ($(partsCarousel).hasClass('slick-initialized')) {
+                $(partsCarousel).slick('unslick');
+            }
+            partsCarousel.innerHTML = ''; // Clear carousel content
+
+            if (selectedPart) {
+                fetchPartsAndDisplay([selectedPart]); // Display only the selected specific part
+            } else {
+                // If specific part is cleared, revert to showing all parts for the selected part type
+                const selectedLocation = locationDropdown.value;
+                const selectedPartType = partTypeDropdown.value;
+                if (selectedLocation && selectedPartType) {
+                    fetchPartsAndDisplay(partsList[selectedLocation][selectedPartType]);
+                } else if (selectedLocation) {
+                    const allPartsForLocation = [];
+                    for (const type in partsList[selectedLocation]) {
+                        allPartsForLocation.push(...partsList[selectedLocation][type]);
+                    }
+                    fetchPartsAndDisplay(allPartsForLocation);
+                }
+            }
+        });
+
+        // Function to fetch and display parts carousel
+        function fetchPartsAndDisplay(parts) {
+            // Destroy slick carousel if it's already initialized
+            if ($(partsCarousel).hasClass('slick-initialized')) {
+                $(partsCarousel).slick('unslick');
+            }
+            partsCarousel.innerHTML = ''; // Clear existing content
+
+            if (parts.length === 0) {
+                partsCarousel.innerHTML = '<p class="text-center text-gray-600">No parts found for this selection.</p>';
+                return;
+            }
+
+            parts.forEach(part => {
+                const partElement = document.createElement('div');
+                partElement.classList.add('carousel-item');
+                partElement.innerHTML = `
+                    <div class="part-card rounded-md">
+                        <img src="https://placehold.co/150x100/0074d9/FFFFFF?text=${encodeURIComponent(part)}" alt="${part}" class="rounded-md">
+                        <h3 class="mt-2">${part}</h3>
+                        <a href="https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(part)}" target="_blank" class="ebay-link">Search on eBay</a>
+                    </div>
+                `;
+                partsCarousel.appendChild(partElement);
+            });
+
+            // Initialize the slick carousel
+            // Use a timeout to ensure DOM is ready for Slick
+            setTimeout(() => {
+                $(partsCarousel).slick({
+                    slidesToShow: 3,
+                    slidesToScroll: 1,
+                    infinite: true,
+                    dots: true,
+                    autoplay: true,
+                    autoplaySpeed: 2000,
+                    responsive: [
+                        {
+                            breakpoint: 1024,
+                            settings: {
+                                slidesToShow: 2,
+                                slidesToScroll: 1,
+                                infinite: true,
+                                dots: true
+                            }
+                        },
+                        {
+                            breakpoint: 600,
+                            settings: {
+                                slidesToShow: 1,
+                                slidesToScroll: 1
+                            }
+                        }
+                    ]
+                });
+            }, 100); // Small delay
+        }
+
+        // Initial display of parts in carousel (e.g., all engine parts)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initial display of example parts in the grid
+            generateExamplePartsGrid("VIN", "WMI"); // Placeholder values until VIN is decoded
+
+            // Initial display for carousel, e.g., all engine parts
+            const initialLocation = "Engine";
+            if (partsList[initialLocation]) {
+                const allPartsForInitialLocation = [];
+                for (const type in partsList[initialLocation]) {
+                    allPartsForInitialLocation.push(...partsList[initialLocation][type]);
+                }
+                fetchPartsAndDisplay(allPartsForInitialLocation);
+            }
+        });
+
+
+        // Original OEMautos JavaScript (mobile nav, sticky header, exit intent)
+
+        // Toggle mobile navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburger = document.querySelector('.themeHamburger');
+            const mobileNav = document.querySelector('.themeMobileNav');
+            if (hamburger && mobileNav) {
+                hamburger.addEventListener('click', function() {
+                    mobileNav.classList.toggle('active');
+                });
+            }
+
+            // Sticky header logic
+            const stickyWrap = document.querySelector('.sticky-wrap');
+            const stickyNav = document.getElementById('sticky-nav');
+
+            if (stickyWrap && stickyNav) {
+                window.addEventListener('scroll', function() {
+                    if (window.scrollY > stickyWrap.offsetTop) {
+                        stickyNav.classList.remove('hidden');
+                        stickyNav.classList.add('fixed', 'top-0', 'left-0', 'right-0', 'z-40');
+                    } else {
+                        stickyNav.classList.add('hidden');
+                        stickyNav.classList.remove('fixed', 'top-0', 'left-0', 'right-0', 'z-40');
+                    }
+                });
+            }
+
+            // Exit intent popup logic
+            const exitIntentPopup = document.getElementById('exit-intent-popup');
+            let showingPopup = false;
+            let mouseX = 0;
+            let mouseY = 0;
+
+            document.addEventListener('mousemove', function(e) {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            document.addEventListener('mouseout', function(e) {
+                // Only trigger if mouse leaves from the top of the viewport and popup not already shown
+                if (e.relatedTarget === null && !showingPopup && mouseY < 50) {
+                    if (exitIntentPopup) {
+                        exitIntentPopup.style.display = 'flex';
+                        showingPopup = true;
+                    }
+                }
+            });
+
+            if (exitIntentPopup) {
+                exitIntentPopup.addEventListener('click', function(e) {
+                    // Close popup if clicked on the overlay or a button with 'close-button' class
+                    if (e.target === this || e.target.closest('.close-button')) {
+                        exitIntentPopup.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+
+        // Original OEMautos Search functionality (simulated) - THIS IS NO LONGER USED
+        // function performSearch() {
+        //     const brand = document.getElementById('brandDropdown').value;
+        //     const searchTerm = document.getElementById('searchInput').value.trim();
+        //     const errorMessage = document.getElementById('error-message');
+        //     const loadingIcon = document.getElementById('loadingIcon');
+
+        //     errorMessage.style.display = 'none';
+        //     loadingIcon.style.display = 'none';
+
+        //     if (!brand || !searchTerm) {
+        //         errorMessage.style.display = 'block';
+        //         return;
+        //     }
+
+        //     loadingIcon.style.display = 'flex';
+
+        //     setTimeout(() => {
+        //         loadingIcon.style.display = 'none';
+        //         console.log(`Simulated search for "${searchTerm}" in brand "${brand}".`);
+        //         alert(`Search initiated for: "${searchTerm}" for brand: "${brand}". In a full static catalog, this would load results from pre-generated data.`);
+        //     }, 2000);
+        // }
+    </script>
 </body>
 </html>
