@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Apple Pay Prank</title>
+  <link rel="manifest" href="manifest.json">
   <style>
     body {
       margin: 0;
@@ -30,7 +31,7 @@
       background: #000;
     }
 
-    #card, #amount, #label, #finessed {
+    #card, #amount, #label, #finessed, #faceid {
       position: relative;
       z-index: 1;
     }
@@ -43,17 +44,9 @@
       transform: scale(0.8) translateY(20px);
       transition: opacity 0.25s ease, transform 0.25s ease;
     }
-
     #amount.show {
       opacity: 1;
       transform: scale(1) translateY(0);
-      animation: pulse 0.6s ease forwards;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.15); }
-      100% { transform: scale(1); }
     }
 
     #label {
@@ -62,7 +55,6 @@
       margin-top: 0.5rem;
       animation: fadeIn 1s ease forwards;
     }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 0.4; transform: translateY(0); }
@@ -81,44 +73,14 @@
       transform: perspective(800px) rotateY(90deg) scale(0.9);
       transition: transform 0.6s cubic-bezier(.4,.0,.2,1), opacity 0.6s ease;
     }
-
     #card.show {
       opacity: 1;
       transform: perspective(800px) rotateY(0deg) scale(1);
       animation: glow 2s infinite alternate;
     }
-
     @keyframes glow {
       from { box-shadow: 0 0 10px rgba(0,255,0,0.3), 0 0 20px rgba(0,255,0,0.2); }
       to { box-shadow: 0 0 20px rgba(0,255,0,0.6), 0 0 40px rgba(0,255,0,0.3); }
-    }
-
-    #card.wobble {
-      animation: wobble 0.6s ease;
-    }
-
-    @keyframes wobble {
-      0%   { transform: rotateZ(0deg) scale(1); }
-      25%  { transform: rotateZ(-3deg) scale(1.02); }
-      50%  { transform: rotateZ(3deg) scale(1.02); }
-      75%  { transform: rotateZ(-2deg) scale(1.01); }
-      100% { transform: rotateZ(0deg) scale(1); }
-    }
-
-    #card::before {
-      content: "";
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.18), transparent 70%);
-      animation: rotate 8s linear infinite;
-    }
-
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
     }
 
     .chip {
@@ -151,27 +113,32 @@
       -webkit-text-fill-color: transparent;
     }
 
-    .ripple {
+    /* Fake FaceID */
+    #faceid {
       position: absolute;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.2);
-      transform: scale(0);
-      animation: ripple 0.6s linear forwards;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3rem;
+      font-weight: bold;
+      color: #0f0;
+      opacity: 0;
       pointer-events: none;
+      transition: opacity 0.5s ease;
+      z-index: 10;
     }
-
-    @keyframes ripple {
-      to {
-        transform: scale(4);
-        opacity: 0;
-      }
+    #faceid.show {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     /* Finessed message */
     #finessed {
       position: absolute;
-      top: 50%;
-      left: 50%;
+      top: 50%; left: 50%;
       transform: translate(-50%, -50%) scale(0);
       font-size: 3rem;
       font-weight: 900;
@@ -181,11 +148,9 @@
       z-index: 5;
       pointer-events: none;
     }
-
     #finessed.show {
       animation: finessedAnim 2s ease forwards;
     }
-
     @keyframes finessedAnim {
       0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
       50%  { transform: translate(-50%, -50%) scale(1.3) rotate(-5deg); opacity: 1; }
@@ -206,99 +171,102 @@
 
   <div id="amount">$0.00</div>
   <div id="label">Tap to pay</div>
-
+  <div id="faceid">🔒 Scanning Face ID...</div>
   <div id="finessed">YOU JUST GOT FINESSED 💸</div>
 
   <audio id="ding" src="https://www.myinstants.com/media/sounds/applepay.mp3" preload="auto"></audio>
 
   <script>
-    let amount = 0;
     let tapCount = 0;
     const display = document.getElementById("amount");
     const chime = document.getElementById("ding");
     const card = document.getElementById("card");
     const finessed = document.getElementById("finessed");
+    const faceid = document.getElementById("faceid");
 
-    document.body.addEventListener("click", (e) => {
-      tapCount++;
-
-      // Instant chime
-      chime.currentTime = 0;
-      chime.play().catch(()=>{}); 
-
-      // Vibration
-      if (navigator.vibrate) navigator.vibrate([60,30,60]);
-
-      // Ripple effect
-      const ripple = document.createElement("div");
-      ripple.className = "ripple";
-      ripple.style.left = `${e.clientX - 50}px`;
-      ripple.style.top = `${e.clientY - 50}px`;
-      ripple.style.width = ripple.style.height = "100px";
-      document.body.appendChild(ripple);
-      setTimeout(()=> ripple.remove(), 600);
-
-      // Card wobble
-      card.classList.add("wobble");
-      setTimeout(()=> card.classList.remove("wobble"), 600);
-
-      // Show card if not already visible
-      card.classList.add("show");
-
-      // Randomized transaction amount
-      const amounts = [4.99, 9.99, 14.50, 19.99, 24.00, 49.99, 79.00, 129.99, 199.00];
-      const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
-      amount = randomAmount;
-      display.textContent = `$${amount.toFixed(2)}`;
-      display.classList.remove("show");
-      void display.offsetWidth; // restart animation
-      display.classList.add("show");
-
-      // Show finessed after 5 taps
-      if (tapCount === 5) {
-        finessed.classList.add("show");
+    function animateAmount(finalValue) {
+      let current = 0;
+      const step = Math.max(1, finalValue / 30);
+      function tick() {
+        current += step;
+        if (current >= finalValue) {
+          display.textContent = `$${finalValue.toFixed(2)}`;
+          return;
+        }
+        display.textContent = `$${current.toFixed(2)}`;
+        requestAnimationFrame(tick);
       }
-    });
-
-    // Hide "Tap to pay" if PWA installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      document.getElementById('label').style.display = 'none';
+      tick();
     }
 
-    // Matrix rain background
+    document.body.addEventListener("click", () => {
+      tapCount++;
+      // play sound
+      chime.currentTime = 0;
+      chime.play().catch(()=>{});
+
+      // vibrate
+      if (navigator.vibrate) navigator.vibrate([60,30,60]);
+
+      // show card
+      card.classList.add("show");
+
+      // Fake Face ID before showing amount
+      faceid.classList.add("show");
+      setTimeout(() => {
+        faceid.classList.remove("show");
+
+        const amounts = [4.99, 9.99, 14.50, 19.99, 24.00, 49.99, 79.00, 129.99, 199.00];
+        const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
+
+        display.classList.remove("show");
+        void display.offsetWidth;
+        display.classList.add("show");
+        animateAmount(randomAmount);
+
+        if (tapCount === 5) finessed.classList.add("show");
+      }, 1500);
+    });
+
+    // 3D tilt
+    document.addEventListener("mousemove", e => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 20;
+      const y = (e.clientY / window.innerHeight - 0.5) * -20;
+      card.style.transform = `perspective(800px) rotateY(${x}deg) rotateX(${y}deg)`;
+    });
+
+    // Matrix rain with requestAnimationFrame
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
     canvas.height = window.innerHeight;
     canvas.width = window.innerWidth;
-
     const letters = "01";
     const fontSize = 16;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
-
     function draw() {
       ctx.fillStyle = "rgba(0,0,0,0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
       ctx.fillStyle = "#0f0";
       ctx.font = fontSize + "px monospace";
-
       for (let i = 0; i < drops.length; i++) {
         const text = letters.charAt(Math.floor(Math.random() * letters.length));
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
       }
+      requestAnimationFrame(draw);
     }
-    setInterval(draw, 35);
-
+    draw();
     window.addEventListener("resize", () => {
       canvas.height = window.innerHeight;
       canvas.width = window.innerWidth;
     });
+
+    // PWA: hide label
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      document.getElementById('label').style.display = 'none';
+    }
   </script>
 </body>
 </html>
