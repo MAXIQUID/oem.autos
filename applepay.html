@@ -30,7 +30,7 @@
       background: #000;
     }
 
-    #card, #amount, #label {
+    #card, #amount, #label, #finessed {
       position: relative;
       z-index: 1;
     }
@@ -166,6 +166,32 @@
         opacity: 0;
       }
     }
+
+    /* Finessed message */
+    #finessed {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      font-size: 3rem;
+      font-weight: 900;
+      color: #0f0;
+      text-shadow: 0 0 10px #0f0, 0 0 20px #0f0, 0 0 40px #0f0;
+      opacity: 0;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    #finessed.show {
+      animation: finessedAnim 2s ease forwards;
+    }
+
+    @keyframes finessedAnim {
+      0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      50%  { transform: translate(-50%, -50%) scale(1.3) rotate(-5deg); opacity: 1; }
+      70%  { transform: translate(-50%, -50%) scale(1) rotate(5deg); }
+      100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+    }
   </style>
 </head>
 <body>
@@ -181,15 +207,21 @@
   <div id="amount">$0.00</div>
   <div id="label">Tap to pay</div>
 
+  <div id="finessed">YOU JUST GOT FINESSED 💸</div>
+
   <audio id="ding" src="https://www.myinstants.com/media/sounds/applepay.mp3" preload="auto"></audio>
 
   <script>
     let amount = 0;
+    let tapCount = 0;
     const display = document.getElementById("amount");
     const chime = document.getElementById("ding");
     const card = document.getElementById("card");
+    const finessed = document.getElementById("finessed");
 
     document.body.addEventListener("click", (e) => {
+      tapCount++;
+
       // Instant chime
       chime.currentTime = 0;
       chime.play().catch(()=>{}); 
@@ -221,6 +253,11 @@
       display.classList.remove("show");
       void display.offsetWidth; // restart animation
       display.classList.add("show");
+
+      // Show finessed after 5 taps
+      if (tapCount === 5) {
+        finessed.classList.add("show");
+      }
     });
 
     // Hide "Tap to pay" if PWA installed
