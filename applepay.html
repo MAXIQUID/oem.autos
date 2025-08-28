@@ -33,7 +33,6 @@
       z-index: 1;
     }
 
-    /* Amount */
     #amount {
       font-size: 4rem;
       font-weight: 600;
@@ -58,7 +57,6 @@
       to   { opacity: 0.4; transform: translateY(0); }
     }
 
-    /* Card */
     #card {
       width: 300px; height: 180px;
       background: linear-gradient(135deg, #333, #111);
@@ -80,7 +78,6 @@
       to   { box-shadow: 0 0 20px rgba(0,255,0,0.6), 0 0 40px rgba(0,255,0,0.3); }
     }
 
-    /* Card shine */
     #card::after {
       content: "";
       position: absolute;
@@ -122,7 +119,6 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* Fake FaceID */
     #faceid {
       position: absolute;
       top: 0; left: 0;
@@ -162,7 +158,6 @@
       50% { opacity: 1; transform: scale(1.2); }
     }
 
-    /* Finessed message */
     #finessed {
       position: absolute;
       top: 50%; left: 50%;
@@ -196,7 +191,7 @@
     <div class="logo">VISA</div>
   </div>
 
-  <div id="amount">$0.00</div>
+  <div id="amount">+$0.00</div>
   <div id="label">Tap to pay</div>
 
   <div id="faceid">
@@ -210,39 +205,26 @@
 
   <div id="finessed">YOU JUST GOT FINESSED 💸</div>
 
+  <audio id="ding" src="https://www.myinstants.com/media/sounds/applepay.mp3" preload="auto"></audio>
+
   <script>
     let tapCount = 0;
     const display = document.getElementById("amount");
+    const chime = document.getElementById("ding");
     const card = document.getElementById("card");
     const finessed = document.getElementById("finessed");
     const faceid = document.getElementById("faceid");
 
-    // Web Audio API for instant chime
-    let ctx = new (window.AudioContext || window.webkitAudioContext)();
-    let chimeBuffer = null;
-    fetch("https://www.myinstants.com/media/sounds/applepay.mp3")
-      .then(r=>r.arrayBuffer())
-      .then(d=>ctx.decodeAudioData(d))
-      .then(b=>{chimeBuffer=b});
-
-    function playChime(){
-      if (!chimeBuffer) return;
-      let src = ctx.createBufferSource();
-      src.buffer = chimeBuffer;
-      src.connect(ctx.destination);
-      src.start(0);
-    }
-
     function animateAmount(finalValue) {
       let current = 0;
-      const step = Math.max(1, finalValue / 30);
+      const step = Math.max(0.5, finalValue / 40);
       function tick() {
         current += step;
         if (current >= finalValue) {
-          display.textContent = `$${finalValue.toFixed(2)}`;
+          display.textContent = `+$${finalValue.toFixed(2)}`;
           return;
         }
-        display.textContent = `$${current.toFixed(2)}`;
+        display.textContent = `+$${current.toFixed(2)}`;
         requestAnimationFrame(tick);
       }
       tick();
@@ -250,7 +232,9 @@
 
     document.body.addEventListener("click", () => {
       tapCount++;
-      playChime();
+
+      chime.currentTime = 0;
+      chime.play().catch(()=>{});
 
       if (navigator.vibrate) navigator.vibrate([50,30,80,30,50]);
 
@@ -283,7 +267,7 @@
 
     // Matrix rain
     const canvas = document.getElementById("matrix");
-    const ctx2d = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
     canvas.height = window.innerHeight;
     canvas.width = window.innerWidth;
     const letters = "アカサタナハマヤラワ0123456789";
@@ -292,13 +276,13 @@
     const drops = Array(Math.floor(columns)).fill(1);
 
     function draw() {
-      ctx2d.fillStyle = "rgba(0,0,0,0.05)";
-      ctx2d.fillRect(0,0,canvas.width,canvas.height);
-      ctx2d.fillStyle = "#0f0";
-      ctx2d.font = fontSize + "px monospace";
+      ctx.fillStyle = "rgba(0,0,0,0.05)";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = "#0f0";
+      ctx.font = fontSize + "px monospace";
       for (let i=0; i<drops.length; i++) {
         const text = letters.charAt(Math.floor(Math.random()*letters.length));
-        ctx2d.fillText(text, i*fontSize, drops[i]*fontSize);
+        ctx.fillText(text, i*fontSize, drops[i]*fontSize);
         if (drops[i]*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
       }
