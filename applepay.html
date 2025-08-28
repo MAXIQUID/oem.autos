@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Apple Pay Prank</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      touch-action: manipulation;
+      position: relative;
+    }
+
+    canvas#matrix {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      background: #000;
+    }
+
+    #card, #amount, #label {
+      position: relative;
+      z-index: 1;
+    }
+
+    #amount {
+      font-size: 4rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      transform: scale(0.8) translateY(20px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    #amount.show {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      animation: pulse 0.6s ease forwards;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    #label {
+      font-size: 1.2rem;
+      opacity: 0.4;
+      margin-top: 0.5rem;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 0.4; transform: translateY(0); }
+    }
+
+    #card {
+      width: 300px;
+      height: 180px;
+      background: linear-gradient(135deg, #333, #111);
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+      opacity: 0;
+      transform: perspective(800px) rotateY(90deg) scale(0.9);
+      transition: transform 0.6s cubic-bezier(.4,.0,.2,1), opacity 0.6s ease;
+    }
+
+    #card.show {
+      opacity: 1;
+      transform: perspective(800px) rotateY(0deg) scale(1);
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 10px rgba(0,255,0,0.3), 0 0 20px rgba(0,255,0,0.2); }
+      to { box-shadow: 0 0 20px rgba(0,255,0,0.6), 0 0 40px rgba(0,255,0,0.3); }
+    }
+
+    #card.wobble {
+      animation: wobble 0.6s ease;
+    }
+
+    @keyframes wobble {
+      0%   { transform: rotateZ(0deg) scale(1); }
+      25%  { transform: rotateZ(-3deg) scale(1.02); }
+      50%  { transform: rotateZ(3deg) scale(1.02); }
+      75%  { transform: rotateZ(-2deg) scale(1.01); }
+      100% { transform: rotateZ(0deg) scale(1); }
+    }
+
+    #card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.18), transparent 70%);
+      animation: rotate 8s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .chip {
+      width: 44px;
+      height: 32px;
+      background: linear-gradient(145deg, #f8e27a, #d1a000);
+      border-radius: 6px;
+      margin: 20px;
+      box-shadow: 0 0 8px rgba(255,215,0,0.5);
+    }
+
+    .number {
+      position: absolute;
+      bottom: 42px;
+      left: 22px;
+      font-size: 1.25rem;
+      letter-spacing: 2px;
+      color: #ddd;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    }
+
+    .logo {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      font-weight: bold;
+      font-size: 1.5rem;
+      background: linear-gradient(45deg, #06f, #0af);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transform: scale(0);
+      animation: ripple 0.6s linear forwards;
+      pointer-events: none;
+    }
+
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="matrix"></canvas>
+
+  <div id="card">
+    <div class="chip"></div>
+    <div class="number">•••• •••• •••• 1234</div>
+    <div class="logo">VISA</div>
+  </div>
+
+  <div id="amount">$0.00</div>
+  <div id="label">Tap to pay</div>
+
+  <audio id="ding" src="https://www.myinstants.com/media/sounds/applepay.mp3" preload="auto"></audio>
+
+  <script>
+    let amount = 0;
+    const display = document.getElementById("amount");
+    const chime = document.getElementById("ding");
+    const card = document.getElementById("card");
+
+    document.body.addEventListener("click", (e) => {
+      // Instant chime
+      chime.currentTime = 0;
+      chime.play().catch(()=>{}); 
+
+      // Vibration
+      if (navigator.vibrate) navigator.vibrate([60,30,60]);
+
+      // Ripple effect
+      const ripple = document.createElement("div");
+      ripple.className = "ripple";
+      ripple.style.left = `${e.clientX - 50}px`;
+      ripple.style.top = `${e.clientY - 50}px`;
+      ripple.style.width = ripple.style.height = "100px";
+      document.body.appendChild(ripple);
+      setTimeout(()=> ripple.remove(), 600);
+
+      // Card wobble
+      card.classList.add("wobble");
+      setTimeout(()=> card.classList.remove("wobble"), 600);
+
+      // Show card if not already visible
+      card.classList.add("show");
+
+      // Randomized transaction amount
+      const amounts = [4.99, 9.99, 14.50, 19.99, 24.00, 49.99, 79.00, 129.99, 199.00];
+      const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
+      amount = randomAmount;
+      display.textContent = `$${amount.toFixed(2)}`;
+      display.classList.remove("show");
+      void display.offsetWidth; // restart animation
+      display.classList.add("show");
+    });
+
+    // Hide "Tap to pay" if PWA installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      document.getElementById('label').style.display = 'none';
+    }
+
+    // Matrix rain background
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+
+    const letters = "01";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function draw() {
+      ctx.fillStyle = "rgba(0,0,0,0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#0f0";
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters.charAt(Math.floor(Math.random() * letters.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+    setInterval(draw, 35);
+
+    window.addEventListener("resize", () => {
+      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+    });
+  </script>
+</body>
+</html>
