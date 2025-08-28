@@ -1,465 +1,387 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title>Apple Pay Prank — Ultra</title>
-<meta name="theme-color" content="#000000" />
-<style>
-  :root{
-    --rx: 0deg;
-    --ry: 0deg;
-    --rz: 0deg;
-    --scale: 1;
-    --card-w: 320px;
-    --card-h: 200px;
-    --glow: 0.35;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Apple Pay Meme Prank</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      touch-action: manipulation;
+    }
 
-  /* Base layout */
-  html,body{
-    height:100%;
-    background:#000;
-    color:#fff;
-    margin:0;
-    font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-    overflow:hidden;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    touch-action: manipulation;
-  }
-  .stage{
-    position:relative;
-    height:100%;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:1rem;
-  }
+    canvas#matrix {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      z-index: 0;
+    }
 
-  /* Background matrix */
-  canvas#matrix{
-    position:fixed; inset:0;
-    width:100%; height:100%;
-    z-index:0;
-    background:#000;
-  }
+    #card, #amount, #label, #finessed, #faceid {
+      position: relative;
+      z-index: 1;
+    }
 
-  /* Amount / label */
-  #amount{
-    font-size: clamp(2.6rem, 5vw, 4rem);
-    font-weight:700;
-    letter-spacing: .5px;
-    opacity:0;
-    transform: translateY(10px) scale(.98);
-    transition: opacity .28s ease, transform .28s ease;
-    z-index:2;
-  }
-  #amount.show{ opacity:1; transform: translateY(0) scale(1); }
+    #amount {
+      font-size: 4rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      transform: scale(0.8) translateY(20px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    #amount.show {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
 
-  #label{
-    font-size:1.05rem;
-    opacity:.45;
-    z-index:2;
-    user-select:none;
-  }
+    #label {
+      font-size: 1.2rem;
+      opacity: 0.4;
+      margin-top: 0.5rem;
+      animation: fadeIn 1s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 0.4; transform: translateY(0); }
+    }
 
-  /* Realistic 3D card */
-  .card-wrap{
-    width: var(--card-w);
-    height: var(--card-h);
-    perspective: 1100px;
-    z-index:2;
-  }
-  #card{
-    width:100%; height:100%;
-    border-radius: 18px;
-    position:relative;
-    overflow:hidden;
-    transform-style:preserve-3d;
-    transform: translateZ(0) perspective(1100px)
-               rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz))
-               scale(var(--scale));
-    transition: transform .6s cubic-bezier(.4,0,.2,1), opacity .6s ease, box-shadow .4s ease;
-    opacity:0;
-    box-shadow:
-      0 10px 25px rgba(0,0,0,.55),
-      0 0 0 1px rgba(255,255,255,.05) inset;
-    will-change: transform;
-    /* Brushed metal + color shift base */
-    background:
-      /* microtexture */
-      repeating-linear-gradient( 0deg, rgba(255,255,255,.04) 0 1px, transparent 1px 2px),
-      /* subtle vignette */
-      radial-gradient(120% 120% at 80% 10%, rgba(255,255,255,.12), rgba(255,255,255,0) 55%),
-      /* color banding */
-      linear-gradient(135deg, #0a0a0a, #121212 30%, #0e1a2a 55%, #081d15 78%, #111 100%);
-  }
-  #card.show{ opacity:1; }
+    #card {
+      width: 340px; height: 200px;
+      background: linear-gradient(135deg, #1c1c1c, #000);
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 2rem;
+      opacity: 0;
+      transform: perspective(800px) rotateY(90deg) scale(0.9);
+      transition: transform 0.6s cubic-bezier(.4,.0,.2,1), opacity 0.6s ease;
+    }
+    #card.show {
+      opacity: 1;
+      transform: perspective(800px) rotateY(0deg) scale(1);
+      animation: glow 2s infinite alternate;
+    }
+    @keyframes glow {
+      from { box-shadow: 0 0 15px rgba(0,255,0,0.3), 0 0 25px rgba(0,255,0,0.2); }
+      to   { box-shadow: 0 0 25px rgba(0,255,0,0.6), 0 0 50px rgba(0,255,0,0.3); }
+    }
 
-  /* Animated iridescent film */
-  #card::before{
-    content:"";
-    position:absolute; inset:-25% -25%;
-    background:
-      conic-gradient(from 0deg at 50% 50%,
-        rgba(255,0,153,.15),
-        rgba(0,255,255,.15),
-        rgba(0,128,255,.15),
-        rgba(0,255,128,.15),
-        rgba(255,255,0,.15),
-        rgba(255,0,153,.15));
-    mix-blend-mode: overlay;
-    filter: blur(8px) saturate(140%);
-    transform: translateZ(10px) rotate(0.001deg);
-    animation: film 10s linear infinite;
-    pointer-events:none;
-  }
-  @keyframes film{
-    0%{ transform: translateZ(10px) rotate(0deg) }
-    100%{ transform: translateZ(10px) rotate(360deg) }
-  }
+    /* Fake reflection */
+    #card::after {
+      content: "";
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
+      transform: rotate(25deg);
+      animation: shine 6s infinite;
+    }
+    @keyframes shine {
+      from { transform: translateX(-200%) rotate(25deg); }
+      to   { transform: translateX(200%) rotate(25deg); }
+    }
 
-  /* Moving sheen sweep */
-  #card::after{
-    content:"";
-    position:absolute; inset:-50% -50%;
-    background: linear-gradient(115deg, transparent 45%, rgba(255,255,255,.12) 50%, transparent 55%);
-    transform: translateZ(20px) rotate(0deg);
-    animation: sheen 5.5s ease-in-out infinite;
-    pointer-events:none;
-  }
-  @keyframes sheen{
-    0%{ transform: translate(-60%, -40%) rotate(20deg) translateZ(20px); opacity:.0 }
-    40%{ opacity:.4 }
-    60%{ opacity:.1 }
-    100%{ transform: translate(40%, 60%) rotate(20deg) translateZ(20px) }
-  }
+    .chip {
+      width: 50px; height: 38px;
+      background: linear-gradient(145deg, #f8e27a, #d1a000);
+      border-radius: 6px;
+      margin: 22px;
+      box-shadow: 0 0 8px rgba(255,215,0,0.4);
+      position: relative;
+      z-index: 2;
+    }
+    .number {
+      position: absolute;
+      bottom: 55px; left: 22px;
+      font-size: 1.3rem;
+      letter-spacing: 3px;
+      color: #ddd;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    }
+    .holder {
+      position: absolute;
+      bottom: 25px; left: 22px;
+      font-size: 0.9rem;
+      color: #aaa;
+      text-transform: uppercase;
+    }
+    .logo {
+      position: absolute;
+      bottom: 20px; right: 20px;
+      font-weight: bold;
+      font-size: 1.7rem;
+      background: linear-gradient(45deg, #06f, #0af);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-  /* Metallic chip */
-  .chip{
-    position:absolute; top:18px; left:18px;
-    width:46px; height:34px; border-radius:6px;
-    background:
-      linear-gradient(145deg,#f8e27a,#bd9900);
-    box-shadow: 0 0 0 1px rgba(0,0,0,.6) inset, 0 2px 10px rgba(0,0,0,.4);
-    transform: translateZ(30px);
-  }
-  .chip::before{
-    content:"";
-    position:absolute; inset:5px;
-    border-radius:4px;
-    background:
-      repeating-linear-gradient(90deg, rgba(0,0,0,.28) 0 2px, rgba(255,255,255,.18) 2px 4px);
-    opacity:.6;
-  }
+    #faceid {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      font-size: 2rem;
+      color: #0f0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+      z-index: 10;
+    }
+    #faceid.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .scan-dots {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .dot {
+      width: 15px; height: 15px;
+      border-radius: 50%;
+      background: #0f0;
+      opacity: 0.3;
+      animation: pulse 1.5s infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.3s; }
+    .dot:nth-child(3) { animation-delay: 0.6s; }
+    @keyframes pulse {
+      0%,100% { opacity: 0.3; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
 
-  /* Hologram sticker */
-  .holo{
-    position:absolute; right:18px; top:18px;
-    width:38px; height:38px; border-radius:50%;
-    background:
-      conic-gradient(from 0deg, #7fffd4, #ffd700, #ff6ec7, #7fffd4);
-    filter: saturate(160%);
-    box-shadow: 0 0 0 1px rgba(255,255,255,.2) inset, 0 2px 8px rgba(0,0,0,.5);
-    transform: translateZ(28px);
-    animation: holo 6s linear infinite;
-  }
-  @keyframes holo{
-    0%{ filter:hue-rotate(0deg) saturate(160%) }
-    100%{ filter:hue-rotate(360deg) saturate(160%) }
-  }
-
-  /* Embossed number + name + logo */
-  .number{
-    position:absolute; left:22px; bottom:68px;
-    font-size:1.35rem; letter-spacing:2.4px;
-    color:#e7e7e7;
-    text-shadow:
-      0 1px 0 rgba(255,255,255,.08),
-      0 2px 2px rgba(0,0,0,.6);
-    transform: translateZ(26px);
-  }
-  .name{
-    position:absolute; left:22px; bottom:34px;
-    font-size:.9rem; letter-spacing:.8px; opacity:.8;
-    transform: translateZ(24px);
-  }
-  .logo{
-    position:absolute; right:18px; bottom:20px;
-    font-weight:800; font-size:1.6rem;
-    background: linear-gradient(45deg, #3aa6ff, #87e0ff);
-    -webkit-background-clip:text; background-clip:text;
-    -webkit-text-fill-color:transparent;
-    text-shadow: 0 1px 8px rgba(64,180,255,.25);
-    transform: translateZ(26px);
-    user-select:none;
-  }
-
-  /* Glow ring when "active" */
-  .active-glow{
-    box-shadow:
-      0 0 0 1px rgba(0,255,170,.15) inset,
-      0 0 24px rgba(0,255,170, calc(var(--glow))),
-      0 0 48px rgba(0,255,140, calc(var(--glow) * .6));
-  }
-
-  /* FaceID overlay */
-  #faceid{
-    position:fixed; inset:0;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    background: rgba(0,0,0,.86);
-    font-size: clamp(1.3rem, 2.8vw, 2rem);
-    color:#78ffa3;
-    opacity:0; pointer-events:none;
-    transition: opacity .35s ease;
-    z-index:10;
-  }
-  #faceid.show{ opacity:1; pointer-events:auto; }
-  .scan-dots{ display:flex; gap:10px; margin-top:14px; }
-  .dot{ width:14px; height:14px; border-radius:50%; background:#78ffa3; opacity:.25; animation:pulse 1.4s infinite; }
-  .dot:nth-child(2){ animation-delay:.25s } .dot:nth-child(3){ animation-delay:.5s }
-  @keyframes pulse{ 0%,100%{ opacity:.25; transform:scale(.8) } 50%{ opacity:1; transform:scale(1.1) } }
-
-  /* FINESSED banner */
-  #finessed{
-    position:fixed; left:50%; top:50%;
-    transform: translate(-50%,-50%) scale(0.6);
-    font-size: clamp(2.2rem, 5vw, 3.2rem);
-    font-weight: 900; color:#00ff95;
-    text-shadow: 0 0 10px #00ff95, 0 0 28px #00ff95;
-    opacity:0; z-index:20; pointer-events:none;
-  }
-  #finessed.show{ animation: finessed 1.8s ease forwards; }
-  @keyframes finessed{
-    0%{ opacity:0; transform:translate(-50%,-50%) scale(.6) rotate(-2deg) }
-    45%{ opacity:1; transform:translate(-50%,-50%) scale(1.15) rotate(2deg) }
-    100%{ opacity:1; transform:translate(-50%,-50%) scale(1) rotate(0deg) }
-  }
-
-  /* Motion permission pill (iOS) */
-  .perm{
-    position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
-    padding: 10px 14px; border-radius: 999px;
-    background: rgba(255,255,255,.08);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,.15);
-    font-size:.92rem;
-    z-index: 11;
-    display:none;
-  }
-  .perm.show{ display:inline-block; }
-
-  /* Respect reduced motion */
-  @media (prefers-reduced-motion: reduce){
-    *{ animation: none !important; transition: none !important }
-  }
-</style>
+    #finessed {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      font-size: 3rem;
+      font-weight: 900;
+      color: #0f0;
+      text-shadow: 0 0 10px #0f0, 0 0 20px #0f0, 0 0 40px #0f0;
+      opacity: 0;
+      z-index: 20;
+      pointer-events: none;
+    }
+    #finessed.show {
+      animation: finessedAnim 2s ease forwards;
+    }
+    @keyframes finessedAnim {
+      0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+      50%  { transform: translate(-50%, -50%) scale(1.3) rotate(-5deg); opacity: 1; }
+      70%  { transform: translate(-50%, -50%) scale(1) rotate(5deg); }
+      100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+    }
+  </style>
 </head>
 <body>
+
   <canvas id="matrix"></canvas>
 
-  <div class="stage" id="stage">
-    <div class="card-wrap">
-      <div id="card" aria-label="Payment card">
-        <div class="chip" aria-hidden="true"></div>
-        <div class="holo" aria-hidden="true"></div>
-        <div class="number">•••• •••• •••• 1234</div>
-        <div class="name">NATE LEE</div>
-        <div class="logo">VISA</div>
-      </div>
-    </div>
-
-    <div id="amount">+$0.00</div>
-    <div id="label">Tap to pay</div>
+  <div id="card">
+    <div class="chip"></div>
+    <div class="number">•••• •••• •••• 1234</div>
+    <div class="holder">JOHN DOE</div>
+    <div class="logo">VISA</div>
   </div>
+
+  <div id="amount">+$0.00</div>
+  <div id="label">Tap to pay</div>
 
   <div id="faceid">
     🔒 Scanning Face ID...
-    <div class="scan-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="scan-dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
   </div>
 
   <div id="finessed">YOU JUST GOT FINESSED 💸</div>
 
-  <button class="perm" id="motionBtn">Enable motion tilt</button>
+  <script>
+    let tapCount = 0;
+    const display = document.getElementById("amount");
+    const card = document.getElementById("card");
+    const finessed = document.getElementById("finessed");
+    const faceid = document.getElementById("faceid");
 
-  <!-- We keep a small pool to ensure instant, overlapping chimes if you tap fast -->
-  <audio class="chime" src="https://www.myinstants.com/media/sounds/applepay.mp3" preload="auto"></audio>
-  <audio class="chime" src="https://www.myinstants.com/media/sounds/applepay.mp3" preload="auto"></audio>
-  <audio class="chime" src="https://www.myinstants.com/media/sounds/applepay.mp3" preload="auto"></audio>
+    // Meme sounds
+    const baseUrl = "https://www.myinstants.com";
+    const sounds = [
+      "/media/sounds/are-you-out-of-your-mind-greenscreen-change-quality-and-end-wont-cut-off_2.mp3",
+      "/media/sounds/tf_nemesis.mp3",
+      "/media/sounds/among-us-role-reveal-sound.mp3",
+      "/media/sounds/error_CDOxCYm.mp3",
+      "/media/sounds/emotional-damage-meme.mp3",
+      "/media/sounds/baby-laughing-meme.mp3",
+      "/media/sounds/tmp_7901-951678082.mp3",
+      "/media/sounds/meme-de-creditos-finales.mp3",
+      "/media/sounds/fart-meme-sound.mp3",
+      "/media/sounds/vine-boom-sound-effect_KT89XIq.mp3",
+      "/media/sounds/spiderman-meme-song.mp3",
+      "/media/sounds/punch-gaming-sound-effect-hd_RzlG1GE.mp3",
+      "/media/sounds/run-vine-sound-effect.mp3",
+      "/media/sounds/galaxy-meme.mp3",
+      "/media/sounds/outro-song_oqu8zAg.mp3",
+      "/media/sounds/snore-mimimimimimi.mp3",
+      "/media/sounds/cat-laugh-meme-1.mp3",
+      "/media/sounds/yt1s_wU4BGgD.mp3",
+      "/media/sounds/my-movie-6_0RlWMvM.mp3",
+      "/media/sounds/shocked-sound-effect.mp3",
+      "/media/sounds/deja-vu.mp3",
+      "/media/sounds/gta-san-andreas-ah-shit-here-we-go-again_BWv0Gvc.mp3",
+      "/media/sounds/dun-dun-dun-sound-effect-brass_8nFBccR.mp3",
+      "/media/sounds/999-social-credit-siren.mp3",
+      "/media/sounds/oh-my-god-meme.mp3",
+      "/media/sounds/directed-by-robert-b_voI2Z4T.mp3",
+      "/media/sounds/french-meme-song.mp3",
+      "/media/sounds/fartmeme.mp3",
+      "/media/sounds/anime-wow-sound-effect-mp3cut.mp3",
+      "/media/sounds/they-ask-you-how-you-are-and-you-just-have-to-say-that-youre-fine-sound-effect_IgYM1CV.mp3",
+      "/media/sounds/huh_37bAoRo.mp3",
+      "/media/sounds/ny-video-online-audio-converter.mp3",
+      "/media/sounds/fbi-open-up_dwLhIFf.mp3",
+      "/media/sounds/movie_1_C2K5NH0.mp3",
+      "/media/sounds/what-bottom-text-meme-sanctuary-guardian-sound-effect-hd.mp3",
+      "/media/sounds/long-brain-fart.mp3",
+      "/media/sounds/nani-meme-sound-effect.mp3",
+      "/media/sounds/what-are-you-doing-in-my-swamp-.mp3",
+      "/media/sounds/tmpbxydyrz3.mp3",
+      "/media/sounds/y2mate-mp3cut_sRzY6rh.mp3",
+      "/media/sounds/bing-chilling_fcdGgUc.mp3",
+      "/media/sounds/oh-no-no-no-tik-tok-song-sound-effect.mp3",
+      "/media/sounds/auughhh.mp3",
+      "/media/sounds/punch-sound-effect-meme.mp3",
+      "/media/sounds/jojos-bizarre-adventure-ay-ay-ay-ay-_-sound-effect.mp3",
+      "/media/sounds/frog-laughing-meme.mp3",
+      "/media/sounds/danger-alarm-sound-effect-meme.mp3",
+      "/media/sounds/english-or-spanish-song.mp3",
+      "/media/sounds/meme-okay-lets-go.mp3",
+      "/media/sounds/ladies-and-gentlemen-we-got-him-song.mp3",
+      "/media/sounds/tmpq7mpzzl9.mp3",
+      "/media/sounds/dobroe-utro-moia-devochka.mp3",
+      "/media/sounds/steve-old-hurt-sound_XKZxUk4.mp3",
+      "/media/sounds/ae-meme.mp3",
+      "/media/sounds/guy-yelling-among-us-sound-effect.mp3",
+      "/media/sounds/lightskin-rizz-sin-city.mp3",
+      "/media/sounds/awolnation-run-audio-mp3cut_TdXTLux.mp3",
+      "/media/sounds/lobotomy-sound-effect.mp3",
+      "/media/sounds/rat-dance-music.mp3",
+      "/media/sounds/loading-lost-connection-green-screen-with-sound-effect-2_K8HORkT.mp3",
+      "/media/sounds/musica-de-sigma-estourado.mp3",
+      "/media/sounds/bad-to-the-bone-meme.mp3",
+      "/media/sounds/windows-xp-startup_1ph012N.mp3",
+      "/media/sounds/galaxy-brain-meme.mp3",
+      "/media/sounds/duck-toy-sound.mp3",
+      "/media/sounds/let-her-go.mp3",
+      "/media/sounds/sabe-porque-as-meninas-dao-maior-valor-na-risada-de-ladrao-mp3cut.mp3",
+      "/media/sounds/meme-de-creditos-finales_qHtIjyQ.mp3",
+      "/media/sounds/obi-wan_says_hello_thereyoutubetomp4.mp3",
+      "/media/sounds/fire-in-the-hole-geometry-dash.mp3",
+      "/media/sounds/u-got-that-mp3-fix.mp3",
+      "/media/sounds/fail-sound-effect.mp3"
+    ];
 
-<script>
-/* ====== STATE ====== */
-let tapCount = 0;
-let balance = 0;
-let tiltEnabled = false;
-const display = document.getElementById("amount");
-const card = document.getElementById("card");
-const faceid = document.getElementById("faceid");
-const finessed = document.getElementById("finessed");
-const matrix = document.getElementById("matrix");
-const ctx = matrix.getContext("2d");
-const chimes = Array.from(document.querySelectorAll('audio.chime'));
-let chimeIndex = 0;
-
-/* ====== UTILS ====== */
-function playChime(){
-  const a = chimes[chimeIndex++ % chimes.length];
-  try { a.currentTime = 0; a.play().catch(()=>{}); } catch(e){}
-}
-function animateAmount(delta){
-  const start = balance;
-  const target = +(balance + delta).toFixed(2);
-  const dur = 450; // ms
-  const t0 = performance.now();
-  function step(t){
-    const p = Math.min(1, (t - t0)/dur);
-    const eased = (p<.5) ? 2*p*p : -1 + (4 - 2*p)*p; // easeInOutQuad
-    const val = start + (target - start) * eased;
-    display.textContent = `+$${val.toFixed(2)}`;
-    if(p < 1) requestAnimationFrame(step);
-    else balance = target;
-  }
-  requestAnimationFrame(step);
-}
-function setActiveGlow(on){
-  card.classList.toggle('active-glow', on);
-  document.documentElement.style.setProperty('--glow', on ? 0.55 : 0.35);
-}
-
-/* ====== TAP FLOW ====== */
-function handleTap(){
-  tapCount++;
-  playChime();
-  if (navigator.vibrate) navigator.vibrate([60,30,60]);
-
-  // Ensure card visible
-  card.classList.add("show");
-  setActiveGlow(true);
-
-  // FaceID overlay
-  faceid.classList.add("show");
-  setTimeout(()=>{
-    faceid.classList.remove("show");
-    setActiveGlow(false);
-
-    const amounts = [4.99, 9.99, 14.50, 19.99, 24.00, 49.99, 79.00, 129.99, 199.00];
-    const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
-
-    display.classList.remove("show"); void display.offsetWidth; // reflow for re-animate
-    display.classList.add("show");
-    animateAmount(randomAmount);
-
-    if (tapCount === 5) finessed.classList.add("show");
-  }, 1150);
-}
-
-/* ====== INPUTS ====== */
-document.body.addEventListener('click', handleTap);
-
-/* Mouse tilt */
-(function mouseTilt(){
-  const wrap = document.querySelector('.card-wrap');
-  function onMove(e){
-    const rect = wrap.getBoundingClientRect();
-    const px = (e.clientX - rect.left) / rect.width; // 0..1
-    const py = (e.clientY - rect.top) / rect.height;
-    const ry = (px - .5) * 22;  // deg
-    const rx = - (py - .5) * 18;
-    card.style.setProperty('--rx', rx.toFixed(2) + 'deg');
-    card.style.setProperty('--ry', ry.toFixed(2) + 'deg');
-    card.style.setProperty('--scale', '1.02');
-  }
-  function reset(){ card.style.setProperty('--scale','1'); }
-  wrap.addEventListener('mousemove', onMove);
-  wrap.addEventListener('mouseleave', reset);
-})();
-
-/* Gyroscope tilt (iOS needs permission) */
-const motionBtn = document.getElementById('motionBtn');
-function showMotionBtn(){ motionBtn.classList.add('show'); }
-function hideMotionBtn(){ motionBtn.classList.remove('show'); }
-
-async function enableMotion(){
-  try{
-    // iOS 13+ permission gate
-    const DM = window.DeviceMotionEvent;
-    const DO = window.DeviceOrientationEvent;
-
-    if (DM && typeof DM.requestPermission === 'function'){
-      const res = await DM.requestPermission();
-      if (res !== 'granted') return;
+    function playRandomSound() {
+      const url = baseUrl + sounds[Math.floor(Math.random() * sounds.length)];
+      const audio = new Audio(url);
+      audio.play().catch(()=>{});
     }
-    tiltEnabled = true;
-    hideMotionBtn();
 
-    let baseAlpha = null;
-    window.addEventListener('deviceorientation', (e)=>{
-      if (!tiltEnabled) return;
-      const { beta, gamma, alpha } = e; // x (front/back), y (left/right), compass
-
-      // Normalize initial heading so device facing doesn't cause snap
-      if (baseAlpha === null && typeof alpha === 'number') baseAlpha = alpha;
-
-      // Map to nice angles
-      const rx = Math.max(-18, Math.min(18, (beta ?? 0) * 0.5));   // -180..180 -> ~-18..18
-      const ry = Math.max(-22, Math.min(22, (gamma ?? 0) * 0.8));  // -90..90   -> ~-22..22
-
-      card.style.setProperty('--rx', (-rx).toFixed(2) + 'deg');
-      card.style.setProperty('--ry', (ry).toFixed(2) + 'deg');
-      card.style.setProperty('--scale', '1.02');
-    }, { passive:true });
-  }catch(e){
-    // ignore
-  }
-}
-
-(function prepMotion(){
-  const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const needsPermission = typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function';
-  if ('DeviceOrientationEvent' in window || 'DeviceMotionEvent' in window){
-    if (iOS && needsPermission){
-      showMotionBtn();
-      motionBtn.addEventListener('click', enableMotion, { once:true });
-    }else{
-      // Android & others auto-enabled
-      enableMotion();
+    function animateAmount(finalValue) {
+      let current = 0;
+      const step = Math.max(0.5, finalValue / 40);
+      function tick() {
+        current += step;
+        if (current >= finalValue) {
+          display.textContent = `+$${finalValue.toFixed(2)}`;
+          return;
+        }
+        display.textContent = `+$${current.toFixed(2)}`;
+        requestAnimationFrame(tick);
+      }
+      tick();
     }
-  }
-})();
 
-/* ====== MATRIX BACKGROUND ====== */
-(function matrixRain(){
-  function resize(){
-    matrix.width = window.innerWidth;
-    matrix.height = window.innerHeight;
-    drops = new Array(Math.floor(matrix.width / fontSize)).fill(1);
-  }
-  const letters = "アカサタナハマヤラワ0123456789";
-  const fontSize = 16;
-  let drops = [];
-  resize();
-  window.addEventListener('resize', resize);
+    document.body.addEventListener("click", () => {
+      tapCount++;
 
-  function draw(){
-    ctx.fillStyle = "rgba(0,0,0,0.05)";
-    ctx.fillRect(0,0,matrix.width,matrix.height);
-    ctx.fillStyle = "#00ff95";
-    ctx.font = fontSize + "px SFMono-Regular, ui-monospace, Menlo, Consolas, monospace";
-    for (let i=0; i<drops.length; i++){
-      const text = letters.charAt(Math.floor(Math.random()*letters.length));
-      ctx.fillText(text, i*fontSize, drops[i]*fontSize);
-      if (drops[i]*fontSize > matrix.height && Math.random() > 0.975) drops[i] = 0;
-      drops[i]++;
+      playRandomSound();
+
+      if (navigator.vibrate) navigator.vibrate([50,30,80,30,50]);
+
+      card.classList.add("show");
+
+      faceid.classList.add("show");
+      setTimeout(() => {
+        faceid.classList.remove("show");
+
+        const amounts = [4.99, 9.99, 14.50, 19.99, 24.00, 49.99, 79.00, 129.99, 199.00];
+        const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
+
+        display.classList.remove("show");
+        void display.offsetWidth;
+        display.classList.add("show");
+        animateAmount(randomAmount);
+
+        if (tapCount === 5) {
+          finessed.classList.add("show");
+        }
+      }, 1500);
+    });
+
+    // 3D tilt
+    document.addEventListener("mousemove", e => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 20;
+      const y = (e.clientY / window.innerHeight - 0.5) * -20;
+      card.style.transform = `perspective(800px) rotateY(${x}deg) rotateX(${y}deg)`;
+    });
+
+    // Matrix rain
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    const letters = "アカサタナハマヤラワ0123456789";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function draw() {
+      ctx.fillStyle = "rgba(0,0,0,0.05)";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = "#0f0";
+      ctx.font = fontSize + "px monospace";
+      for (let i=0; i<drops.length; i++) {
+        const text = letters.charAt(Math.floor(Math.random()*letters.length));
+        ctx.fillText(text, i*fontSize, drops[i]*fontSize);
+        if (drops[i]*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+      requestAnimationFrame(draw);
     }
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
+    draw();
 
-/* ====== FIRST-GESTURE AUDIO UNLOCK ====== */
-window.addEventListener('touchstart', ()=> chimes.forEach(a=>{ try{ a.play().then(()=>a.pause()).catch(()=>{});}catch(e){} }), { once:true });
-</script>
+    window.addEventListener("resize", () => {
+      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+    });
+  </script>
 </body>
 </html>
