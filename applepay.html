@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Apple Pay Prank</title>
-  <link rel="manifest" href="manifest.json">
   <style>
     body {
       margin: 0;
@@ -17,18 +16,16 @@
       align-items: center;
       height: 100vh;
       overflow: hidden;
-      touch-action: manipulation;
       position: relative;
+      touch-action: manipulation;
     }
 
     canvas#matrix {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background: #000;
+      z-index: 0;
     }
 
     #card, #amount, #label, #finessed, #faceid {
@@ -36,6 +33,7 @@
       z-index: 1;
     }
 
+    /* Amount */
     #amount {
       font-size: 4rem;
       font-weight: 600;
@@ -57,18 +55,17 @@
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 0.4; transform: translateY(0); }
+      to   { opacity: 0.4; transform: translateY(0); }
     }
 
+    /* Card */
     #card {
-      width: 300px;
-      height: 180px;
+      width: 300px; height: 180px;
       background: linear-gradient(135deg, #333, #111);
       border-radius: 20px;
       position: relative;
       overflow: hidden;
       margin-bottom: 2rem;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.7);
       opacity: 0;
       transform: perspective(800px) rotateY(90deg) scale(0.9);
       transition: transform 0.6s cubic-bezier(.4,.0,.2,1), opacity 0.6s ease;
@@ -80,32 +77,44 @@
     }
     @keyframes glow {
       from { box-shadow: 0 0 10px rgba(0,255,0,0.3), 0 0 20px rgba(0,255,0,0.2); }
-      to { box-shadow: 0 0 20px rgba(0,255,0,0.6), 0 0 40px rgba(0,255,0,0.3); }
+      to   { box-shadow: 0 0 20px rgba(0,255,0,0.6), 0 0 40px rgba(0,255,0,0.3); }
+    }
+
+    /* Card shine */
+    #card::after {
+      content: "";
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+      transform: rotate(25deg);
+      animation: shine 4s infinite;
+    }
+    @keyframes shine {
+      from { transform: translateX(-200%) rotate(25deg); }
+      to   { transform: translateX(200%) rotate(25deg); }
     }
 
     .chip {
-      width: 44px;
-      height: 32px;
+      width: 44px; height: 32px;
       background: linear-gradient(145deg, #f8e27a, #d1a000);
       border-radius: 6px;
       margin: 20px;
       box-shadow: 0 0 8px rgba(255,215,0,0.5);
+      position: relative;
+      z-index: 2;
     }
-
     .number {
       position: absolute;
-      bottom: 42px;
-      left: 22px;
+      bottom: 42px; left: 22px;
       font-size: 1.25rem;
       letter-spacing: 2px;
       color: #ddd;
       text-shadow: 0 1px 3px rgba(0,0,0,0.6);
     }
-
     .logo {
       position: absolute;
-      bottom: 20px;
-      right: 20px;
+      bottom: 20px; right: 20px;
       font-weight: bold;
       font-size: 1.5rem;
       background: linear-gradient(45deg, #06f, #0af);
@@ -118,12 +127,12 @@
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.85);
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 3rem;
-      font-weight: bold;
+      flex-direction: column;
+      font-size: 2rem;
       color: #0f0;
       opacity: 0;
       pointer-events: none;
@@ -133,6 +142,24 @@
     #faceid.show {
       opacity: 1;
       pointer-events: auto;
+    }
+    .scan-dots {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .dot {
+      width: 15px; height: 15px;
+      border-radius: 50%;
+      background: #0f0;
+      opacity: 0.3;
+      animation: pulse 1.5s infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.3s; }
+    .dot:nth-child(3) { animation-delay: 0.6s; }
+    @keyframes pulse {
+      0%,100% { opacity: 0.3; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
     }
 
     /* Finessed message */
@@ -145,7 +172,7 @@
       color: #0f0;
       text-shadow: 0 0 10px #0f0, 0 0 20px #0f0, 0 0 40px #0f0;
       opacity: 0;
-      z-index: 5;
+      z-index: 20;
       pointer-events: none;
     }
     #finessed.show {
@@ -171,18 +198,40 @@
 
   <div id="amount">$0.00</div>
   <div id="label">Tap to pay</div>
-  <div id="faceid">🔒 Scanning Face ID...</div>
-  <div id="finessed">YOU JUST GOT FINESSED 💸</div>
 
-  <audio id="ding" src="https://www.myinstants.com/media/sounds/applepay.mp3" preload="auto"></audio>
+  <div id="faceid">
+    🔒 Scanning Face ID...
+    <div class="scan-dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <div id="finessed">YOU JUST GOT FINESSED 💸</div>
 
   <script>
     let tapCount = 0;
     const display = document.getElementById("amount");
-    const chime = document.getElementById("ding");
     const card = document.getElementById("card");
     const finessed = document.getElementById("finessed");
     const faceid = document.getElementById("faceid");
+
+    // Web Audio API for instant chime
+    let ctx = new (window.AudioContext || window.webkitAudioContext)();
+    let chimeBuffer = null;
+    fetch("https://www.myinstants.com/media/sounds/applepay.mp3")
+      .then(r=>r.arrayBuffer())
+      .then(d=>ctx.decodeAudioData(d))
+      .then(b=>{chimeBuffer=b});
+
+    function playChime(){
+      if (!chimeBuffer) return;
+      let src = ctx.createBufferSource();
+      src.buffer = chimeBuffer;
+      src.connect(ctx.destination);
+      src.start(0);
+    }
 
     function animateAmount(finalValue) {
       let current = 0;
@@ -201,17 +250,12 @@
 
     document.body.addEventListener("click", () => {
       tapCount++;
-      // play sound
-      chime.currentTime = 0;
-      chime.play().catch(()=>{});
+      playChime();
 
-      // vibrate
-      if (navigator.vibrate) navigator.vibrate([60,30,60]);
+      if (navigator.vibrate) navigator.vibrate([50,30,80,30,50]);
 
-      // show card
       card.classList.add("show");
 
-      // Fake Face ID before showing amount
       faceid.classList.add("show");
       setTimeout(() => {
         faceid.classList.remove("show");
@@ -224,7 +268,9 @@
         display.classList.add("show");
         animateAmount(randomAmount);
 
-        if (tapCount === 5) finessed.classList.add("show");
+        if (tapCount === 5) {
+          finessed.classList.add("show");
+        }
       }, 1500);
     });
 
@@ -235,38 +281,35 @@
       card.style.transform = `perspective(800px) rotateY(${x}deg) rotateX(${y}deg)`;
     });
 
-    // Matrix rain with requestAnimationFrame
+    // Matrix rain
     const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
+    const ctx2d = canvas.getContext("2d");
     canvas.height = window.innerHeight;
     canvas.width = window.innerWidth;
-    const letters = "01";
+    const letters = "アカサタナハマヤラワ0123456789";
     const fontSize = 16;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
+
     function draw() {
-      ctx.fillStyle = "rgba(0,0,0,0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#0f0";
-      ctx.font = fontSize + "px monospace";
-      for (let i = 0; i < drops.length; i++) {
-        const text = letters.charAt(Math.floor(Math.random() * letters.length));
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      ctx2d.fillStyle = "rgba(0,0,0,0.05)";
+      ctx2d.fillRect(0,0,canvas.width,canvas.height);
+      ctx2d.fillStyle = "#0f0";
+      ctx2d.font = fontSize + "px monospace";
+      for (let i=0; i<drops.length; i++) {
+        const text = letters.charAt(Math.floor(Math.random()*letters.length));
+        ctx2d.fillText(text, i*fontSize, drops[i]*fontSize);
+        if (drops[i]*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
       }
       requestAnimationFrame(draw);
     }
     draw();
+
     window.addEventListener("resize", () => {
       canvas.height = window.innerHeight;
       canvas.width = window.innerWidth;
     });
-
-    // PWA: hide label
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      document.getElementById('label').style.display = 'none';
-    }
   </script>
 </body>
 </html>
