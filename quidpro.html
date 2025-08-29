@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Shared Pulpit — Projector Prototype</title>
+<style>
+  :root{
+    --bg:#0b0f12;
+    --panel:#071018;
+    --accent:#ffd166;
+    --muted:#9aa7b2;
+    --glass: rgba(255,255,255,0.04);
+  }
+  html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+  body{background:linear-gradient(180deg,#071018 0%, #06121a 60%); color:white; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;}
+
+  /* Projector frame */
+  .projector {
+    width:1200px;
+    max-width:calc(100% - 40px);
+    height:680px;
+    background:var(--panel);
+    border-radius:12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    overflow:hidden;
+    display:grid;
+    grid-template-columns: 2fr 1fr;
+    gap:18px;
+    padding:22px;
+    box-sizing:border-box;
+  }
+
+  /* Left: Stage / Subtitles */
+  .stage {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04));
+    border-radius:8px;
+    padding:28px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .stage .speaker {
+    font-size:22px;
+    font-weight:700;
+    color:var(--accent);
+    letter-spacing:.6px;
+    margin-bottom:6px;
+  }
+
+  .stage .subtitle {
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:10px 20px;
+  }
+
+  .subtitle p {
+    margin:0;
+    font-size:46px;
+    line-height:1.05;
+    font-weight:600;
+    text-wrap:balance;
+    text-shadow: 0 6px 18px rgba(0,0,0,0.65);
+  }
+
+  .subtitle .translate {
+    display:block;
+    margin-top:10px;
+    font-size:20px;
+    color:var(--muted);
+    font-weight:500;
+  }
+
+  /* Bottom overlays */
+  .stage .footer {
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:space-between;
+  }
+
+  .footer .left-meta {
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+
+  .pill {
+    background:var(--glass);
+    padding:8px 12px;
+    border-radius:999px;
+    font-weight:600;
+    color:var(--muted);
+    font-size:14px;
+  }
+
+  /* Right: Verse & Hymn queue */
+  .sidebar {
+    border-radius:8px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.03));
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    box-sizing:border-box;
+  }
+
+  .verse {
+    background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.02));
+    border-radius:8px;
+    padding:14px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:6px;
+  }
+
+  .verse small {color:var(--muted); font-weight:600;}
+  .verse p {margin:0; font-size:18px; line-height:1.35; font-weight:600; color:#fff;}
+
+  .hymn-queue {
+    background:var(--glass);
+    padding:12px;
+    border-radius:8px;
+    font-size:15px;
+  }
+
+  .hymn-queue h4 {margin:0 0 8px 0; color:var(--accent);}
+  .hymn-queue .lyric-preview {color:var(--muted); font-weight:600; font-size:14px; min-height:44px;}
+
+  /* Big hymn overlay that can be shown */
+  .hymn-overlay {
+    position:absolute;
+    inset:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+  }
+  .hymn-card {
+    pointer-events:auto;
+    background:linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.65));
+    padding:28px 36px;
+    border-radius:12px;
+    text-align:center;
+    max-width:900px;
+    color:#fff;
+    box-shadow:0 30px 80px rgba(0,0,0,0.6);
+    transform:translateY(8px);
+  }
+  .hymn-card h2 {margin:0; font-size:46px; color:var(--accent);}
+  .hymn-card p {margin:12px 0 0 0; font-size:22px; color:var(--muted); line-height:1.25;}
+
+  .hymn-hidden {opacity:0; transform:translateY(20px); pointer-events:none;}
+  .hymn-visible {opacity:1; transform:translateY(0);}
+
+  /* Controls */
+  .controls {
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .btn {
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.06);
+    padding:10px 14px;
+    border-radius:8px;
+    color:var(--muted);
+    font-weight:700;
+    cursor:pointer;
+    min-width:44px;
+    text-align:center;
+    transition:all .12s ease;
+  }
+  .btn:hover{transform:translateY(-2px); color:#fff; border-color:rgba(255,255,255,0.12);}
+  .btn.play{background:linear-gradient(90deg, rgba(255,209,102,0.14), rgba(255,209,102,0.06)); color:var(--accent); border-color:rgba(255,209,102,0.2);}
+  .speed {padding:8px 10px; font-weight:700; border-radius:6px;}
+
+  /* small responsive */
+  @media (max-width:1000px){
+    .projector{grid-template-columns:1fr; height:auto; padding:14px;}
+    .hymn-overlay{inset:20px;}
+  }
+</style>
+</head>
+<body>
+  <div class="projector" id="projector">
+    <div class="stage" aria-live="polite">
+
+      <div>
+        <div class="speaker" id="speaker">— Waiting for speaker —</div>
+        <div class="subtitle" id="subtitle">
+          <div>
+            <p id="subtitle-text">— Press play to simulate live subtitles —</p>
+            <span class="translate" id="translate-text"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="left-meta">
+          <div class="pill" id="timestamp">00:00</div>
+          <div class="pill" id="mode">Auto</div>
+        </div>
+
+        <div class="controls">
+          <button class="btn" id="prev">⟨ Prev</button>
+          <button class="btn play" id="play">Play</button>
+          <button class="btn" id="next">Next ⟩</button>
+          <select id="speed" class="speed" title="Playback speed">
+            <option value="0.6">0.6×</option>
+            <option value="0.8">0.8×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.2">1.2×</option>
+            <option value="1.5">1.5×</option>
+          </select>
+          <button class="btn" id="take">Take Control</button>
+        </div>
+      </div>
+
+      <!-- Hymn overlay (hidden by default) -->
+      <div class="hymn-overlay hymn-hidden" id="hymnOverlay" role="dialog" aria-hidden="true">
+        <div class="hymn-card" id="hymnCard">
+          <h2 id="hymn-title">Amazing Grace</h2>
+          <p id="hymn-lyrics">Amazing grace! How sweet the sound — that saved a wretch like me.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <aside class="sidebar">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-weight:800;font-size:18px;color:var(--accent)">Live Verse • Hymns</div>
+        <div style="color:var(--muted);font-weight:700">Projector View</div>
+      </div>
+
+      <div class="verse" id="verseBox">
+        <small id="verse-ref">No verse displayed</small>
+        <p id="verse-text">When a verse is referenced (e.g., "John 3:16") it will appear here automatically.</p>
+      </div>
+
+      <div class="hymn-queue">
+        <h4>Upcoming Hymn</h4>
+        <div class="lyric-preview" id="hymnPreview">— None queued —</div>
+      </div>
+    </aside>
+  </div>
+
+<script>
+/*
+  Prototype data model: an array of "script" events.
+  Each item can include:
+    - start (seconds from start)
+    - speaker
+    - text (subtitle)
+    - translate (simulated translation)
+    - verseRef (e.g., "John 3:16")
+    - verseText (text of verse)
+    - hymn (object with title + lyrics) to trigger hymn overlay
+*/
+const script = [
+  {start:0, speaker:"Worship Leader", text:"Welcome everyone — so glad you're here tonight.", translate:"Bienvenidos a todos — muy contentos de que estén aquí."},
+  {start:4, speaker:"Worship Leader", text:"Let's stand and sing together — our opening hymn is Amazing Grace.", hymn:{title:"Amazing Grace", lyrics:"Amazing grace! How sweet the sound — that saved a wretch like me."}},
+  {start:12, speaker:"Worship Leader", text:"Please be seated. Tonight we'll be looking at hope in Christ.", translate:"Por favor siéntense. Esta noche veremos la esperanza en Cristo."},
+  {start:18, speaker:"Visitor", text:"I just want to share a quick testimony about God's provision.", translate:"Solo quiero compartir un testimonio breve sobre la provisión de Dios."},
+  {start:26, speaker:"Visitor", text:"When I was lost, I found this promise: John 3:16", verseRef:"John 3:16", verseText:"For God so loved the world that he gave his one and only Son... (John 3:16)"},
+  {start:36, speaker:"Visitor", text:"That verse changed my life — it says, For God so loved the world...", translate:"Ese versículo cambió mi vida — dice: Porque de tal manera amó Dios al mundo..."},
+  {start:44, speaker:"Guest Speaker", text:"We live by grace. Ephesians 2:8 reminds us of that.", verseRef:"Ephesians 2:8", verseText:"For by grace you have been saved through faith... (Eph 2:8)"},
+  {start:54, speaker:"Guest Speaker", text:"Let the church respond with a prayer of thanks.", translate:"Permita que la iglesia responda con una oración de gratitud."},
+  {start:62, speaker:"Prayer Leader", text:"Heavenly Father, we thank You for Your mercy...", translate:"Padre Celestial, te agradecemos por tu misericordia..."},
+  {start:74, speaker:"Worship Leader", text:"Let's close with hymn 2 — Great is Thy Faithfulness.", hymn:{title:"Great is Thy Faithfulness", lyrics:"Great is thy faithfulness, O God my Father; there is no shadow of turning with thee."}},
+  {start:84, speaker:"Worship Leader", text:"Thank you. If you'd like subtitles or translation on your phone, scan the QR code at the side.", translate:"Gracias. Si desea subtítulos o traducción en su teléfono, escanee el código QR al lado."},
+  {start:94, speaker:"— End —", text:"Service complete. God bless you!"}
+];
+
+let startTime=0;
+let timer=null;
+let currentIndex=0;
+let playing=false;
+let playbackRate = 1.0;
+
+// DOM refs
+const subtitleText = document.getElementById('subtitle-text');
+const translateText = document.getElementById('translate-text');
+const speakerEl = document.getElementById('speaker');
+const verseRefEl = document.getElementById('verse-ref');
+const verseTextEl = document.getElementById('verse-text');
+const hymnPreview = document.getElementById('hymnPreview');
+const hymnOverlay = document.getElementById('hymnOverlay');
+const hymnTitle = document.getElementById('hymn-title');
+const hymnLyrics = document.getElementById('hymn-lyrics');
+const timestamp = document.getElementById('timestamp');
+const mode = document.getElementById('mode');
+const playBtn = document.getElementById('play');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+const speedSel = document.getElementById('speed');
+const takeBtn = document.getElementById('take');
+
+// Format time helper
+function fmt(s){
+  s = Math.max(0, Math.floor(s));
+  const mm = Math.floor(s/60).toString().padStart(2,'0');
+  const ss = (s%60).toString().padStart(2,'0');
+  return `${mm}:${ss}`;
+}
+
+// Advance to a specific script index
+function goToIndex(i){
+  if(i<0) i=0;
+  if(i>=script.length) i = script.length-1;
+  currentIndex = i;
+  const ev = script[currentIndex];
+  // Update visible text immediately
+  speakerEl.textContent = ev.speaker || '';
+  subtitleText.textContent = ev.text || '';
+  translateText.textContent = ev.translate ? ev.translate : '';
+  timestamp.textContent = fmt(ev.start);
+  // verse handling
+  if(ev.verseRef){
+    verseRefEl.textContent = ev.verseRef;
+    verseTextEl.textContent = ev.verseText || '— verse text not loaded —';
+  } else {
+    verseRefEl.textContent = 'No verse displayed';
+    verseTextEl.textContent = 'When a verse is referenced (e.g., "John 3:16") it will appear here automatically.';
+  }
+  // hymn handling
+  if(ev.hymn){
+    hymnPreview.textContent = ev.hymn.title + " — " + ev.hymn.lyrics.slice(0,70) + (ev.hymn.lyrics.length>70?'…':'');
+    // briefly show overlay for hymns
+    showHymn(ev.hymn);
+  } else {
+    hymnPreview.textContent = '— None queued —';
+  }
+}
+
+// Show hymn overlay (brief)
+let hymnTimer=null;
+function showHymn(h){
+  hymnTitle.textContent = h.title;
+  hymnLyrics.textContent = h.lyrics;
+  hymnOverlay.classList.remove('hymn-hidden');
+  hymnOverlay.classList.add('hymn-visible');
+  hymnOverlay.setAttribute('aria-hidden','false');
+  if(hymnTimer) clearTimeout(hymnTimer);
+  hymnTimer = setTimeout(()=> {
+    hymnOverlay.classList.remove('hymn-visible');
+    hymnOverlay.classList.add('hymn-hidden');
+    hymnOverlay.setAttribute('aria-hidden','true');
+  }, 4200 / playbackRate);
+}
+
+// Playback loop: check time and update currentIndex
+function startPlayback(){
+  if(playing) return;
+  playing=true;
+  playBtn.textContent = 'Pause';
+  mode.textContent = 'Auto';
+  startTime = performance.now() - (script[currentIndex].start * 1000 / playbackRate);
+  timer = requestAnimationFrame(loop);
+}
+
+function pausePlayback(){
+  if(!playing) return;
+  playing=false;
+  playBtn.textContent = 'Play';
+  if(timer) cancelAnimationFrame(timer);
+}
+
+function loop(now){
+  const elapsedMs = (now - startTime) * playbackRate;
+  const elapsedSec = elapsedMs / 1000;
+  // find the highest index whose start <= elapsedSec
+  let i = script.length-1;
+  for(let idx=0; idx<script.length; idx++){
+    if(script[idx].start <= elapsedSec){
+      i = idx;
+    } else break;
+  }
+  if(i !== currentIndex){
+    goToIndex(i);
+  }
+  // update time display relative to overall
+  timestamp.textContent = fmt(Math.floor(elapsedSec));
+  if(playing) timer = requestAnimationFrame(loop);
+}
+
+// Controls
+playBtn.addEventListener('click', ()=>{
+  if(playing) pausePlayback(); else startPlayback();
+});
+
+prevBtn.addEventListener('click', ()=>{
+  pausePlayback();
+  goToIndex(Math.max(0, currentIndex-1));
+});
+
+nextBtn.addEventListener('click', ()=>{
+  pausePlayback();
+  goToIndex(Math.min(script.length-1, currentIndex+1));
+});
+
+speedSel.addEventListener('change', (e)=>{
+  playbackRate = Number(e.target.value);
+  // adjust hymn timer length scaling and also update startTime so playback continues smoothly
+  if(playing){
+    // compute current logical elapsed seconds and set startTime so loop continues
+    const now = performance.now();
+    const elapsedSinceStart = (now - startTime) * playbackRate;
+    startTime = now - (elapsedSinceStart / playbackRate);
+  }
+});
+
+// "Take Control" toggles mode; when taken, playback stops and mode changes
+let taken = false;
+takeBtn.addEventListener('click', ()=>{
+  taken = !taken;
+  if(taken){
+    pausePlayback();
+    mode.textContent = 'Manual (Taken)';
+    takeBtn.textContent = 'Release';
+    takeBtn.classList.add('play');
+  } else {
+    mode.textContent = 'Auto';
+    takeBtn.textContent = 'Take Control';
+    takeBtn.classList.remove('play');
+  }
+});
+
+// Keyboard nav: space = play/pause, left/right to step
+document.addEventListener('keydown', (e)=>{
+  if(e.code === 'Space'){ e.preventDefault(); playBtn.click(); }
+  if(e.code === 'ArrowLeft'){ prevBtn.click(); }
+  if(e.code === 'ArrowRight'){ nextBtn.click(); }
+});
+
+// Initialize at index 0
+goToIndex(0);
+
+/* 
+  Optional: If you'd like the simulated speaker text to "type" or animate per line,
+  extend the goToIndex function to animate subtitle appearance. Kept immediate here
+  for readability on a projector.
+*/
+</script>
+</body>
+</html>
