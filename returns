@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OEM.autos Parts Returns Policy</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      color: #004085;
+    }
+    ul {
+      list-style: disc;
+      margin-left: 20px;
+    }
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .note {
+      background-color: #e9f7fd;
+      padding: 10px;
+      border-left: 4px solid #00aaff;
+      margin: 15px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>OEM.autos Parts Returns Policy</h1>
+    <p>At <strong>OEM.autos</strong>, we strive to ensure our customers receive high-quality automotive parts that meet their needs. Please review our returns policy below before initiating a return.</p>
+    
+    <h2>1. Eligibility for Returns</h2>
+    <p>To be eligible for a return, parts must meet the following conditions:</p>
+    <ul>
+      <li>The part must be unused, uninstalled, and in its original packaging.</li>
+      <li>The return request must be made within <strong>30 days</strong> of the delivery date.</li>
+      <li>Proof of purchase (invoice or order confirmation) must be provided.</li>
+    </ul>
+
+    <h2>2. Non-Returnable Items</h2>
+    <p>Some items cannot be returned for safety or hygiene reasons, including:</p>
+    <ul>
+      <li>Electrical components once installed</li>
+      <li>Lubricants, fluids, or chemicals</li>
+      <li>Custom or special-order parts</li>
+      <li>Any part showing signs of damage or installation</li>
+    </ul>
+
+    <h2>3. How to Initiate a Return</h2>
+    <p>To start a return, please follow these steps:</p>
+    <ul>
+      <li>Contact our Customer Support at <a href="mailto:support@oem.autos">support@oem.autos</a> with your order number and reason for return.</li>
+      <li>Receive a Return Merchandise Authorization (RMA) number from our team.</li>
+      <li>Securely package the part and include the RMA number inside the box.</li>
+      <li>Ship the package to the address provided by Customer Support.</li>
+    </ul>
+
+    <h2>4. Refunds</h2>
+    <p>Once your return is received and inspected, we will notify you of the approval or rejection of your refund. Approved refunds will be processed within <strong>7 business days</strong> using the original payment method.</p>
+
+    <h2>5. Exchanges</h2>
+    <p>If you need to exchange a part for a different item, please follow the same process above and indicate the replacement item in your request.</p>
+
+    <div class="note">
+      <strong>Note:</strong> OEM.autos is not responsible for shipping costs on returned items unless the return is due to a defective or incorrect part.
+    </div>
+
+    <h2>6. Damaged or Defective Items</h2>
+    <p>If you receive a part that is defective or damaged during shipping:</p>
+    <ul>
+      <li>Contact Customer Support immediately with photos of the damage.</li>
+      <li>We will arrange a replacement or refund at no additional cost to you.</li>
+    </ul>
+
+    <h2>7. Contact Us</h2>
+    <p>If you have any questions regarding returns, please reach out to us:</p>
+    <p>Email: <a href="mailto:support@oem.autos">support@oem.autos</a><br>
+       Phone: 1-800-OEM-AUTOS</p>
+  </div>
+</body>
+</html>
