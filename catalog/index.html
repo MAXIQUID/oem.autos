@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acura Parts Catalog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .scrollable-content {
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #d1d5db #f3f4f6;
+        }
+
+        .scrollable-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollable-content::-webkit-scrollbar-track {
+            background: #f3f4f6;
+            border-radius: 10px;
+        }
+
+        .scrollable-content::-webkit-scrollbar-thumb {
+            background-color: #d1d5db;
+            border-radius: 10px;
+            border: 2px solid #f3f4f6;
+        }
+
+        .animate-fadeInUp {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .animate-fadeOutDown {
+            animation: fadeOutDown 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOutDown {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-lg py-4 px-6 fixed w-full top-0 z-10">
+        <div class="flex flex-col sm:flex-row justify-between items-center max-w-7xl mx-auto space-y-2 sm:space-y-0">
+            <h1 id="pageTitle" class="text-3xl font-bold text-gray-900 mb-2 sm:mb-0">Acura Parts Catalog</h1>
+            <div class="flex flex-col sm:flex-row sm:space-x-2 w-full sm:w-auto">
+                <input type="text" id="searchInput" placeholder="Search all parts..." class="px-4 py-2 w-full sm:w-80 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 mb-2 sm:mb-0">
+                <input type="file" id="jsonUpload" accept=".json" class="px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-28 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div id="loading" class="text-center text-gray-500 font-semibold text-lg animate-pulse">Upload a JSON file to load parts data...</div>
+        <div id="messageBox" class="hidden fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-transform transform-gpu"></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+
+            <!-- Vehicle & Category List -->
+            <div class="md:col-span-1 bg-white rounded-xl shadow-md p-6 overflow-hidden">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Vehicles & Categories</h2>
+                <div id="vehicleList" class="space-y-4 scrollable-content">
+                    <button id="showAllParts" class="w-full text-left p-3 bg-blue-500 text-white rounded-lg shadow-inner hover:bg-blue-600 transition duration-200 ease-in-out font-bold">
+                        Show All Parts
+                    </button>
+                </div>
+            </div>
+
+            <!-- Parts Display Area -->
+            <div class="md:col-span-2 bg-white rounded-xl shadow-md p-6 overflow-hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="partsHeader" class="text-2xl font-semibold text-gray-700">All Parts</h2>
+                    <span id="partsCount" class="text-sm font-medium text-gray-500"></span>
+                </div>
+                <div id="partsDisplay" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 scrollable-content"></div>
+                <div id="noResults" class="hidden text-center text-gray-500 mt-10">
+                    <p class="text-xl font-semibold">No parts found matching your search.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let partsData = null;
+        let allParts = [];
+        let currentDisplayData = [];
+
+        function showMessageBox(message) {
+            const msgBox = document.getElementById('messageBox');
+            msgBox.textContent = message;
+            msgBox.classList.remove('hidden', 'transform-gpu', 'translate-y-full');
+            msgBox.classList.add('animate-fadeInUp');
+            setTimeout(() => {
+                msgBox.classList.remove('animate-fadeInUp');
+                msgBox.classList.add('animate-fadeOutDown');
+                setTimeout(() => {
+                    msgBox.classList.add('hidden', 'transform-gpu', 'translate-y-full');
+                    msgBox.classList.remove('animate-fadeOutDown');
+                }, 500);
+            }, 3000);
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const loadingElement = document.getElementById('loading');
+            loadingElement.classList.remove('hidden');
+            loadingElement.textContent = "Loading parts data...";
+
+            try {
+                const fileText = await file.text();
+                partsData = JSON.parse(fileText);
+
+                if (partsData.summary && partsData.summary.makes && partsData.summary.makes.length > 0) {
+                    const makeName = partsData.summary.makes[0].name;
+                    document.title = `${makeName} Parts Catalog`;
+                    document.getElementById('pageTitle').textContent = `${makeName} Parts Catalog`;
+                }
+
+                allParts = [];
+                if (partsData.vehicles) {
+                    partsData.vehicles.forEach(vehicle => {
+                        if (vehicle.categoryProducts) {
+                            vehicle.categoryProducts.forEach(categoryData => {
+                                if (categoryData.products && categoryData.products.length > 0) {
+                                    categoryData.products.forEach(product => {
+                                        product.vehicleName = vehicle.vehicleName || 'Unknown Vehicle';
+                                        product.categoryName = categoryData.category.displayText || categoryData.category.name || 'Unknown Category';
+                                        allParts.push(product);
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+
+                currentDisplayData = allParts;
+                renderVehicles();
+                renderParts();
+                showMessageBox(`Loaded JSON file: ${file.name}`);
+            } catch (error) {
+                console.error("Failed to parse JSON:", error);
+                loadingElement.textContent = "Error loading data. Check console for details.";
+                showMessageBox("Failed to parse JSON file.");
+            } finally {
+                loadingElement.classList.add('hidden');
+            }
+        }
+
+        function renderVehicles() {
+            const vehicleListDiv = document.getElementById('vehicleList');
+            vehicleListDiv.querySelectorAll('.vehicle-container').forEach(el => el.remove());
+
+            if (!partsData || !partsData.vehicles) return;
+
+            partsData.vehicles.forEach(vehicle => {
+                const vehicleName = vehicle.vehicleName || 'Unknown Vehicle';
+                const vehicleContainer = document.createElement('div');
+                vehicleContainer.className = 'vehicle-container p-3 bg-gray-50 rounded-lg shadow-inner cursor-pointer hover:bg-gray-100 transition duration-200 ease-in-out';
+
+                const vehicleHeader = document.createElement('h3');
+                vehicleHeader.className = 'font-bold text-lg text-gray-800';
+                vehicleHeader.textContent = vehicleName;
+                vehicleContainer.appendChild(vehicleHeader);
+
+                const categoryContainer = document.createElement('div');
+                categoryContainer.className = 'mt-2 space-y-2 text-sm hidden';
+
+                vehicle.categoryProducts.forEach(categoryData => {
+                    const categoryName = categoryData.category.displayText || categoryData.category.name || 'Unknown Category';
+                    const categoryItem = document.createElement('div');
+                    categoryItem.className = 'p-2 bg-gray-200 rounded-md hover:bg-gray-300 transition duration-200 cursor-pointer';
+                    categoryItem.textContent = `${categoryName} (${categoryData.productCount})`;
+
+                    categoryItem.addEventListener('click', () => {
+                        currentDisplayData = categoryData.products;
+                        renderParts();
+                        document.getElementById('partsHeader').textContent = `${categoryName} Parts`;
+                        showMessageBox(`Displaying parts for "${categoryName}"`);
+                    });
+
+                    categoryContainer.appendChild(categoryItem);
+                });
+
+                vehicleContainer.appendChild(categoryContainer);
+                vehicleListDiv.appendChild(vehicleContainer);
+
+                vehicleContainer.addEventListener('click', (event) => {
+                    if (event.target === vehicleContainer || event.target === vehicleHeader) {
+                        categoryContainer.classList.toggle('hidden');
+                    }
+                });
+            });
+        }
+
+        function renderParts(query = '') {
+            const partsDisplayDiv = document.getElementById('partsDisplay');
+            partsDisplayDiv.innerHTML = '';
+            const noResultsElement = document.getElementById('noResults');
+            const partsCountElement = document.getElementById('partsCount');
+
+            const filteredParts = currentDisplayData.filter(part => {
+                const q = query.toLowerCase();
+                return (part.name || '').toLowerCase().includes(q) ||
+                       (part.partNumber || '').toLowerCase().includes(q) ||
+                       (part.metadata?.brand || '').toLowerCase().includes(q) ||
+                       (part.categoryName || '').toLowerCase().includes(q) ||
+                       (part.vehicleName || '').toLowerCase().includes(q);
+            });
+
+            partsCountElement.textContent = `${filteredParts.length} items`;
+
+            if (filteredParts.length === 0) {
+                noResultsElement.classList.remove('hidden');
+            } else {
+                noResultsElement.classList.add('hidden');
+                filteredParts.forEach(part => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-xl shadow-lg p-6 flex flex-col items-start relative transition-transform hover:scale-105 duration-300';
+                    card.innerHTML = `
+                        <h3 class="text-lg font-bold text-gray-900 mb-1">${part.name || 'N/A'}</h3>
+                        <p class="text-sm text-gray-600 mb-1"><strong>Part #:</strong> ${part.partNumber || 'N/A'}</p>
+                        <p class="text-sm text-gray-600 mb-2"><strong>Manufacturer:</strong> ${part.metadata?.brand || 'N/A'}</p>
+                        <p class="text-2xl font-extrabold text-blue-600 mb-4">${part.salePriceFormatted || 'N/A'}</p>
+                        ${part.msrp ? `<p class="text-xs text-gray-400 line-through">MSRP ${part.msrpFormatted}</p>` : ''}
+                        ${part.discountPercent ? `<span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full absolute top-4 right-4">${part.discountPercent}% Off</span>` : ''}
+                        ${part.productUrl ? `<a href="${part.productUrl}" target="_blank" rel="noopener noreferrer" class="mt-auto inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-500 rounded-lg shadow hover:bg-blue-600 transition duration-300 w-full">View Product</a>` : ''}
+                    `;
+                    partsDisplayDiv.appendChild(card);
+                });
+            }
+        }
+
+        document.getElementById('jsonUpload').addEventListener('change', handleFileUpload);
+        document.getElementById('searchInput').addEventListener('input', (event) => {
+            currentDisplayData = allParts;
+            document.getElementById('partsHeader').textContent = 'Global Search Results';
+            renderParts(event.target.value);
+        });
+        document.getElementById('showAllParts').addEventListener('click', () => {
+            currentDisplayData = allParts;
+            document.getElementById('partsHeader').textContent = 'All Parts';
+            document.getElementById('searchInput').value = '';
+            renderParts();
+            showMessageBox('Displaying all parts');
+        });
+    </script>
+</body>
+</html>
