@@ -125,413 +125,140 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
 
-    <!-- Inlined Custom JavaScript -->
-    <script>
-        // Data for part dropdowns and carousel
-        const partsList = {
-            Engine: {
-                "Sensors": ["Mass Air Flow Sensor", "Throttle Body", "Oil Pressure Sensor"],
-                "Cooling": ["Radiator", "Water Pump", "Thermostat"],
-                "Fuel System": ["Fuel Injector", "Fuel Pump", "Fuel Filter"],
-                "Transmission": ["Torque Converter", "Transmission Cooler", "Transmission Pump"],
-            },
-            Interior: {
-                "Seats": ["Seat (Bucket)", "Seat (Bench)", "Seat Belt"],
-                "Dashboard": ["Instrument Cluster", "Speedometer", "Tachometer"],
-                "Electrical": ["Fuse Box", "Ignition Switch", "Interior Light"],
-                "Controls": ["Shift Lever", "Pedal Cluster", "Steering Wheel"],
-            },
-            Exterior: {
-                "Body Panels": ["Fender", "Door", "Hood", "Trunk"],
-                "Mirrors": ["Side View Mirror", "Interior Mirror"],
-                "Lights": ["Headlight", "Tail Light", "Fog Light"],
-                "Glass": ["Windshield", "Side Window", "Rear Window"],
-            },
-            Suspension: {
-                "Arms": ["Control Arm (Front)", "Lower Control Arm (Rear)"],
-                "Shocks": ["Shock Absorber", "Strut Mount"],
-                "Steering": ["Steering Column", "Steering Rack", "Steering Knuckle"],
-            },
-            Electrical: {
-                "Control Units": ["Body Control Module", "Engine Control Module"],
-                "Sensors": ["ABS Sensor", "Airbag Sensor", "Speed Sensor"],
-                "Motors": ["Wiper Motor", "Window Motor", "Blower Motor"],
-            },
-            Braking: {
-                "Components": ["Brake Caliper", "Brake Rotor", "Brake Pads"],
-                "System Parts": ["Master Cylinder", "Brake Booster", "ABS Module"],
-            }
-        };
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    .carousel { display: flex; gap: 10px; overflow-x: auto; margin: 20px 0; }
+    .make-card { padding: 10px 20px; border: 1px solid #ccc; cursor: pointer; border-radius: 5px; white-space: nowrap; }
+    .make-card.active { background: #007bff; color: white; }
+    select { margin: 5px; padding: 5px; }
+    #vehiclePhoto { margin-top: 20px; max-height: 150px; display: block; }
+  </style>
+</head>
+<body>
+  <h2>Select a Vehicle</h2>
 
-<script>
-/*
-  FuelEconomy YMMO cascade for OEM.autos
-  - Uses FuelEconomy.gov WS at /ws/rest/vehicle/menu/*
-  - Expects XML responses; parses with DOMParser
-  - Replaces the old "partsList" cascade with Year → Make → Model → Options (trims)
-  - Integrates with existing VIN decode flow (NHTSA) to pre-select year/make/model when available
-  - Keeps existing carousel initialization / teardown code (Slick)
-*/
+  <!-- Dropdowns -->
+  <select id="mnuMake">
+    <option value="">-- Select Make --</option>
+  </select>
+  <select id="mnuYear" disabled>
+    <option value="">-- Select Year --</option>
+  </select>
+  <select id="mnuModel" disabled>
+    <option value="">-- Select Model --</option>
+  </select>
+  <select id="mnuOptions" disabled>
+    <option value="">-- Select Option --</option>
+  </select>
 
-/* --- DOM elements --- */
-const vinInput = document.getElementById("vinInput");
-const decodeBtn = document.getElementById("decodeBtn");
-const vehicleInfo = document.getElementById("vehicleInfo");
-const partsGrid = document.getElementById("partsGrid");         // kept for legacy sample grid
-const partsCarousel = document.getElementById("partsCarousel");
+  <!-- Carousel -->
+  <div class="carousel" id="makeCarousel"></div>
 
-// New YMMO selects - replace your old location/partType/specificPart
-const yearSelect = document.getElementById('year');            // previously location
-const makeSelect = document.getElementById('make');            // previously partType
-const modelSelect = document.getElementById('model');          // previously specificPart
-const optionsSelect = document.getElementById('options');      // final trim/options (maps to parts carousel items)
+  <!-- Vehicle preview -->
+  <img id="vehiclePhoto" src="photos/nophoto.gif" alt="Vehicle preview">
 
-/* --- Utility: fetch XML and parse menuItems --- */
-async function fetchMenu(endpoint) {
-    // endpoint should be a full URL starting with https://www.fueleconomy.gov/ws/rest/vehicle/menu/...
-    try {
-        const res = await fetch(endpoint, { cache: "no-cache" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const text = await res.text();
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(text, "application/xml");
-        // menuItem nodes: <menuItem><text>2010</text><value>2010</value></menuItem>
-        const items = Array.from(xml.getElementsByTagName('menuItem')).map(mi => {
-            const textNode = mi.getElementsByTagName('text')[0];
-            const valueNode = mi.getElementsByTagName('value')[0];
-            return {
-                text: textNode ? textNode.textContent.trim() : (valueNode ? valueNode.textContent.trim() : ''),
-                value: valueNode ? valueNode.textContent.trim() : (textNode ? textNode.textContent.trim() : '')
-            };
-        });
-        return items;
-    } catch (err) {
-        console.error('fetchMenu error', endpoint, err);
-        return [];
+  <script>
+    const API_BASE = "https://www.fueleconomy.gov/ws/rest/vehicle/menu";
+
+    // Load Makes on page load
+    function loadMakes() {
+      $.ajax({
+        url: `${API_BASE}/make`,
+        dataType: "xml",
+        success: function(xml) {
+          $(xml).find("menuItem").each(function() {
+            let make = $(this).find("text").text();
+            $("#mnuMake").append(`<option value="${make}">${make}</option>`);
+            $("#makeCarousel").append(`<div class="make-card" data-make="${make}">${make}</div>`);
+          });
+        }
+      });
     }
-}
 
-/* --- Helper: clear and add options to a select --- */
-function populateSelect(selectEl, items, placeholderText) {
-    selectEl.innerHTML = '';
-    const placeholder = document.createElement('option');
-    placeholder.value = '';
-    placeholder.textContent = placeholderText || '-- Select --';
-    selectEl.appendChild(placeholder);
-    items.forEach(it => {
-        const opt = document.createElement('option');
-        opt.value = it.value;
-        opt.textContent = it.text;
-        selectEl.appendChild(opt);
-    });
-    selectEl.disabled = items.length === 0;
-}
-
-/* --- Slick destroy helper (keeps your existing pattern) --- */
-function destroyCarouselIfNeeded() {
-    if (!partsCarousel) return;
-    if (window.jQuery && $(partsCarousel).hasClass('slick-initialized')) {
-        $(partsCarousel).slick('unslick');
-    }
-    partsCarousel.innerHTML = '';
-}
-
-/* --- Populate carousel with option/trims (and link to eBay search for convenience) --- */
-function displayOptionsInCarousel(optionItems, make, model, year) {
-    destroyCarouselIfNeeded();
-    if (!optionItems || optionItems.length === 0) {
-        partsCarousel.innerHTML = '<p class="text-center text-gray-600">No trims/options found for this selection.</p>';
-        return;
-    }
-    optionItems.forEach(opt => {
-        const txt = opt.text || opt.value;
-        const query = encodeURIComponent(`${year} ${make} ${model} ${txt}`);
-        const el = document.createElement('div');
-        el.className = 'carousel-item';
-        el.innerHTML = `
-            <div class="part-card rounded-md">
-                <img src="https://placehold.co/150x100/0074d9/FFFFFF?text=${encodeURIComponent(txt)}" alt="${txt}" class="rounded-md">
-                <h3 class="mt-2">${txt}</h3>
-                <a href="https://www.ebay.com/sch/i.html?_nkw=${query}" target="_blank" class="ebay-link">Search on eBay</a>
-            </div>
-        `;
-        partsCarousel.appendChild(el);
+    // Sync carousel click → dropdown
+    $(document).on("click", ".make-card", function() {
+      $(".make-card").removeClass("active");
+      $(this).addClass("active");
+      let make = $(this).data("make");
+      $("#mnuMake").val(make).trigger("change");
     });
 
-    // init slick after a short timeout
-    setTimeout(() => {
-        if (window.jQuery && typeof $(partsCarousel).slick === 'function') {
-            $(partsCarousel).slick({
-                slidesToShow: 3,
-                slidesToScroll: 1,
-                infinite: true,
-                dots: true,
-                autoplay: true,
-                autoplaySpeed: 2000,
-                responsive: [
-                    { breakpoint: 1024, settings: { slidesToShow: 2 } },
-                    { breakpoint: 600, settings: { slidesToShow: 1 } }
-                ]
+    // Make → Years
+    $("#mnuMake").on("change", function() {
+      let make = $(this).val();
+      $("#mnuYear").prop("disabled", !make).empty().append(`<option value="">-- Select Year --</option>`);
+      $("#mnuModel").prop("disabled", true).empty().append(`<option value="">-- Select Model --</option>`);
+      $("#mnuOptions").prop("disabled", true).empty().append(`<option value="">-- Select Option --</option>`);
+      if (make) {
+        $.ajax({
+          url: `${API_BASE}/year?make=${make}`,
+          dataType: "xml",
+          success: function(xml) {
+            $(xml).find("menuItem").each(function() {
+              let year = $(this).find("text").text();
+              $("#mnuYear").append(`<option value="${year}">${year}</option>`);
             });
-        }
-    }, 80);
-}
-
-/* --- FuelEconomy endpoints helpers --- */
-const FE_BASE = 'https://www.fueleconomy.gov/ws/rest/vehicle/menu';
-
-/* Year list */
-async function loadYears() {
-    const url = `${FE_BASE}/year`;
-    const years = await fetchMenu(url);
-    populateSelect(yearSelect, years, '-- Select Year --');
-}
-
-/* Makes for a year */
-async function loadMakesForYear(year, preselectMake) {
-    if (!year) {
-        populateSelect(makeSelect, [], '-- Select Make --');
-        populateSelect(modelSelect, [], '-- Select Model --');
-        populateSelect(optionsSelect, [], '-- Select Option --');
-        return;
-    }
-    const url = `${FE_BASE}/make?year=${encodeURIComponent(year)}`;
-    const makes = await fetchMenu(url);
-    populateSelect(makeSelect, makes, '-- Select Make --');
-
-    if (preselectMake) {
-        const found = Array.from(makeSelect.options).find(o => o.value.toLowerCase() === preselectMake.toLowerCase());
-        if (found) {
-            makeSelect.value = found.value;
-            makeSelect.dispatchEvent(new Event('change'));
-        }
-    }
-}
-
-/* Models for year + make */
-async function loadModelsForYearMake(year, make, preselectModel) {
-    if (!year || !make) {
-        populateSelect(modelSelect, [], '-- Select Model --');
-        populateSelect(optionsSelect, [], '-- Select Option --');
-        return;
-    }
-    const url = `${FE_BASE}/model?year=${encodeURIComponent(year)}&make=${encodeURIComponent(make)}`;
-    const models = await fetchMenu(url);
-    populateSelect(modelSelect, models, '-- Select Model --');
-
-    if (preselectModel) {
-        const found = Array.from(modelSelect.options).find(o => o.value.toLowerCase() === preselectModel.toLowerCase());
-        if (found) {
-            modelSelect.value = found.value;
-            modelSelect.dispatchEvent(new Event('change'));
-        }
-    }
-}
-
-/* Options / trims for year + make + model */
-async function loadOptionsForYMM(year, make, model, preselectOptionValue) {
-    if (!year || !make || !model) {
-        populateSelect(optionsSelect, [], '-- Select Option --');
-        displayOptionsInCarousel([], make, model, year);
-        return;
-    }
-    const url = `${FE_BASE}/options?year=${encodeURIComponent(year)}&make=${encodeURIComponent(make)}&model=${encodeURIComponent(model)}`;
-    const options = await fetchMenu(url);
-    populateSelect(optionsSelect, options, '-- Select Trim / Option --');
-
-    // show all options in carousel
-    displayOptionsInCarousel(options, make, model, year);
-
-    if (preselectOptionValue) {
-        const found = Array.from(optionsSelect.options).find(o => o.value.toLowerCase() === preselectOptionValue.toLowerCase());
-        if (found) {
-            optionsSelect.value = found.value;
-        }
-    }
-}
-
-/* --- Wire up select change events for cascade --- */
-yearSelect.addEventListener('change', async () => {
-    const year = yearSelect.value;
-    // clear downstream selects and carousel while loading
-    populateSelect(makeSelect, [], '-- Loading Makes --');
-    populateSelect(modelSelect, [], '-- Select Model --');
-    populateSelect(optionsSelect, [], '-- Select Option --');
-    destroyCarouselIfNeeded();
-    if (year) {
-        await loadMakesForYear(year);
-    } else {
-        // no year selected — clear everything
-        populateSelect(makeSelect, [], '-- Select Make --');
-        populateSelect(modelSelect, [], '-- Select Model --');
-        populateSelect(optionsSelect, [], '-- Select Option --');
-        destroyCarouselIfNeeded();
-    }
-});
-
-makeSelect.addEventListener('change', async () => {
-    const year = yearSelect.value;
-    const make = makeSelect.value;
-    populateSelect(modelSelect, [], '-- Loading Models --');
-    populateSelect(optionsSelect, [], '-- Select Option --');
-    destroyCarouselIfNeeded();
-    if (year && make) {
-        await loadModelsForYearMake(year, make);
-    } else {
-        populateSelect(modelSelect, [], '-- Select Model --');
-        populateSelect(optionsSelect, [], '-- Select Option --');
-    }
-});
-
-modelSelect.addEventListener('change', async () => {
-    const year = yearSelect.value;
-    const make = makeSelect.value;
-    const model = modelSelect.value;
-    populateSelect(optionsSelect, [], '-- Loading Options --');
-    destroyCarouselIfNeeded();
-    if (year && make && model) {
-        await loadOptionsForYMM(year, make, model);
-    } else {
-        populateSelect(optionsSelect, [], '-- Select Option --');
-        destroyCarouselIfNeeded();
-    }
-});
-
-optionsSelect.addEventListener('change', () => {
-    // When a specific trim/option is selected, update carousel to just that selection
-    const selected = optionsSelect.value;
-    const year = yearSelect.value;
-    const make = makeSelect.value;
-    const model = modelSelect.value;
-
-    destroyCarouselIfNeeded();
-    if (selected) {
-        // Show only the selected option as a single-item carousel
-        displayOptionsInCarousel([{ text: selected, value: selected }], make, model, year);
-    } else {
-        // If cleared, show all options for current YMM
-        if (year && make && model) {
-            loadOptionsForYMM(year, make, model);
-        }
-    }
-});
-
-/* --- VIN decode integration --- */
-decodeBtn.addEventListener("click", () => {
-    const vin = vinInput.value.trim().toUpperCase();
-    if (vin.length !== 17) {
-        vehicleInfo.innerHTML = '<p class="error">VIN must be exactly 17 characters.</p>';
-        partsGrid.innerHTML = '';
-        destroyCarouselIfNeeded();
-        return;
-    }
-    decodeVINandSelectYMM(vin);
-});
-
-async function decodeVINandSelectYMM(vin) {
-    vehicleInfo.innerHTML = "<p>Loading vehicle info...</p>";
-    partsGrid.innerHTML = "";
-    destroyCarouselIfNeeded();
-
-    try {
-        const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${encodeURIComponent(vin)}?format=json`);
-        const json = await res.json();
-        const data = json.Results[0] || {};
-        const make = data.Make || "";
-        const model = data.Model || "";
-        const year = data.ModelYear || ""; // ModelYear is usually integer or string
-        // Extract WMI, VDS, VIS from VIN (for display)
-        const wmi = vin.slice(0, 3);
-        const vds = vin.slice(3, 9);
-        const vis = vin.slice(9);
-
-        vehicleInfo.innerHTML = `
-            <h2>${make || 'Unknown'} ${model || ''} (${year || 'Unknown'})</h2>
-            <p><strong>WMI:</strong> ${wmi} | <strong>VDS:</strong> ${vds} | <strong>VIS:</strong> ${vis}</p>
-        `;
-
-        // Load Year list (if not loaded) and attempt to pre-select year/make/model from VIN decode
-        // We'll load years then attempt to load makes/models/options with preselection chain.
-        await loadYears();
-
-        // Preselect Year (match exact)
-        if (year) {
-            const foundYear = Array.from(yearSelect.options).find(o => o.value === year || o.text === String(year));
-            if (foundYear) {
-                yearSelect.value = foundYear.value;
-                // load makes with preselect for make
-                await loadMakesForYear(foundYear.value, make);
-                // If make now selected, models will auto-load and we attempt to preselect model
-                // But loadMakesForYear dispatches change (which triggers model loading) only if we set the value and dispatch a change.
-                // To be safe, attempt explicit model load as well:
-                if (makeSelect.value) {
-                    await loadModelsForYearMake(yearSelect.value, makeSelect.value, model);
-                    if (modelSelect.value) {
-                        await loadOptionsForYMM(yearSelect.value, makeSelect.value, modelSelect.value);
-                    }
-                }
-                return;
-            }
-        }
-
-        // If we couldn't preselect, just ensure the lists are available for manual selection
-        // Load makes for default (no preselect)
-        // (Do not overwrite user selection if already set)
-        if (!yearSelect.value) {
-            // keep years loaded and let the user choose
-        }
-
-    } catch (err) {
-        console.error("Error decoding VIN:", err);
-        vehicleInfo.innerHTML = '<p class="error">Failed to fetch vehicle data. Please check your VIN or try again later.</p>';
-    }
-}
-
-/* --- Initial page load: load years and show a default sample grid --- */
-document.addEventListener('DOMContentLoaded', async function() {
-    await loadYears();
-
-    // Optional: populate a sample partsGrid (legacy) while user picks Y/M/M/O
-    generateExamplePartsGrid("VIN", "WMI"); // your original sample grid function (keeps previous behavior)
-
-    // If you want an initial default YMM (e.g., current year), you can set yearSelect.value programmatically
-    // and call yearSelect.dispatchEvent(new Event('change')); but leaving blank is often better UX.
-});
-
-/* --- Keep the existing generateExamplePartsGrid function (copied from your original script) --- */
-function generateExamplePartsGrid(make, wmi) {
-    const exampleParts = [
-        { code: "AWZ", name: "Windshield Washer Zone", category: "Exterior", ebay: "https://www.ebay.com/sch/i.html?_nkw=windshield+washer+zone" },
-        { code: "BDY", name: "Front Body Panel", category: "Body", ebay: "https://www.ebay.com/sch/i.html?_nkw=front+body+panel" },
-        { code: "DRL", name: "Daytime Running Light", category: "Electrical", ebay: "https://www.ebay.com/sch/i.html?_nkw=daytime+running+light" },
-        { code: "ENB", name: "Engine Block", category: "Engine", ebay: "https://www.ebay.com/sch/i.html?_nkw=engine+block" },
-        { code: "TRN", name: "Transmission Unit", category: "Transmission", ebay: "https://www.ebay.com/sch/i.html?_nkw=transmission+unit" },
-        { code: "RAX", name: "Rear Axle Assembly", category: "Suspension", ebay: "https://www.ebay.com/sch/i.html?_nkw=rear+axle+assembly" },
-        { code: "SRS", name: "Airbag System", category: "Safety", ebay: "https://www.ebay.com/sch/i.html?_nkw=airbag+system" },
-        { code: "EXH", name: "Exhaust Manifold", category: "Exhaust", ebay: "https://www.ebay.com/sch/i.html?_nkw=exhaust+manifold" }
-    ];
-
-    if (partsGrid) {
-        partsGrid.innerHTML = ""; // Clear existing grid content
-        exampleParts.forEach(part => {
-            const code = `${wmi}-${part.code}`;
-            const img = `https://placehold.co/300x150/003366/FFFFFF?text=${encodeURIComponent(part.code)}`;
-            const card = document.createElement("div");
-            card.className = "card rounded-md";
-            card.innerHTML = `
-                <a href="${part.ebay}" target="_blank" title="Search ${part.name} on eBay">
-                    <img src="${img}" alt="${part.name}" class="rounded-t-md" />
-                    <div class="caption">
-                        <strong>${code}</strong><br />
-                        <span>${part.name}</span><br />
-                        <span class="tag rounded-md">${part.category}</span>
-                    </div>
-                </a>
-            `;
-            partsGrid.appendChild(card);
+          }
         });
-    }
-}
-    </script>
+      }
+    });
+
+    // Year → Models
+    $("#mnuYear").on("change", function() {
+      let year = $(this).val();
+      let make = $("#mnuMake").val();
+      $("#mnuModel").prop("disabled", !year).empty().append(`<option value="">-- Select Model --</option>`);
+      $("#mnuOptions").prop("disabled", true).empty().append(`<option value="">-- Select Option --</option>`);
+      if (year && make) {
+        $.ajax({
+          url: `${API_BASE}/model?year=${year}&make=${make}`,
+          dataType: "xml",
+          success: function(xml) {
+            $(xml).find("menuItem").each(function() {
+              let model = $(this).find("text").text();
+              $("#mnuModel").append(`<option value="${model}">${model}</option>`);
+            });
+          }
+        });
+      }
+    });
+
+    // Model → Options
+    $("#mnuModel").on("change", function() {
+      let model = $(this).val();
+      let year = $("#mnuYear").val();
+      let make = $("#mnuMake").val();
+      $("#mnuOptions").prop("disabled", !model).empty().append(`<option value="">-- Select Option --</option>`);
+      if (model && year && make) {
+        $.ajax({
+          url: `${API_BASE}/options?year=${year}&make=${make}&model=${model}`,
+          dataType: "xml",
+          success: function(xml) {
+            $(xml).find("menuItem").each(function() {
+              let opt = $(this).find("text").text();
+              $("#mnuOptions").append(`<option value="${opt}">${opt}</option>`);
+            });
+          }
+        });
+      }
+    });
+
+    // Option selected → show preview (placeholder logic)
+    $("#mnuOptions").on("change", function() {
+      let make = $("#mnuMake").val();
+      let model = $("#mnuModel").val();
+      let year = $("#mnuYear").val();
+      let opt = $(this).val();
+      if (opt) {
+        $("#vehiclePhoto").attr("src", `photos/${make}_${model}_${year}.png`);
+      }
+    });
+
+    // Init
+    $(document).ready(function() {
+      loadMakes();
+    });
+  </script>
 </body>
+</html>
 </html>
