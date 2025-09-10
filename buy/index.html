@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OEM Autos Vehicle Profile</title>
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="VIN.css">
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header>
+    <h1 id="vehicle-title">Vehicle Overview</h1>
+    <p id="tagline">Powered by custom VIN-specific data</p>
+  </header>
+  <main>
+    <section id="overview">
+      <div class="info-card">
+        <h2>Overview</h2>
+        <dl>
+          <dt>VIN</dt><dd id="vin"></dd>
+          <dt>Year</dt><dd id="year"></dd>
+          <dt>Make/Model</dt><dd id="make-model"></dd>
+          <dt>Trim</dt><dd id="trim"></dd>
+        </dl>
+      </div>
+      <div class="info-card">
+        <h2>Status</h2>
+        <ul>
+          <li><span id="mileage"></span> miles</li>
+          <li>Title Status: <span id="title-status"></span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="gallery">
+      <h2>Gallery</h2>
+      <div class="image-grid"></div>
+    </section>
+
+    <section id="parts">
+      <h2>Available Parts</h2>
+      <ul id="parts-list"></ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 OEM Autos. All rights reserved.</p>
+  </footer>
+</body>
+</html>
