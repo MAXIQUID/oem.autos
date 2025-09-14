@@ -1,387 +1,83 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Apple Pay Meme Prank</title>
-  <style>
-    body {
-      margin: 0;
-      background: #000;
-      color: #fff;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-      position: relative;
-      touch-action: manipulation;
-    }
+<script>
+  let tapCount = 0;
+  const display = document.getElementById("amount");
+  const card = document.getElementById("card");
+  const finessed = document.getElementById("finessed");
+  const faceid = document.getElementById("faceid");
 
-    canvas#matrix {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: #000;
-      z-index: 0;
-    }
+  // Meme sounds
+  const baseUrl = "https://www.myinstants.com";
+  const sounds = [
+    "/media/sounds/applepay.mp3",
+    "/media/sounds/among-us-role-reveal-sound.mp3",
+    "/media/sounds/vine-boom-sound-effect_KT89XIq.mp3"
+  ];
 
-    #card, #amount, #label, #finessed, #faceid {
-      position: relative;
-      z-index: 1;
-    }
+  // Preload audio elements
+  const audioElements = sounds.map(src => {
+    const audio = new Audio(baseUrl + src);
+    audio.preload = "auto";
+    return audio;
+  });
 
-    #amount {
-      font-size: 4rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      opacity: 0;
-      transform: scale(0.8) translateY(20px);
-      transition: opacity 0.25s ease, transform 0.25s ease;
-    }
-    #amount.show {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
+  // Cancelable animation state
+  let amountAnimationId = null;
+  let faceidTimeoutId = null;
 
-    #label {
-      font-size: 1.2rem;
-      opacity: 0.4;
-      margin-top: 0.5rem;
-      animation: fadeIn 1s ease forwards;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 0.4; transform: translateY(0); }
-    }
+  function playRandomSound() {
+    const audio = audioElements[Math.floor(Math.random() * audioElements.length)];
+    audio.currentTime = 0;
+    audio.play().catch(()=>{});
+  }
 
-    #card {
-      width: 340px; height: 200px;
-      background: linear-gradient(135deg, #1c1c1c, #000);
-      border-radius: 18px;
-      position: relative;
-      overflow: hidden;
-      margin-bottom: 2rem;
-      opacity: 0;
-      transform: perspective(800px) rotateY(90deg) scale(0.9);
-      transition: transform 0.6s cubic-bezier(.4,.0,.2,1), opacity 0.6s ease;
-    }
-    #card.show {
-      opacity: 1;
-      transform: perspective(800px) rotateY(0deg) scale(1);
-      animation: glow 2s infinite alternate;
-    }
-    @keyframes glow {
-      from { box-shadow: 0 0 15px rgba(0,255,0,0.3), 0 0 25px rgba(0,255,0,0.2); }
-      to   { box-shadow: 0 0 25px rgba(0,255,0,0.6), 0 0 50px rgba(0,255,0,0.3); }
-    }
+  function animateAmount(finalValue) {
+    if (amountAnimationId) cancelAnimationFrame(amountAnimationId);
+    let current = 0;
+    const step = Math.max(0.5, finalValue / 40);
 
-    /* Fake reflection */
-    #card::after {
-      content: "";
-      position: absolute;
-      top: -50%; left: -50%;
-      width: 200%; height: 200%;
-      background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
-      transform: rotate(25deg);
-      animation: shine 6s infinite;
-    }
-    @keyframes shine {
-      from { transform: translateX(-200%) rotate(25deg); }
-      to   { transform: translateX(200%) rotate(25deg); }
-    }
-
-    .chip {
-      width: 50px; height: 38px;
-      background: linear-gradient(145deg, #f8e27a, #d1a000);
-      border-radius: 6px;
-      margin: 22px;
-      box-shadow: 0 0 8px rgba(255,215,0,0.4);
-      position: relative;
-      z-index: 2;
-    }
-    .number {
-      position: absolute;
-      bottom: 55px; left: 22px;
-      font-size: 1.3rem;
-      letter-spacing: 3px;
-      color: #ddd;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
-    }
-    .holder {
-      position: absolute;
-      bottom: 25px; left: 22px;
-      font-size: 0.9rem;
-      color: #aaa;
-      text-transform: uppercase;
-    }
-    .logo {
-      position: absolute;
-      bottom: 20px; right: 20px;
-      font-weight: bold;
-      font-size: 1.7rem;
-      background: linear-gradient(45deg, #06f, #0af);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    #faceid {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      font-size: 2rem;
-      color: #0f0;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-      z-index: 10;
-    }
-    #faceid.show {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .scan-dots {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .dot {
-      width: 15px; height: 15px;
-      border-radius: 50%;
-      background: #0f0;
-      opacity: 0.3;
-      animation: pulse 1.5s infinite;
-    }
-    .dot:nth-child(2) { animation-delay: 0.3s; }
-    .dot:nth-child(3) { animation-delay: 0.6s; }
-    @keyframes pulse {
-      0%,100% { opacity: 0.3; transform: scale(0.8); }
-      50% { opacity: 1; transform: scale(1.2); }
-    }
-
-    #finessed {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      font-size: 3rem;
-      font-weight: 900;
-      color: #0f0;
-      text-shadow: 0 0 10px #0f0, 0 0 20px #0f0, 0 0 40px #0f0;
-      opacity: 0;
-      z-index: 20;
-      pointer-events: none;
-    }
-    #finessed.show {
-      animation: finessedAnim 2s ease forwards;
-    }
-    @keyframes finessedAnim {
-      0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-      50%  { transform: translate(-50%, -50%) scale(1.3) rotate(-5deg); opacity: 1; }
-      70%  { transform: translate(-50%, -50%) scale(1) rotate(5deg); }
-      100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
-    }
-  </style>
-</head>
-<body>
-
-  <canvas id="matrix"></canvas>
-
-  <div id="card">
-    <div class="chip"></div>
-    <div class="number">•••• •••• •••• 1234</div>
-    <div class="holder">JOHN DOE</div>
-    <div class="logo">VISA</div>
-  </div>
-
-  <div id="amount">+$0.00</div>
-  <div id="label">Tap to pay</div>
-
-  <div id="faceid">
-    🔒 Scanning Face ID...
-    <div class="scan-dots">
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-    </div>
-  </div>
-
-  <div id="finessed">YOU JUST GOT FINESSED 💸</div>
-
-  <script>
-    let tapCount = 0;
-    const display = document.getElementById("amount");
-    const card = document.getElementById("card");
-    const finessed = document.getElementById("finessed");
-    const faceid = document.getElementById("faceid");
-
-    // Meme sounds
-    const baseUrl = "https://www.myinstants.com";
-    const sounds = [
-      "/media/sounds/are-you-out-of-your-mind-greenscreen-change-quality-and-end-wont-cut-off_2.mp3",
-      "/media/sounds/tf_nemesis.mp3",
-      "/media/sounds/among-us-role-reveal-sound.mp3",
-      "/media/sounds/error_CDOxCYm.mp3",
-      "/media/sounds/emotional-damage-meme.mp3",
-      "/media/sounds/baby-laughing-meme.mp3",
-      "/media/sounds/tmp_7901-951678082.mp3",
-      "/media/sounds/meme-de-creditos-finales.mp3",
-      "/media/sounds/fart-meme-sound.mp3",
-      "/media/sounds/vine-boom-sound-effect_KT89XIq.mp3",
-      "/media/sounds/spiderman-meme-song.mp3",
-      "/media/sounds/punch-gaming-sound-effect-hd_RzlG1GE.mp3",
-      "/media/sounds/run-vine-sound-effect.mp3",
-      "/media/sounds/galaxy-meme.mp3",
-      "/media/sounds/outro-song_oqu8zAg.mp3",
-      "/media/sounds/snore-mimimimimimi.mp3",
-      "/media/sounds/cat-laugh-meme-1.mp3",
-      "/media/sounds/yt1s_wU4BGgD.mp3",
-      "/media/sounds/my-movie-6_0RlWMvM.mp3",
-      "/media/sounds/shocked-sound-effect.mp3",
-      "/media/sounds/deja-vu.mp3",
-      "/media/sounds/gta-san-andreas-ah-shit-here-we-go-again_BWv0Gvc.mp3",
-      "/media/sounds/dun-dun-dun-sound-effect-brass_8nFBccR.mp3",
-      "/media/sounds/999-social-credit-siren.mp3",
-      "/media/sounds/oh-my-god-meme.mp3",
-      "/media/sounds/directed-by-robert-b_voI2Z4T.mp3",
-      "/media/sounds/french-meme-song.mp3",
-      "/media/sounds/fartmeme.mp3",
-      "/media/sounds/anime-wow-sound-effect-mp3cut.mp3",
-      "/media/sounds/they-ask-you-how-you-are-and-you-just-have-to-say-that-youre-fine-sound-effect_IgYM1CV.mp3",
-      "/media/sounds/huh_37bAoRo.mp3",
-      "/media/sounds/ny-video-online-audio-converter.mp3",
-      "/media/sounds/fbi-open-up_dwLhIFf.mp3",
-      "/media/sounds/movie_1_C2K5NH0.mp3",
-      "/media/sounds/what-bottom-text-meme-sanctuary-guardian-sound-effect-hd.mp3",
-      "/media/sounds/long-brain-fart.mp3",
-      "/media/sounds/nani-meme-sound-effect.mp3",
-      "/media/sounds/what-are-you-doing-in-my-swamp-.mp3",
-      "/media/sounds/tmpbxydyrz3.mp3",
-      "/media/sounds/y2mate-mp3cut_sRzY6rh.mp3",
-      "/media/sounds/bing-chilling_fcdGgUc.mp3",
-      "/media/sounds/oh-no-no-no-tik-tok-song-sound-effect.mp3",
-      "/media/sounds/auughhh.mp3",
-      "/media/sounds/punch-sound-effect-meme.mp3",
-      "/media/sounds/jojos-bizarre-adventure-ay-ay-ay-ay-_-sound-effect.mp3",
-      "/media/sounds/frog-laughing-meme.mp3",
-      "/media/sounds/danger-alarm-sound-effect-meme.mp3",
-      "/media/sounds/english-or-spanish-song.mp3",
-      "/media/sounds/meme-okay-lets-go.mp3",
-      "/media/sounds/ladies-and-gentlemen-we-got-him-song.mp3",
-      "/media/sounds/tmpq7mpzzl9.mp3",
-      "/media/sounds/dobroe-utro-moia-devochka.mp3",
-      "/media/sounds/steve-old-hurt-sound_XKZxUk4.mp3",
-      "/media/sounds/ae-meme.mp3",
-      "/media/sounds/guy-yelling-among-us-sound-effect.mp3",
-      "/media/sounds/lightskin-rizz-sin-city.mp3",
-      "/media/sounds/awolnation-run-audio-mp3cut_TdXTLux.mp3",
-      "/media/sounds/lobotomy-sound-effect.mp3",
-      "/media/sounds/rat-dance-music.mp3",
-      "/media/sounds/loading-lost-connection-green-screen-with-sound-effect-2_K8HORkT.mp3",
-      "/media/sounds/musica-de-sigma-estourado.mp3",
-      "/media/sounds/bad-to-the-bone-meme.mp3",
-      "/media/sounds/windows-xp-startup_1ph012N.mp3",
-      "/media/sounds/galaxy-brain-meme.mp3",
-      "/media/sounds/duck-toy-sound.mp3",
-      "/media/sounds/let-her-go.mp3",
-      "/media/sounds/sabe-porque-as-meninas-dao-maior-valor-na-risada-de-ladrao-mp3cut.mp3",
-      "/media/sounds/meme-de-creditos-finales_qHtIjyQ.mp3",
-      "/media/sounds/obi-wan_says_hello_thereyoutubetomp4.mp3",
-      "/media/sounds/fire-in-the-hole-geometry-dash.mp3",
-      "/media/sounds/u-got-that-mp3-fix.mp3",
-      "/media/sounds/fail-sound-effect.mp3"
-    ];
-
-    function playRandomSound() {
-      const url = baseUrl + sounds[Math.floor(Math.random() * sounds.length)];
-      const audio = new Audio(url);
-      audio.play().catch(()=>{});
-    }
-
-    function animateAmount(finalValue) {
-      let current = 0;
-      const step = Math.max(0.5, finalValue / 40);
-      function tick() {
-        current += step;
-        if (current >= finalValue) {
-          display.textContent = `+$${finalValue.toFixed(2)}`;
-          return;
-        }
-        display.textContent = `+$${current.toFixed(2)}`;
-        requestAnimationFrame(tick);
+    function tick() {
+      current += step;
+      if (current >= finalValue) {
+        display.textContent = `+$${finalValue.toFixed(2)}`;
+        amountAnimationId = null;
+        return;
       }
-      tick();
+      display.textContent = `+$${current.toFixed(2)}`;
+      amountAnimationId = requestAnimationFrame(tick);
     }
+    tick();
+  }
 
-    document.body.addEventListener("click", () => {
-      tapCount++;
+  document.body.addEventListener("click", () => {
+    tapCount++;
+    playRandomSound();
 
-      playRandomSound();
+    if (navigator.vibrate) navigator.vibrate([50,30,80,30,50]);
 
-      if (navigator.vibrate) navigator.vibrate([50,30,80,30,50]);
+    card.classList.add("show");
 
-      card.classList.add("show");
+    // Reset Face ID
+    if (faceidTimeoutId) clearTimeout(faceidTimeoutId);
+    faceid.classList.remove("show");
+    void faceid.offsetWidth;
+    faceid.classList.add("show");
 
-      faceid.classList.add("show");
-      setTimeout(() => {
-        faceid.classList.remove("show");
+    faceidTimeoutId = setTimeout(() => {
+      faceid.classList.remove("show");
 
-        const amounts = [4.99, 9.99, 14.50, 19.99, 24.00, 49.99, 79.00, 129.99, 199.00];
-        const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
+      const amounts = [4.99, 9.99, 14.50, 19.99, 24.00, 49.99, 79.00, 129.99, 199.00];
+      const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
 
-        display.classList.remove("show");
-        void display.offsetWidth;
-        display.classList.add("show");
-        animateAmount(randomAmount);
+      // Reset display animation
+      display.classList.remove("show");
+      void display.offsetWidth;
+      display.classList.add("show");
+      animateAmount(randomAmount);
 
-        if (tapCount === 5) {
-          finessed.classList.add("show");
-        }
-      }, 1500);
-    });
-
-    // 3D tilt
-    document.addEventListener("mousemove", e => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 20;
-      const y = (e.clientY / window.innerHeight - 0.5) * -20;
-      card.style.transform = `perspective(800px) rotateY(${x}deg) rotateX(${y}deg)`;
-    });
-
-    // Matrix rain
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
-    const letters = "アカサタナハマヤラワ0123456789";
-    const fontSize = 16;
-    const columns = canvas.width / fontSize;
-    const drops = Array(Math.floor(columns)).fill(1);
-
-    function draw() {
-      ctx.fillStyle = "rgba(0,0,0,0.05)";
-      ctx.fillRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle = "#0f0";
-      ctx.font = fontSize + "px monospace";
-      for (let i=0; i<drops.length; i++) {
-        const text = letters.charAt(Math.floor(Math.random()*letters.length));
-        ctx.fillText(text, i*fontSize, drops[i]*fontSize);
-        if (drops[i]*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
+      if (tapCount === 5) {
+        finessed.classList.add("show");
       }
-      requestAnimationFrame(draw);
-    }
-    draw();
 
-    window.addEventListener("resize", () => {
-      canvas.height = window.innerHeight;
-      canvas.width = window.innerWidth;
-    });
-  </script>
-</body>
-</html>
+    }, 1500); // Face ID scan duration
+  });
+</script>
