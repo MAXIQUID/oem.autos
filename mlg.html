@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-  <title>Tap the Dot</title>
+  <title>Calculator</title>
   <style>
     html, body {
       height: 100%;
@@ -12,18 +12,44 @@
       overflow: hidden;
       -webkit-tap-highlight-color: transparent;
       touch-action: none;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     }
-    #gameArea {
+    #calculator {
       width: 100%;
-      height: 100%;
+      max-width: 320px;
+      margin: 20px auto;
       background: #0f1113;
-      position: relative;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
     }
-    .dot {
-      position: absolute;
-      border-radius: 50%;
+    #display {
+      width: 100%;
+      height: 60px;
+      background: #1c2526;
+      color: #34c759;
+      font-size: 36px;
+      text-align: right;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      user-select: none;
+      box-sizing: border-box;
+    }
+    #buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    button {
+      padding: 15px;
       background: linear-gradient(180deg, #34c759, #1ca64a);
-      box-shadow: 0 8px 24px rgba(52,199,89,0.18), inset 0 -6px 10px rgba(0,0,0,0.12);
+      color: #140000;
+      font-size: 24px;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
       user-select: none;
       touch-action: none;
     }
@@ -41,13 +67,23 @@
   </style>
 </head>
 <body>
-  <div id="gameArea"></div>
+  <div id="calculator">
+    <div id="display" aria-label="Calculator display">0</div>
+    <div id="buttons">
+      <button>7</button><button>8</button><button>9</button><button>÷</button>
+      <button>4</button><button>5</button><button>6</button><button>×</button>
+      <button>1</button><button>2</button><button>3</button><button>-</button>
+      <button>0</button><button>C</button><button>=</button><button>+</button>
+    </div>
+  </div>
   <button id="stopBtn">STOP</button>
 
 <script>
-const gameArea = document.getElementById('gameArea');
+const calculator = document.getElementById('calculator');
+const display = document.getElementById('display');
+const buttons = document.querySelectorAll('#buttons button');
 const stopBtn = document.getElementById('stopBtn');
-let activeDot = null, allowPlay = true, chaosTimers = [];
+let chaosTimers = [];
 let activeTracks = new Set();
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 let isAudioContextResumed = false;
@@ -132,15 +168,22 @@ const audioQueue = [
   const audio = new Audio(baseUrl + path);
   audio.preload = "auto";
   audio.volume = 0.7;
-  audio.loop = true;
   audio.load();
+  audio.addEventListener('ended', () => {
+    if (allowPlay) {
+      const nextIndex = Math.floor(Math.random() * audioQueue.length);
+      const nextAudio = audioQueue[nextIndex];
+      activeTracks.delete(audioQueue.indexOf(audio));
+      activeTracks.add(nextIndex);
+      saveChaosState();
+      nextAudio.play().catch(() => {});
+    }
+  });
   return audio;
 });
 
 function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
-function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
-// Keep AudioContext alive with silent oscillator
 function keepAudioContextAlive() {
   if (audioContext.state === 'suspended') {
     audioContext.resume().then(() => {
@@ -165,50 +208,21 @@ function loadChaosState() {
     setTimeout(() => {
       const indices = JSON.parse(savedState);
       indices.forEach(index => {
-        if (audioQueue[index]) {
+        if (audioQueue[index] && !activeTracks.has(index)) {
           audioQueue[index].play().catch(() => {});
           activeTracks.add(index);
         }
       });
+      saveChaosState();
     }, 100); // Slight delay to ensure AudioContext is ready
   }
 }
 
-function computeDotSize() {
-  return Math.max(48, Math.min(96, Math.round(window.innerWidth * 0.18)));
-}
-
-function spawnDot() {
-  if (!allowPlay) return;
-  if (activeDot) activeDot.remove();
-
-  const d = computeDotSize();
-  const rect = gameArea.getBoundingClientRect();
-  const left = clamp(Math.random() * (rect.width - d), 0, rect.width - d);
-  const top = clamp(Math.random() * (rect.height - d), 0, rect.height - d);
-
-  const dot = document.createElement("button");
-  dot.className = "dot";
-  dot.style.width = d + "px";
-  dot.style.height = d + "px";
-  dot.style.left = left + "px";
-  dot.style.top = top + "px";
-  dot.setAttribute('aria-label', 'Tap target');
-
-  dot.animate([{transform:"scale(1)"},{transform:"scale(1.06)"},{transform:"scale(1)"}],
-              {duration: 1400, iterations: Infinity});
-
-  dot.addEventListener("pointerdown", e => {
-    e.preventDefault();
-    if (!allowPlay) return;
-    vibrate(25);
-    keepAudioContextAlive();
-    spawnDot();
-    if (chaosTimers.length === 0) startChaos();
-  }, { passive: false });
-
-  gameArea.appendChild(dot);
-  activeDot = dot;
+function setResult() {
+  display.textContent = '67';
+  vibrate(25);
+  keepAudioContextAlive();
+  if (chaosTimers.length === 0) startChaos();
 }
 
 function startChaos() {
@@ -242,18 +256,32 @@ function stopAll() {
   audioQueue.forEach(a => { try { a.pause(); a.currentTime = 0; } catch(e) {} });
   activeTracks.clear();
   sessionStorage.removeItem('chaosState');
-  if (activeDot) activeDot.remove();
-  setTimeout(() => { allowPlay = true; spawnDot(); }, 250);
+  display.textContent = '0';
 }
 
-stopBtn.addEventListener("click", stopAll);
-window.addEventListener("resize", () => activeDot && spawnDot());
-window.addEventListener("pagehide", saveChaosState);
-window.addEventListener("beforeunload", saveChaosState);
+buttons.forEach(button => {
+  button.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    setResult();
+  }, { passive: false });
+});
+
+display.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  setResult();
+}, { passive: false });
+
+document.addEventListener('keydown', e => {
+  e.preventDefault();
+  setResult();
+});
+
+stopBtn.addEventListener('click', stopAll);
+window.addEventListener('pagehide', saveChaosState);
+window.addEventListener('beforeunload', saveChaosState);
 
 // Resume chaos on load
 loadChaosState();
-setTimeout(spawnDot, 200);
 </script>
 </body>
 </html>
