@@ -1,0 +1,91 @@
+const CACHE_NAME = 'tap-the-dot-audio-cache-v1';
+const audioFiles = [
+  '/media/sounds/are-you-out-of-your-mind-greenscreen-change-quality-and-end-wont-cut-off_2.mp3',
+  '/media/sounds/tf_nemesis.mp3',
+  '/media/sounds/among-us-role-reveal-sound.mp3',
+  '/media/sounds/error_CDOxCYm.mp3',
+  '/media/sounds/emotional-damage-meme.mp3',
+  '/media/sounds/baby-laughing-meme.mp3',
+  '/media/sounds/tmp_7901-951678082.mp3',
+  '/media/sounds/meme-de-creditos-finales.mp3',
+  '/media/sounds/fart-meme-sound.mp3',
+  '/media/sounds/vine-boom-sound-effect_KT89XIq.mp3',
+  '/media/sounds/spiderman-meme-song.mp3',
+  '/media/sounds/punch-gaming-sound-effect-hd_RzlG1GE.mp3',
+  '/media/sounds/run-vine-sound-effect.mp3',
+  '/media/sounds/galaxy-meme.mp3',
+  '/media/sounds/outro-song_oqu8zAg.mp3',
+  '/media/sounds/snore-mimimimimimi.mp3',
+  '/media/sounds/cat-laugh-meme-1.mp3',
+  '/media/sounds/yt1s_wU4BGgD.mp3',
+  '/media/sounds/my-movie-6_0RlWMvM.mp3',
+  '/media/sounds/shocked-sound-effect.mp3',
+  '/media/sounds/deja-vu.mp3',
+  '/media/sounds/gta-san-andreas-ah-shit-here-we-go-again_BWv0Gvc.mp3',
+  '/media/sounds/dun-dun-dun-sound-effect-brass_8nFBccR.mp3',
+  '/media/sounds/999-social-credit-siren.mp3',
+  '/media/sounds/oh-my-god-meme.mp3',
+  '/media/sounds/directed-by-robert-b_voI2Z4T.mp3',
+  '/media/sounds/french-meme-song.mp3',
+  '/media/sounds/fartmeme.mp3',
+  '/media/sounds/anime-wow-sound-effect-mp3cut.mp3',
+  '/media/sounds/they-ask-you-how-you-are-and-you-just-have-to-say-that-youre-fine-sound-effect_IgYM1CV.mp3',
+  '/media/sounds/huh_37bAoRo.mp3',
+  '/media/sounds/ny-video-online-audio-converter.mp3',
+  '/media/sounds/fbi-open-up_dwLhIFf.mp3',
+  '/media/sounds/movie_1_C2K5NH0.mp3',
+  '/media/sounds/what-bottom-text-meme-sanctuary-guardian-sound-effect-hd.mp3',
+  '/media/sounds/long-brain-fart.mp3',
+  '/media/sounds/nani-meme-sound-effect.mp3',
+  '/media/sounds/what-are-you-doing-in-my-swamp-.mp3',
+  '/media/sounds/tmpbxydyrz3.mp3',
+  '/media/sounds/y2mate-mp3cut_sRzY6rh.mp3',
+  '/media/sounds/bing-chilling_fcdGgUc.mp3',
+  '/media/sounds/oh-no-no-no-tik-tok-song-sound-effect.mp3',
+  '/media/sounds/auughhh.mp3',
+  '/media/sounds/punch-sound-effect-meme.mp3',
+  '/media/sounds/jojos-bizarre-adventure-ay-ay-ay-ay-_-sound-effect.mp3',
+  '/media/sounds/frog-laughing-meme.mp3',
+  '/media/sounds/danger-alarm-sound-effect-meme.mp3',
+  '/media/sounds/english-or-spanish-song.mp3',
+  '/media/sounds/meme-okay-lets-go.mp3',
+  '/media/sounds/ladies-and-gentlemen-we-got-him-song.mp3',
+  '/media/sounds/tmpq7mpzzl9.mp3',
+  '/media/sounds/dobroe-utro-moia-devochka.mp3',
+  '/media/sounds/steve-old-hurt-sound_XKZxUk4.mp3',
+  '/media/sounds/ae-meme.mp3',
+  '/media/sounds/guy-yelling-among-us-sound-effect.mp3',
+  '/media/sounds/lightskin-rizz-sin-city.mp3',
+  '/media/sounds/awolnation-run-audio-mp3cut_TdXTLux.mp3',
+  '/media/sounds/lobotomy-sound-effect.mp3',
+  '/media/sounds/rat-dance-music.mp3',
+  '/media/sounds/loading-lost-connection-green-screen-with-sound-effect-2_K8HORkT.mp3',
+  '/media/sounds/musica-de-sigma-estourado.mp3',
+  '/media/sounds/bad-to-the-bone-meme.mp3',
+  '/media/sounds/windows-xp-startup_1ph012N.mp3',
+  '/media/sounds/galaxy-brain-meme.mp3',
+  '/media/sounds/duck-toy-sound.mp3',
+  '/media/sounds/let-her-go.mp3',
+  '/media/sounds/sabe-porque-as-meninas-dao-maior-valor-na-risada-de-ladrao-mp3cut.mp3',
+  '/media/sounds/meme-de-creditos-finales_qHtIjyQ.mp3',
+  '/media/sounds/obi-wan_says_hello_thereyoutubetomp4.mp3',
+  '/media/sounds/fire-in-the-hole-geometry-dash.mp3',
+  '/media/sounds/u-got-that-mp3-fix.mp3',
+  '/media/sounds/fail-sound-effect.mp3'
+].map(path => `https://www.myinstants.com${path}`);
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(audioFiles);
+    })
+  );
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
+  );
+});
