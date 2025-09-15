@@ -1,117 +1,434 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Meme Chaos</title>
-  <style>
-    body {
-      background: #111;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
-    }
-    h1 {
-      margin-bottom: 30px;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Meme Chaos — (Prank Page — use responsibly)</title>
+<style>
+  :root {
+    --bg: #0b0b0b;
+    --fg: #eaeaea;
+    --accent: #ff4d4d;
+  }
+  html,body { height:100%; margin:0; background:var(--bg); color:var(--fg); font-family:Inter, system-ui, Arial; }
+  .wrap { display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:28px; gap:18px; min-height:100%; box-sizing:border-box;}
+  h1 { margin:8px 0; font-size:1.6rem; }
+  p.lead { max-width:720px; text-align:center; opacity:0.9; }
+  .controls { display:flex; gap:12px; flex-wrap:wrap; }
+  button, .btn { background:#222; color:var(--fg); border:1px solid #222; padding:10px 14px; border-radius:8px; cursor:pointer; font-weight:600; }
+  button:active { transform:translateY(1px); }
+  .btn.primary { background:var(--accent); color:#111; border-color:var(--accent); }
+  .small { font-size:0.9rem; opacity:0.9; }
+  #mazeContainer { width:720px; max-width:95vw; height:480px; background:#050505; border-radius:10px; overflow:hidden; position:relative; display:none; align-items:center; justify-content:center; box-shadow:0 10px 40px rgba(0,0,0,0.6); }
+  canvas { display:block; width:100%; height:100%; background:linear-gradient(180deg,#061018,#0b0b0b); }
+  .notice { font-size:0.85rem; color:#bbb; margin-top:8px; }
+  /* Jump-scare overlay */
+  #flash {
+    position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+    background:white; z-index:9999; pointer-events:none;
+  }
+  #flash .text { font-size: clamp(18px, 6vw, 48px); color:#000; font-weight:800; text-align:center; }
+  /* Footer small */
+  footer { margin-top:20px; font-size:0.85rem; color:#8a8a8a; text-align:center; }
+</style>
 </head>
 <body>
-  <h1>💥 Meme Chaos 💥</h1>
-  <p>Sit back and embrace the noise...</p>
+<div class="wrap">
+  <h1>Meme Chaos — Prank Page</h1>
+  <p class="lead">This page is explicitly a prank. <strong>Do not use it to deceive people without consent.</strong> Click <em>Start Instant Chaos</em> only if you have permission from the person you're pranking. The maze is a game — hit a wall and you'll get a jump-scare.</p>
 
-  <script>
-    const sounds = [
-      "/media/sounds/are-you-out-of-your-mind-greenscreen-change-quality-and-end-wont-cut-off_2.mp3",
-      "/media/sounds/tf_nemesis.mp3",
-      "/media/sounds/among-us-role-reveal-sound.mp3",
-      "/media/sounds/error_CDOxCYm.mp3",
-      "/media/sounds/emotional-damage-meme.mp3",
-      "/media/sounds/baby-laughing-meme.mp3",
-      "/media/sounds/tmp_7901-951678082.mp3",
-      "/media/sounds/meme-de-creditos-finales.mp3",
-      "/media/sounds/fart-meme-sound.mp3",
-      "/media/sounds/vine-boom-sound-effect_KT89XIq.mp3",
-      "/media/sounds/spiderman-meme-song.mp3",
-      "/media/sounds/punch-gaming-sound-effect-hd_RzlG1GE.mp3",
-      "/media/sounds/run-vine-sound-effect.mp3",
-      "/media/sounds/galaxy-meme.mp3",
-      "/media/sounds/outro-song_oqu8zAg.mp3",
-      "/media/sounds/snore-mimimimimimi.mp3",
-      "/media/sounds/cat-laugh-meme-1.mp3",
-      "/media/sounds/yt1s_wU4BGgD.mp3",
-      "/media/sounds/my-movie-6_0RlWMvM.mp3",
-      "/media/sounds/shocked-sound-effect.mp3",
-      "/media/sounds/deja-vu.mp3",
-      "/media/sounds/gta-san-andreas-ah-shit-here-we-go-again_BWv0Gvc.mp3",
-      "/media/sounds/dun-dun-dun-sound-effect-brass_8nFBccR.mp3",
-      "/media/sounds/999-social-credit-siren.mp3",
-      "/media/sounds/oh-my-god-meme.mp3",
-      "/media/sounds/directed-by-robert-b_voI2Z4T.mp3",
-      "/media/sounds/french-meme-song.mp3",
-      "/media/sounds/fartmeme.mp3",
-      "/media/sounds/anime-wow-sound-effect-mp3cut.mp3",
-      "/media/sounds/they-ask-you-how-you-are-and-you-just-have-to-say-that-youre-fine-sound-effect_IgYM1CV.mp3",
-      "/media/sounds/huh_37bAoRo.mp3",
-      "/media/sounds/ny-video-online-audio-converter.mp3",
-      "/media/sounds/fbi-open-up_dwLhIFf.mp3",
-      "/media/sounds/movie_1_C2K5NH0.mp3",
-      "/media/sounds/what-bottom-text-meme-sanctuary-guardian-sound-effect-hd.mp3",
-      "/media/sounds/long-brain-fart.mp3",
-      "/media/sounds/nani-meme-sound-effect.mp3",
-      "/media/sounds/what-are-you-doing-in-my-swamp-.mp3",
-      "/media/sounds/tmpbxydyrz3.mp3",
-      "/media/sounds/y2mate-mp3cut_sRzY6rh.mp3",
-      "/media/sounds/bing-chilling_fcdGgUc.mp3",
-      "/media/sounds/oh-no-no-no-tik-tok-song-sound-effect.mp3",
-      "/media/sounds/auughhh.mp3",
-      "/media/sounds/punch-sound-effect-meme.mp3",
-      "/media/sounds/jojos-bizarre-adventure-ay-ay-ay-ay-_-sound-effect.mp3",
-      "/media/sounds/frog-laughing-meme.mp3",
-      "/media/sounds/danger-alarm-sound-effect-meme.mp3",
-      "/media/sounds/english-or-spanish-song.mp3",
-      "/media/sounds/meme-okay-lets-go.mp3",
-      "/media/sounds/ladies-and-gentlemen-we-got-him-song.mp3",
-      "/media/sounds/tmpq7mpzzl9.mp3",
-      "/media/sounds/dobroe-utro-moia-devochka.mp3",
-      "/media/sounds/steve-old-hurt-sound_XKZxUk4.mp3",
-      "/media/sounds/ae-meme.mp3",
-      "/media/sounds/guy-yelling-among-us-sound-effect.mp3",
-      "/media/sounds/lightskin-rizz-sin-city.mp3",
-      "/media/sounds/awolnation-run-audio-mp3cut_TdXTLux.mp3",
-      "/media/sounds/lobotomy-sound-effect.mp3",
-      "/media/sounds/rat-dance-music.mp3",
-      "/media/sounds/loading-lost-connection-green-screen-with-sound-effect-2_K8HORkT.mp3",
-      "/media/sounds/musica-de-sigma-estourado.mp3",
-      "/media/sounds/bad-to-the-bone-meme.mp3",
-      "/media/sounds/windows-xp-startup_1ph012N.mp3",
-      "/media/sounds/galaxy-brain-meme.mp3",
-      "/media/sounds/duck-toy-sound.mp3",
-      "/media/sounds/let-her-go.mp3",
-      "/media/sounds/sabe-porque-as-meninas-dao-maior-valor-na-risada-de-ladrao-mp3cut.mp3",
-      "/media/sounds/meme-de-creditos-finales_qHtIjyQ.mp3",
-      "/media/sounds/obi-wan_says_hello_thereyoutubetomp4.mp3",
-      "/media/sounds/fire-in-the-hole-geometry-dash.mp3",
-      "/media/sounds/u-got-that-mp3-fix.mp3",
-      "/media/sounds/fail-sound-effect.mp3"
-    ];
+  <div class="controls">
+    <button id="startChaos" class="btn primary">Start Instant Chaos (I have permission)</button>
+    <button id="startChaosSilent" class="btn">Start Chaos (no consent needed — just test)</button>
+    <button id="playMaze" class="btn">Play Scary Maze (consensual)</button>
+    <button id="stopAll" class="btn">Stop Everything</button>
+  </div>
 
-    const baseUrl = "https://www.myinstants.com";
+  <div class="notice small">Tip: the page streams sounds on demand for immediate effect. Background caching warms the rest of the sound pool without blocking the experience.</div>
 
-    // preload audio objects
-    const audios = sounds.map(src => new Audio(baseUrl + src));
+  <div id="mazeContainer" aria-hidden="true">
+    <canvas id="mazeCanvas" width="1280" height="720"></canvas>
+  </div>
 
-    // function to blast chaos
-    function blastChaos() {
-      setInterval(() => {
-        const audio = audios[Math.floor(Math.random() * audios.length)].cloneNode();
-        audio.volume = Math.random() * 0.7 + 0.3;
-        audio.play().catch(()=>{});
-      }, 200); // every 200ms, start a new random sound
+  <footer>Made for consenting pranks & demo/testing. Use responsibly.</footer>
+</div>
+
+<!-- Flash / jump-scare overlay -->
+<div id="flash" role="alert" aria-hidden="true">
+  <div class="text">BOO!</div>
+</div>
+
+<script>
+/*
+  Production-ready Meme Chaos + Scary Maze (harmless prank).
+  - No Trojan horse, no deception instructions.
+  - Requires explicit user confirmation before 'Start Instant Chaos' to avoid non-consensual use.
+  - Sounds are streamed on demand (lazy).
+  - Maze triggers jump-scare when hitting a wall.
+*/
+
+/* =========================
+   Configuration
+   ========================= */
+const baseUrl = "https://www.myinstants.com"; // host prefix for your sound files
+const sounds = [
+  "/media/sounds/are-you-out-of-your-mind-greenscreen-change-quality-and-end-wont-cut-off_2.mp3",
+  "/media/sounds/tf_nemesis.mp3",
+  "/media/sounds/among-us-role-reveal-sound.mp3",
+  "/media/sounds/error_CDOxCYm.mp3",
+  "/media/sounds/emotional-damage-meme.mp3",
+  "/media/sounds/baby-laughing-meme.mp3",
+  "/media/sounds/tmp_7901-951678082.mp3",
+  "/media/sounds/meme-de-creditos-finales.mp3",
+  "/media/sounds/fart-meme-sound.mp3",
+  "/media/sounds/vine-boom-sound-effect_KT89XIq.mp3",
+  "/media/sounds/spiderman-meme-song.mp3",
+  "/media/sounds/punch-gaming-sound-effect-hd_RzlG1GE.mp3",
+  "/media/sounds/run-vine-sound-effect.mp3",
+  "/media/sounds/galaxy-meme.mp3",
+  "/media/sounds/outro-song_oqu8zAg.mp3",
+  "/media/sounds/snore-mimimimimimi.mp3",
+  "/media/sounds/cat-laugh-meme-1.mp3",
+  "/media/sounds/yt1s_wU4BGgD.mp3",
+  "/media/sounds/my-movie-6_0RlWMvM.mp3",
+  "/media/sounds/shocked-sound-effect.mp3",
+  "/media/sounds/deja-vu.mp3",
+  "/media/sounds/gta-san-andreas-ah-shit-here-we-go-again_BWv0Gvc.mp3",
+  "/media/sounds/dun-dun-dun-sound-effect-brass_8nFBccR.mp3",
+  "/media/sounds/999-social-credit-siren.mp3",
+  "/media/sounds/oh-my-god-meme.mp3",
+  "/media/sounds/directed-by-robert-b_voI2Z4T.mp3",
+  "/media/sounds/french-meme-song.mp3",
+  "/media/sounds/fartmeme.mp3",
+  "/media/sounds/anime-wow-sound-effect-mp3cut.mp3",
+  "/media/sounds/they-ask-you-how-you-are-and-you-just-have-to-say-that-youre-fine-sound-effect_IgYM1CV.mp3",
+  "/media/sounds/huh_37bAoRo.mp3",
+  "/media/sounds/ny-video-online-audio-converter.mp3",
+  "/media/sounds/fbi-open-up_dwLhIFf.mp3",
+  "/media/sounds/movie_1_C2K5NH0.mp3",
+  "/media/sounds/what-bottom-text-meme-sanctuary-guardian-sound-effect-hd.mp3",
+  "/media/sounds/long-brain-fart.mp3",
+  "/media/sounds/nani-meme-sound-effect.mp3",
+  "/media/sounds/what-are-you-doing-in-my-swamp-.mp3",
+  "/media/sounds/tmpbxydyrz3.mp3",
+  "/media/sounds/y2mate-mp3cut_sRzY6rh.mp3",
+  "/media/sounds/bing-chilling_fcdGgUc.mp3",
+  "/media/sounds/oh-no-no-no-tik-tok-song-sound-effect.mp3",
+  "/media/sounds/auughhh.mp3",
+  "/media/sounds/punch-sound-effect-meme.mp3",
+  "/media/sounds/jojos-bizarre-adventure-ay-ay-ay-ay-_-sound-effect.mp3",
+  "/media/sounds/frog-laughing-meme.mp3",
+  "/media/sounds/danger-alarm-sound-effect-meme.mp3",
+  "/media/sounds/english-or-spanish-song.mp3",
+  "/media/sounds/meme-okay-lets-go.mp3",
+  "/media/sounds/ladies-and-gentlemen-we-got-him-song.mp3",
+  "/media/sounds/tmpq7mpzzl9.mp3",
+  "/media/sounds/dobroe-utro-moia-devochka.mp3",
+  "/media/sounds/steve-old-hurt-sound_XKZxUk4.mp3",
+  "/media/sounds/ae-meme.mp3",
+  "/media/sounds/guy-yelling-among-us-sound-effect.mp3",
+  "/media/sounds/lightskin-rizz-sin-city.mp3",
+  "/media/sounds/awolnation-run-audio-mp3cut_TdXTLux.mp3",
+  "/media/sounds/lobotomy-sound-effect.mp3",
+  "/media/sounds/rat-dance-music.mp3",
+  "/media/sounds/loading-lost-connection-green-screen-with-sound-effect-2_K8HORkT.mp3",
+  "/media/sounds/musica-de-sigma-estourado.mp3",
+  "/media/sounds/bad-to-the-bone-meme.mp3",
+  "/media/sounds/windows-xp-startup_1ph012N.mp3",
+  "/media/sounds/galaxy-brain-meme.mp3",
+  "/media/sounds/duck-toy-sound.mp3",
+  "/media/sounds/let-her-go.mp3",
+  "/media/sounds/sabe-porque-as-meninas-dao-maior-valor-na-risada-de-ladrao-mp3cut.mp3",
+  "/media/sounds/meme-de-creditos-finales_qHtIjyQ.mp3",
+  "/media/sounds/obi-wan_says_hello_thereyoutubetomp4.mp3",
+  "/media/sounds/fire-in-the-hole-geometry-dash.mp3",
+  "/media/sounds/u-got-that-mp3-fix.mp3",
+  "/media/sounds/fail-sound-effect.mp3"
+];
+
+// small helper to build full URLs
+const urlFor = (path) => {
+  if (!path) return "";
+  try { return new URL(path, baseUrl).href; } catch(e){ return baseUrl + path; }
+};
+
+/* =========================
+   Audio helpers (lazy)
+   ========================= */
+function playRandomSound(volumeRange = [0.3, 1.0]) {
+  // pick random source, create an Audio on demand (streams)
+  const i = Math.floor(Math.random() * sounds.length);
+  const src = urlFor(sounds[i]);
+  const a = new Audio(src);
+  a.preload = "none"; // don't force preload
+  a.volume = Math.min(1, Math.max(0, (Math.random() * (volumeRange[1]-volumeRange[0])) + volumeRange[0]));
+  a.play().catch(()=>{/* ignore play failures (autoplay, etc.) */});
+  return a;
+}
+
+/* Blast chaos: starts many overlapping sounds on interval */
+let chaosInterval = null;
+function blastChaos(intervalMs = 200) {
+  if (chaosInterval) return; // already running
+  // try to start immediately with a handful of rapid sounds for flashbang feel
+  for (let i=0;i<6;i++){
+    setTimeout(()=> playRandomSound([0.6,1.0]), i*30);
+  }
+  chaosInterval = setInterval(()=> {
+    playRandomSound([0.25, 0.9]);
+  }, Math.max(60, intervalMs)); // clamp - don't go below ~60ms to avoid browser throttling
+}
+
+/* Stop chaos */
+function stopChaos() {
+  if (chaosInterval) {
+    clearInterval(chaosInterval);
+    chaosInterval = null;
+  }
+  // stop any playing audio elements on the page (best-effort)
+  document.querySelectorAll("audio").forEach(a => {
+    try { a.pause(); a.currentTime = 0; } catch(e){}
+  });
+}
+
+/* Background warm cache (staggered, non-blocking) */
+function warmCache() {
+  // spawn a few loads, staggered
+  sounds.forEach((s, i) => {
+    setTimeout(() => {
+      const a = new Audio(urlFor(s));
+      a.preload = "metadata"; // allow browser to cache
+      // do a very short load then release
+      a.addEventListener('canplay', () => {
+        // drop reference => allow GC; don't call play
+        try { a.src = ""; } catch(e){}
+      }, { once:true });
+      // attempt to start loading metadata
+      try { a.load(); } catch(e){}
+    }, 3000 + i * 350); // start background warming a few seconds after start
+  });
+}
+
+/* =========================
+   Jump-scare / flash overlay
+   ========================= */
+const flashEl = document.getElementById('flash');
+function doJumpScare() {
+  // Short white flash + loud scream sound
+  flashEl.style.display = 'flex';
+  flashEl.setAttribute('aria-hidden','false');
+
+  // pick a "scream / loud" file if available; fallback to random
+  const screamCandidates = sounds.filter(s => /auughhh|ah|oh-no|oh-my-god|auughhh|awolnation|auughhh|fbi-open-up/i.test(s));
+  const src = (screamCandidates.length ? urlFor(screamCandidates[Math.floor(Math.random()*screamCandidates.length)]) : urlFor(sounds[Math.floor(Math.random()*sounds.length)]));
+  const a = new Audio(src);
+  a.volume = 0.95;
+  a.play().catch(()=>{});
+  // quick expand then hide
+  setTimeout(()=>{
+    flashEl.style.transition = "opacity 220ms ease";
+    flashEl.style.opacity = "1";
+  }, 10);
+  setTimeout(()=> {
+    flashEl.style.opacity = "0";
+    flashEl.setAttribute('aria-hidden','true');
+    setTimeout(()=> {
+      flashEl.style.display = 'none';
+      flashEl.style.opacity = "";
+      flashEl.style.transition = "";
+    }, 260);
+  }, 700);
+}
+
+/* =========================
+   Maze game (simple)
+   ========================= */
+const mazeContainer = document.getElementById('mazeContainer');
+const canvas = document.getElementById('mazeCanvas');
+const ctx = canvas.getContext('2d');
+let mazeActive = false;
+
+// Simple grid maze generator (depth-first backtracking)
+function generateMaze(cols = 21, rows = 15) {
+  // ensure odd dimensions
+  if (cols % 2 === 0) cols++;
+  if (rows % 2 === 0) rows++;
+  const w = cols, h = rows;
+  // grid where 0 = wall, 1 = path
+  const grid = new Array(h).fill(0).map(()=> new Array(w).fill(0));
+  // carve starting at 1,1
+  function carve(x,y) {
+    grid[y][x] = 1;
+    const dirs = [[2,0],[-2,0],[0,2],[0,-2]].sort(()=>Math.random()-0.5);
+    for (const d of dirs) {
+      const nx = x + d[0], ny = y + d[1];
+      if (nx > 0 && nx < w-1 && ny > 0 && ny < h-1 && grid[ny][nx] === 0) {
+        grid[ y + d[1]/2 ][ x + d[0]/2 ] = 1; // knock down wall between
+        carve(nx,ny);
+      }
     }
+  }
+  carve(1,1);
+  // create entrance/exit
+  grid[0][1] = 0; // top wall
+  grid[h-1][w-2] = 0; // bottom exit
+  return grid;
+}
 
-    // auto-start after load
-    window.onload = blastChaos;
-  </script>
+let mazeGrid = null;
+let cellW = 0, cellH = 0;
+let startCell = {x:1,y:1};
+let exitCell = null;
+let mouseInside = false;
+
+// Draw maze
+function drawMaze() {
+  const cw = canvas.width = canvas.clientWidth * devicePixelRatio;
+  const ch = canvas.height = canvas.clientHeight * devicePixelRatio;
+  ctx.clearRect(0,0,cw,ch);
+  const cols = mazeGrid[0].length, rows = mazeGrid.length;
+  cellW = cw / cols;
+  cellH = ch / rows;
+  // draw walls
+  for (let y=0;y<rows;y++){
+    for (let x=0;x<cols;x++){
+      if (mazeGrid[y][x] === 0) {
+        ctx.fillStyle = "#0f1720";
+        ctx.fillRect(x*cellW, y*cellH, cellW, cellH);
+      } else {
+        ctx.fillStyle = "#071018";
+        ctx.fillRect(x*cellW, y*cellH, cellW, cellH);
+      }
+    }
+  }
+  // draw start (invisible-ish) and exit
+  ctx.fillStyle = "#082b07";
+  ctx.fillRect(startCell.x*cellW+cellW*0.12, startCell.y*cellH+cellH*0.12, cellW*0.76, cellH*0.76);
+  exitCell = { x: mazeGrid[0].length - 2, y: mazeGrid.length - 1 };
+  ctx.fillStyle = "#0b2b3a";
+  ctx.fillRect(exitCell.x*cellW+cellW*0.12, exitCell.y*cellH+cellH*0.12, cellW*0.76, cellH*0.76);
+}
+
+// convert pixel to cell coords
+function pixelToCell(px, py) {
+  const rect = canvas.getBoundingClientRect();
+  const offsetX = (px - rect.left) * devicePixelRatio;
+  const offsetY = (py - rect.top) * devicePixelRatio;
+  const cx = Math.floor(offsetX / cellW);
+  const cy = Math.floor(offsetY / cellH);
+  return {x:cx,y:cy};
+}
+
+function startMaze() {
+  mazeGrid = generateMaze(31, 19);
+  startCell = {x:1,y:1};
+  mazeContainer.style.display = 'flex';
+  mazeContainer.setAttribute('aria-hidden','false');
+  mazeActive = true;
+  drawMaze();
+  // instruction overlay
+  alert("Scary Maze — use your mouse to navigate from the top-left start area to the bottom exit. If you touch a wall, a jump-scare will trigger. (Use only with consenting players.)");
+}
+
+/* Mouse handling */
+let lastCell = null;
+function onMouseMoveMaze(e) {
+  if (!mazeActive) return;
+  const c = pixelToCell(e.clientX, e.clientY);
+  // clamp
+  if (c.x < 0 || c.y < 0 || c.y >= mazeGrid.length || c.x >= mazeGrid[0].length) return;
+  // if new cell differs
+  if (!lastCell || lastCell.x !== c.x || lastCell.y !== c.y) {
+    lastCell = c;
+    // if on wall -> jump-scare
+    if (mazeGrid[c.y][c.x] === 0) {
+      // disable maze to prevent repeat loop
+      mazeActive = false;
+      doJumpScare();
+      // also play a few other loud meme sounds for chaos
+      playRandomSound([0.7, 1.0]);
+      setTimeout(()=> playRandomSound([0.6, 1.0]), 120);
+      // hide maze after scare
+      setTimeout(()=> {
+        mazeContainer.style.display = 'none';
+        mazeContainer.setAttribute('aria-hidden','true');
+      }, 900);
+    } else {
+      // check win: if near exit cell
+      if (c.x === exitCell.x && c.y === exitCell.y) {
+        mazeActive = false;
+        alert("You made it! (No more scares.)");
+        mazeContainer.style.display = 'none';
+        mazeContainer.setAttribute('aria-hidden','true');
+      }
+    }
+  }
+}
+
+canvas.addEventListener('mousemove', onMouseMoveMaze);
+canvas.addEventListener('touchmove', (ev)=>{
+  // handle single-finger touch as mouse
+  if (ev.touches && ev.touches[0]) {
+    onMouseMoveMaze({ clientX: ev.touches[0].clientX, clientY: ev.touches[0].clientY });
+  }
+  ev.preventDefault();
+},{passive:false});
+
+/* =============
+   Controls wiring
+   ============= */
+document.getElementById('startChaos').addEventListener('click', ()=> {
+  // explicit confirm to avoid non-consensual use
+  const ok = confirm("Confirm: you will start an immediate loud audio 'chaos' stream. Only press if you have permission from the person you're pranking. Continue?");
+  if (!ok) return;
+  blastChaos(200);        // fire rapid chaotic sounds
+  warmCache();           // background warm
+});
+
+document.getElementById('startChaosSilent').addEventListener('click', ()=> {
+  // no confirm; for controlled testing
+  blastChaos(200);
+  warmCache();
+});
+
+document.getElementById('playMaze').addEventListener('click', ()=> {
+  startMaze();
+});
+
+document.getElementById('stopAll').addEventListener('click', ()=> {
+  const ok = confirm("Stop all sounds and activity?");
+  if (!ok) return;
+  stopChaos();
+  mazeActive = false;
+  mazeContainer.style.display = 'none';
+  mazeContainer.setAttribute('aria-hidden','true');
+});
+
+/* Prevent runaway intervals if user navigates away */
+window.addEventListener('beforeunload', () => {
+  stopChaos();
+});
+
+/* Optional: provide keyboard panic key: press ESC to stop everything */
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    stopChaos();
+    mazeActive = false;
+    mazeContainer.style.display = 'none';
+  }
+});
+
+/* Make canvas responsive */
+function onResize() {
+  if (mazeGrid) drawMaze();
+}
+new ResizeObserver(onResize).observe(mazeContainer);
+
+/* Accessibility: pause audio if page becomes hidden */
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopChaos();
+});
+
+</script>
 </body>
 </html>
