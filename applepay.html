@@ -2,64 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Apple Pay Prank</title>
+  <title>Apple Pay Meme</title>
   <style>
     body {
-      background: #000;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
+      background: #000;
+      color: #0f0;
+      font-family: Arial, sans-serif;
       overflow: hidden;
-      user-select: none;
+      cursor: pointer;
     }
     #card {
-      width: 280px;
-      height: 180px;
-      background: linear-gradient(135deg, #333, #111);
-      border-radius: 20px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.8);
       opacity: 0;
-      transform: translateY(60px) scale(0.9);
-      transition: all 0.5s ease;
+      transform: scale(0.8);
+      transition: opacity 0.3s, transform 0.3s;
     }
     #card.show {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: scale(1);
+    }
+    #amount {
+      font-size: 3em;
+      margin-top: 20px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+    #amount.show {
+      opacity: 1;
+      transform: translateY(0);
     }
     #faceid {
       position: absolute;
-      top: 20%;
-      font-size: 42px;
-      color: #0f0;
+      top: 20px;
+      font-size: 2em;
       opacity: 0;
       transition: opacity 0.5s;
     }
     #faceid.show {
       opacity: 1;
     }
-    #amount {
-      position: absolute;
-      bottom: 25%;
-      font-size: 36px;
-      color: #0f0;
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-    #amount.show {
-      opacity: 1;
-    }
     #finessed {
       position: absolute;
-      bottom: 10%;
-      font-size: 32px;
-      font-weight: bold;
+      bottom: 20px;
+      font-size: 2em;
       color: red;
       opacity: 0;
-      transition: opacity 0.6s ease-in-out;
+      transition: opacity 1s;
     }
     #finessed.show {
       opacity: 1;
@@ -67,10 +60,10 @@
   </style>
 </head>
 <body>
-  <div id="card"></div>
-  <div id="faceid">🔓 Face ID</div>
-  <div id="amount"></div>
-  <div id="finessed">YOU GOT FINESSED 💸</div>
+  <div id="card">💳</div>
+  <div id="amount">+$0.00</div>
+  <div id="faceid">🔒 Face ID</div>
+  <div id="finessed">You got finessed 💸</div>
 
   <script>
     let tapCount = 0;
@@ -79,37 +72,34 @@
     const finessed = document.getElementById("finessed");
     const faceid = document.getElementById("faceid");
 
-    // Sounds
+    // Base URL for sounds
     const baseUrl = "https://www.myinstants.com";
-    function loadSound(src) {
-      const a = new Audio(baseUrl + src);
-      a.preload = "auto";
-      return a;
-    }
 
-    const cashSoundSrc = "/media/sounds/applepay.mp3";
-    const memeSoundSrcs = [
+    // Cash ding sound (clone for stacking)
+    const cashSrc = baseUrl + "/media/sounds/applepay.mp3";
+
+    // Meme sounds for ad-libs
+    const memeSounds = [
       "/media/sounds/among-us-role-reveal-sound.mp3",
       "/media/sounds/vine-boom-sound-effect_KT89XIq.mp3",
       "/media/sounds/emotional-damage-meme.mp3",
       "/media/sounds/fart-meme-sound.mp3"
-    ];
-
-    const memeSounds = memeSoundSrcs.map(loadSound);
+    ].map(src => baseUrl + src);
 
     // Cancelable animation state
     let amountAnimationId = null;
     let faceidTimeoutId = null;
 
     function playCashSound() {
-      // Clone so multiple can overlap without cutting
-      const cash = new Audio(baseUrl + cashSoundSrc);
-      cash.play().catch(()=>{});
+      const audio = new Audio(cashSrc);
+      audio.volume = 1.0;
+      audio.play().catch(()=>{});
     }
 
     function playRandomMemeSound() {
-      const audio = memeSounds[Math.floor(Math.random() * memeSounds.length)];
-      audio.currentTime = 0;
+      const src = memeSounds[Math.floor(Math.random() * memeSounds.length)];
+      const audio = new Audio(src);
+      audio.volume = 1.0;
       audio.play().catch(()=>{});
     }
 
@@ -134,10 +124,10 @@
     document.body.addEventListener("click", () => {
       tapCount++;
 
-      // Always play cash
+      // Always ding (stackable)
       playCashSound();
 
-      // Meme sound every 2nd tap
+      // Meme ad-libs every 2nd tap
       if (tapCount % 2 === 0) {
         playRandomMemeSound();
       }
@@ -146,10 +136,10 @@
 
       card.classList.add("show");
 
-      // Reset Face ID animation
+      // Reset Face ID
       if (faceidTimeoutId) clearTimeout(faceidTimeoutId);
       faceid.classList.remove("show");
-      void faceid.offsetWidth; // reflow
+      void faceid.offsetWidth;
       faceid.classList.add("show");
 
       faceidTimeoutId = setTimeout(() => {
