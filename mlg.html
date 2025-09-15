@@ -5,14 +5,39 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
   <title>Tap the Dot</title>
   <style>
-    html, body { height: 100%; margin: 0; background: #0a0b0f; -webkit-tap-highlight-color: transparent; }
-    #gameArea { width: 100%; height: 100vh; background: #0f1113; position: relative; overflow: hidden; touch-action: none; }
-    .dot {
-      position: absolute; border-radius: 999px; background: linear-gradient(180deg, #34c759, #1ca64a);
-      box-shadow: 0 8px 24px rgba(52,199,89,0.18), inset 0 -6px 10px rgba(0,0,0,0.12);
-      width: 80px; height: 80px; user-select: none; -webkit-user-select: none; touch-action: none;
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #0a0b0f;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
     }
-    #stopBtn { position: fixed; top: 10px; right: 10px; padding: 8px 12px; background: linear-gradient(90deg, #ff4d4d, #ff6b6b); color: #140000; border-radius: 8px; border: 1px solid rgba(0,0,0,0.2); font-weight: 700; }
+    #gameArea {
+      width: 100%;
+      height: 100%;
+      background: #0f1113;
+      position: relative;
+    }
+    .dot {
+      position: absolute;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #34c759, #1ca64a);
+      box-shadow: 0 8px 24px rgba(52,199,89,0.18), inset 0 -6px 10px rgba(0,0,0,0.12);
+      user-select: none;
+      touch-action: none;
+    }
+    #stopBtn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 8px 12px;
+      background: linear-gradient(90deg, #ff4d4d, #ff6b6b);
+      color: #140000;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.2);
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
@@ -20,12 +45,17 @@
   <button id="stopBtn">STOP</button>
 
 <script>
-const DOT_MIN = 56;
-const DOT_MAX = 110;
-const DOT_PADDING = 12;
-const BASE_INTERVAL_MS = 220; // Base interval for sound bursts
-const GOLDEN_RATIO = 1.618033988749895; // φ for harmonic layering
-const SOUND_POOL = [
+const gameArea = document.getElementById('gameArea');
+const stopBtn = document.getElementById('stopBtn');
+let activeDot = null, allowPlay = true, chaosTimers = [];
+let activeTracks = new Set();
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let isAudioContextResumed = false;
+
+const GOLDEN_RATIO = 1.618033988749895;
+const BASE_INTERVAL_MS = 220;
+const baseUrl = "https://www.myinstants.com";
+const audioQueue = [
   "/media/sounds/are-you-out-of-your-mind-greenscreen-change-quality-and-end-wont-cut-off_2.mp3",
   "/media/sounds/tf_nemesis.mp3",
   "/media/sounds/among-us-role-reveal-sound.mp3",
@@ -98,134 +128,132 @@ const SOUND_POOL = [
   "/media/sounds/fire-in-the-hole-geometry-dash.mp3",
   "/media/sounds/u-got-that-mp3-fix.mp3",
   "/media/sounds/fail-sound-effect.mp3"
-];
+].map(path => {
+  const audio = new Audio(baseUrl + path);
+  audio.preload = "auto";
+  audio.volume = 0.7;
+  audio.loop = true;
+  audio.load();
+  return audio;
+});
 
-const baseUrl = "https://www.myinstants.com";
-const gameArea = document.getElementById('gameArea');
-const stopBtn = document.getElementById('stopBtn');
-let activeDot = null;
-let allowPlay = true;
-let chaosTimers = [];
+function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
+function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
-// Preload all audio files into DOM
-function preloadAudio() {
-  return SOUND_POOL.map(path => {
-    const audio = new Audio(urlFor(path));
-    audio.preload = 'auto';
-    audio.volume = 0.6;
-    audio.load();
-    return audio;
-  });
+// Keep AudioContext alive with silent oscillator
+function keepAudioContextAlive() {
+  if (audioContext.state === 'suspended') {
+    audioContext.resume().then(() => {
+      isAudioContextResumed = true;
+      const oscillator = audioContext.createOscillator();
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(0, audioContext.currentTime); // Silent
+      oscillator.connect(audioContext.destination);
+      oscillator.start();
+    });
+  }
 }
 
-const urlFor = (p) => { try { return new URL(p, baseUrl).href } catch(e) { return baseUrl + p } }
-const vibrate = (pattern) => { if (navigator.vibrate) try { navigator.vibrate(pattern); } catch(e) {} }
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function saveChaosState() {
+  sessionStorage.setItem('chaosState', JSON.stringify([...activeTracks]));
+}
+
+function loadChaosState() {
+  const savedState = sessionStorage.getItem('chaosState');
+  if (savedState && !isAudioContextResumed) {
+    keepAudioContextAlive();
+    setTimeout(() => {
+      const indices = JSON.parse(savedState);
+      indices.forEach(index => {
+        if (audioQueue[index]) {
+          audioQueue[index].play().catch(() => {});
+          activeTracks.add(index);
+        }
+      });
+    }, 100); // Slight delay to ensure AudioContext is ready
+  }
+}
 
 function computeDotSize() {
-  const w = Math.max(320, window.innerWidth);
-  const base = Math.min(DOT_MAX, Math.max(DOT_MIN, Math.round(w * 0.12)));
-  return base + Math.round((Math.random() - 0.5) * 18);
+  return Math.max(48, Math.min(96, Math.round(window.innerWidth * 0.18)));
 }
 
 function spawnDot() {
   if (!allowPlay) return;
-  if (activeDot) { activeDot.remove(); activeDot = null; }
-  const rect = gameArea.getBoundingClientRect();
-  const d = computeDotSize();
-  const xMin = DOT_PADDING;
-  const xMax = rect.width - d - DOT_PADDING;
-  const yMin = DOT_PADDING;
-  const yMax = rect.height - d - DOT_PADDING;
-  const left = clamp(Math.random() * (xMax - xMin) + xMin, xMin, xMax);
-  const top = clamp(Math.random() * (yMax - yMin) + yMin, yMin, yMax);
+  if (activeDot) activeDot.remove();
 
-  const dot = document.createElement('button');
-  dot.className = 'dot';
-  dot.style.width = d + 'px';
-  dot.style.height = d + 'px';
-  dot.style.left = left + 'px';
-  dot.style.top = top + 'px';
+  const d = computeDotSize();
+  const rect = gameArea.getBoundingClientRect();
+  const left = clamp(Math.random() * (rect.width - d), 0, rect.width - d);
+  const top = clamp(Math.random() * (rect.height - d), 0, rect.height - d);
+
+  const dot = document.createElement("button");
+  dot.className = "dot";
+  dot.style.width = d + "px";
+  dot.style.height = d + "px";
+  dot.style.left = left + "px";
+  dot.style.top = top + "px";
   dot.setAttribute('aria-label', 'Tap target');
 
-  dot.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { duration: 1200 + Math.random()*800, iterations: Infinity });
+  dot.animate([{transform:"scale(1)"},{transform:"scale(1.06)"},{transform:"scale(1)"}],
+              {duration: 1400, iterations: Infinity});
 
-  dot.addEventListener('click', (ev) => {
-    ev.stopPropagation();
-    ev.preventDefault();
+  dot.addEventListener("pointerdown", e => {
+    e.preventDefault();
     if (!allowPlay) return;
-    vibrate(18);
+    vibrate(25);
+    keepAudioContextAlive();
     spawnDot();
-    if (chaosTimers.length === 0) {
-      triggerGoldenChaos(audioQueue);
-    }
-  }, { passive: false });
-
-  dot.addEventListener('touchstart', (ev) => {
-    ev.stopPropagation();
-    ev.preventDefault();
-    dot.click();
+    if (chaosTimers.length === 0) startChaos();
   }, { passive: false });
 
   gameArea.appendChild(dot);
   activeDot = dot;
 }
 
-function triggerGoldenChaos(audioQueue) {
+function startChaos() {
   const intervals = [
     BASE_INTERVAL_MS,
     Math.round(BASE_INTERVAL_MS * GOLDEN_RATIO), // ~356ms
     Math.round(BASE_INTERVAL_MS * GOLDEN_RATIO * GOLDEN_RATIO) // ~577ms
   ];
-
-  intervals.forEach(interval => {
-    const timer = setInterval(() => {
+  intervals.forEach(ms => {
+    chaosTimers.push(setInterval(() => {
       const bursts = 1 + Math.floor(Math.random() * 2);
       for (let i = 0; i < bursts; i++) {
         setTimeout(() => {
-          const audio = audioQueue[Math.floor(Math.random() * audioQueue.length)];
-          audio.currentTime = 0;
-          audio.play().catch(() => {});
+          const index = Math.floor(Math.random() * audioQueue.length);
+          const audio = audioQueue[index];
+          if (!activeTracks.has(index)) {
+            audio.play().catch(() => {});
+            activeTracks.add(index);
+            saveChaosState();
+          }
         }, i * 50);
       }
-    }, interval);
-    chaosTimers.push(timer);
+    }, ms));
   });
 }
 
 function stopAll() {
   allowPlay = false;
-  chaosTimers.forEach(timer => clearInterval(timer));
+  chaosTimers.forEach(clearInterval);
   chaosTimers = [];
-  document.querySelectorAll('audio').forEach(a => {
-    try { a.pause(); a.currentTime = 0; } catch(e) {}
-  });
-  if (activeDot) { activeDot.remove(); activeDot = null; }
-  allowPlay = true;
-  setTimeout(spawnDot, 250);
+  audioQueue.forEach(a => { try { a.pause(); a.currentTime = 0; } catch(e) {} });
+  activeTracks.clear();
+  sessionStorage.removeItem('chaosState');
+  if (activeDot) activeDot.remove();
+  setTimeout(() => { allowPlay = true; spawnDot(); }, 250);
 }
 
-stopBtn.addEventListener('click', stopAll);
+stopBtn.addEventListener("click", stopAll);
+window.addEventListener("resize", () => activeDot && spawnDot());
+window.addEventListener("pagehide", saveChaosState);
+window.addEventListener("beforeunload", saveChaosState);
 
-gameArea.addEventListener('touchstart', (ev) => {
-  ev.preventDefault();
-}, { passive: false });
-
-window.addEventListener('keydown', (ev) => {
-  if (ev.key === 'Enter' && activeDot) activeDot.click();
-  if (ev.key === 'Escape') stopAll();
-});
-
-window.addEventListener('resize', () => {
-  if (activeDot) spawnDot();
-});
-
-window.addEventListener('pagehide', stopAll);
-window.addEventListener('beforeunload', stopAll);
-
-// Preload and start
-const audioQueue = preloadAudio();
-setTimeout(spawnDot, 180);
+// Resume chaos on load
+loadChaosState();
+setTimeout(spawnDot, 200);
 </script>
 </body>
 </html>
