@@ -1,162 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Apple Pay Meme</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apple Pay Meme Simulator</title>
   <style>
     body {
+      margin: 0;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
-      background: #000;
-      color: #0f0;
-      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1c1c1c, #2e2e2e);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: white;
       overflow: hidden;
       cursor: pointer;
     }
-    #card {
-      opacity: 0;
-      transform: scale(0.8);
-      transition: opacity 0.3s, transform 0.3s;
+
+    .container {
+      text-align: center;
     }
-    #card.show {
-      opacity: 1;
+
+    .card {
+      width: 280px;
+      height: 180px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #3a3a3a, #1f1f1f);
+      position: relative;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transform: scale(0);
+      transition: transform 0.3s ease-out;
+    }
+
+    .card.show {
       transform: scale(1);
     }
-    #amount {
-      font-size: 3em;
-      margin-top: 20px;
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.4s, transform 0.4s;
+
+    .card-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 36px;
+      transition: transform 0.2s ease, color 0.2s ease;
+      color: #bbb;
     }
-    #amount.show {
+
+    .card-icon.success {
+      color: #00ff9d;
+      transform: scale(1.2);
+    }
+
+    .amount {
+      position: absolute;
+      bottom: 20px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #00ff9d;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease-out;
+    }
+
+    .amount.show {
       opacity: 1;
       transform: translateY(0);
     }
-    #faceid {
-      position: absolute;
-      top: 20px;
-      font-size: 2em;
+
+    .status {
+      margin-top: 24px;
+      font-size: 20px;
       opacity: 0;
-      transition: opacity 0.5s;
+      transition: opacity 0.3s ease;
     }
-    #faceid.show {
+
+    .status.show {
       opacity: 1;
     }
-    #finessed {
-      position: absolute;
-      bottom: 20px;
-      font-size: 2em;
-      color: red;
-      opacity: 0;
-      transition: opacity 1s;
+
+    .status.success {
+      color: #00ff9d;
     }
-    #finessed.show {
-      opacity: 1;
+
+    .status.finessed {
+      color: #ff3b30;
     }
   </style>
 </head>
 <body>
-  <div id="card">💳</div>
-  <div id="amount">+$0.00</div>
-  <div id="faceid">🔒 Face ID</div>
-  <div id="finessed">You got finessed 💸</div>
+  <div class="container">
+    <div class="card" id="card">
+      <div class="card-icon" id="cardIcon">💳</div>
+      <div class="amount" id="amount">+$0.00</div>
+    </div>
+    <div class="status" id="statusMessage">Tap Anywhere</div>
+  </div>
 
   <script>
-    let tapCount = 0;
-    const display = document.getElementById("amount");
-    const card = document.getElementById("card");
-    const finessed = document.getElementById("finessed");
-    const faceid = document.getElementById("faceid");
-
-    // Base URL for sounds
-    const baseUrl = "https://www.myinstants.com";
-
-    // Cash ding sound (clone for stacking)
-    const cashSrc = baseUrl + "/media/sounds/applepay.mp3";
-
-    // Meme sounds for ad-libs
+    const cashSrc = "https://www.myinstants.com/media/sounds/cash-register-sound.mp3";
     const memeSounds = [
-      "/media/sounds/among-us-role-reveal-sound.mp3",
-      "/media/sounds/vine-boom-sound-effect_KT89XIq.mp3",
-      "/media/sounds/emotional-damage-meme.mp3",
-      "/media/sounds/fart-meme-sound.mp3"
-    ].map(src => baseUrl + src);
+      "https://www.myinstants.com/media/sounds/vine-boom.mp3",
+      "https://www.myinstants.com/media/sounds/epic.mp3",
+      "https://www.myinstants.com/media/sounds/among-us-role-reveal-sound-effect.mp3",
+      "https://www.myinstants.com/media/sounds/mlg-airhorn.mp3",
+      "https://www.myinstants.com/media/sounds/wow.mp3"
+    ];
 
-    // Cancelable animation state
-    let amountAnimationId = null;
-    let faceidTimeoutId = null;
+    const card = document.getElementById("card");
+    const cardIcon = document.getElementById("cardIcon");
+    const amountDisplay = document.getElementById("amount");
+    const statusMessage = document.getElementById("statusMessage");
 
-    function playCashSound() {
-      const audio = new Audio(cashSrc);
-      audio.volume = 1.0;
-      audio.play().catch(()=>{});
-    }
+    let tapCount = 0;
+    let statusTimeoutId = null;
 
-    function playRandomMemeSound() {
-      const src = memeSounds[Math.floor(Math.random() * memeSounds.length)];
+    function playSound(src, vol = 1.0) {
       const audio = new Audio(src);
-      audio.volume = 1.0;
-      audio.play().catch(()=>{});
+      audio.volume = vol;
+      audio.play().catch(() => {});
     }
 
-    function animateAmount(finalValue) {
-      if (amountAnimationId) cancelAnimationFrame(amountAnimationId);
-      let current = 0;
-      const step = Math.max(0.5, finalValue / 40);
+    function playCash() {
+      playSound(cashSrc, 1.0);
+    }
 
-      function tick() {
-        current += step;
-        if (current >= finalValue) {
-          display.textContent = `+$${finalValue.toFixed(2)}`;
-          amountAnimationId = null;
-          return;
-        }
-        display.textContent = `+$${current.toFixed(2)}`;
-        amountAnimationId = requestAnimationFrame(tick);
-      }
-      tick();
+    function animateAmount(newAmount) {
+      amountDisplay.textContent = `+$${newAmount.toFixed(2)}`;
     }
 
     document.body.addEventListener("click", () => {
       tapCount++;
 
-      // Always ding (stackable)
-      playCashSound();
-
-      // Meme ad-libs every 2nd tap
+      // Play sounds
+      playCash();
       if (tapCount % 2 === 0) {
-        playRandomMemeSound();
+        playSound(memeSounds[Math.floor(Math.random() * memeSounds.length)], 0.9);
       }
 
-      if (navigator.vibrate) navigator.vibrate([50,30,80,30,50]);
+      // Vibration
+      if (navigator.vibrate) navigator.vibrate([50, 30, 80, 30, 50]);
 
+      // Reset UI
+      statusMessage.classList.remove("show", "success", "finessed");
+      card.classList.remove("show");
+      cardIcon.classList.remove("success");
+      amountDisplay.classList.remove("show");
+
+      // Animate card
+      void card.offsetWidth; // force reflow
       card.classList.add("show");
 
-      // Reset Face ID
-      if (faceidTimeoutId) clearTimeout(faceidTimeoutId);
-      faceid.classList.remove("show");
-      void faceid.offsetWidth;
-      faceid.classList.add("show");
+      // Random amount
+      const amounts = [4.99, 9.99, 14.50, 19.99, 24.00, 49.99, 79.00, 129.99, 199.00];
+      const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
 
-      faceidTimeoutId = setTimeout(() => {
-        faceid.classList.remove("show");
-
-        const amounts = [4.99, 9.99, 14.50, 19.99, 24.00, 49.99, 79.00, 129.99, 199.00];
-        const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
-
-        display.classList.remove("show");
-        void display.offsetWidth;
-        display.classList.add("show");
+      setTimeout(() => {
+        amountDisplay.classList.add("show");
         animateAmount(randomAmount);
+        cardIcon.classList.add("success");
+      }, 300);
 
-        if (tapCount === 5) {
-          finessed.classList.add("show");
+      // Status update
+      if (statusTimeoutId) clearTimeout(statusTimeoutId);
+      statusTimeoutId = setTimeout(() => {
+        if (tapCount % 5 === 0) {
+          statusMessage.textContent = "You got finessed 💸";
+          statusMessage.classList.add("show", "finessed");
+        } else {
+          statusMessage.textContent = "Payment Successful";
+          statusMessage.classList.add("show", "success");
         }
-      }, 1500);
+      }, 1000);
     });
   </script>
 </body>
