@@ -49,6 +49,8 @@ const gameArea = document.getElementById('gameArea');
 const stopBtn = document.getElementById('stopBtn');
 let activeDot = null, allowPlay = true, chaosTimers = [];
 let activeTracks = new Set();
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let isAudioContextResumed = false;
 
 const GOLDEN_RATIO = 1.618033988749895;
 const BASE_INTERVAL_MS = 220;
@@ -138,25 +140,42 @@ const audioQueue = [
 function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
 function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
-function computeDotSize() {
-  return Math.max(48, Math.min(96, Math.round(window.innerWidth * 0.18)));
+// Keep AudioContext alive with silent oscillator
+function keepAudioContextAlive() {
+  if (audioContext.state === 'suspended') {
+    audioContext.resume().then(() => {
+      isAudioContextResumed = true;
+      const oscillator = audioContext.createOscillator();
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(0, audioContext.currentTime); // Silent
+      oscillator.connect(audioContext.destination);
+      oscillator.start();
+    });
+  }
 }
 
 function saveChaosState() {
-  localStorage.setItem('chaosState', JSON.stringify([...activeTracks]));
+  sessionStorage.setItem('chaosState', JSON.stringify([...activeTracks]));
 }
 
 function loadChaosState() {
-  const savedState = localStorage.getItem('chaosState');
-  if (savedState) {
-    const indices = JSON.parse(savedState);
-    indices.forEach(index => {
-      if (audioQueue[index]) {
-        audioQueue[index].play().catch(() => {});
-        activeTracks.add(index);
-      }
-    });
+  const savedState = sessionStorage.getItem('chaosState');
+  if (savedState && !isAudioContextResumed) {
+    keepAudioContextAlive();
+    setTimeout(() => {
+      const indices = JSON.parse(savedState);
+      indices.forEach(index => {
+        if (audioQueue[index]) {
+          audioQueue[index].play().catch(() => {});
+          activeTracks.add(index);
+        }
+      });
+    }, 100); // Slight delay to ensure AudioContext is ready
   }
+}
+
+function computeDotSize() {
+  return Math.max(48, Math.min(96, Math.round(window.innerWidth * 0.18)));
 }
 
 function spawnDot() {
@@ -183,6 +202,7 @@ function spawnDot() {
     e.preventDefault();
     if (!allowPlay) return;
     vibrate(25);
+    keepAudioContextAlive();
     spawnDot();
     if (chaosTimers.length === 0) startChaos();
   }, { passive: false });
@@ -221,23 +241,18 @@ function stopAll() {
   chaosTimers = [];
   audioQueue.forEach(a => { try { a.pause(); a.currentTime = 0; } catch(e) {} });
   activeTracks.clear();
-  localStorage.removeItem('chaosState');
+  sessionStorage.removeItem('chaosState');
   if (activeDot) activeDot.remove();
   setTimeout(() => { allowPlay = true; spawnDot(); }, 250);
 }
-
-// Register service worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(err => console.error('Service Worker registration failed:', err));
-}
-
-// Load chaos state on page load
-loadChaosState();
 
 stopBtn.addEventListener("click", stopAll);
 window.addEventListener("resize", () => activeDot && spawnDot());
 window.addEventListener("pagehide", saveChaosState);
 window.addEventListener("beforeunload", saveChaosState);
+
+// Resume chaos on load
+loadChaosState();
 setTimeout(spawnDot, 200);
 </script>
 </body>
