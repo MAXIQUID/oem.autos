@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Live OCR Magnifier – </title>
+  <style>
+    html, body {
+      margin:0; padding:0; height:100%; background:black; overflow:hidden;
+      font-family:-apple-system, BlinkMacSystemFont, sans-serif;
+      touch-action:none; -webkit-user-select:none;
+    }
+    #canvas {
+      position:absolute; top:0; left:0;
+      width:100vw; height:100vh; object-fit:cover;
+    }
+    #errorOverlay {
+      position:absolute; top:0; left:0; width:100%;
+      background:rgba(255,0,0,0.9); color:white;
+      padding:1rem; text-align:center;
+      display:none; z-index:20; user-select:none;
+    }
+    /* Auto-resizing textarea styling */
+    #textInput {
+      position:absolute; left:50%;
+      bottom: calc(35vh + 20px);
+      transform:translateX(-50%);
+      min-width:60%; max-width:90%;
+      background:rgba(0,0,0,0.7); color:white;
+      padding:0.5rem 1rem; font-size:1.2rem;
+      border:none; border-radius:0.3rem;
+      resize:none; overflow:hidden;
+      line-height:1.2em; white-space:nowrap;
+      z-index:11; cursor:text;
+    }
+    #keyboard {
+      position:absolute; bottom:0; width:100%;
+      height:35vh; background:#111;
+      box-sizing:border-box; display:flex;
+      flex-direction:column; transition:height 0.2s;
+      z-index:9; user-select:none;
+    }
+    #keyboard-resizer {
+      height:16px; background:#333;
+      border-top-left-radius:8px; border-top-right-radius:8px;
+      display:flex; justify-content:center; align-items:center;
+      touch-action:none; z-index:10;
+    }
+    #keyboard-resizer:active { background:#555; }
+    #notch {
+      width:40px; height:4px; background:#666; border-radius:2px;
+    }
+    .key-row {
+      flex:1; display:flex; justify-content:space-between;
+      gap:2px; margin:0.1rem 0;
+    }
+    button.key {
+      flex:1; min-width:30px; max-width:60px;
+      background:#222; color:white;
+      border:none; border-radius:0.3rem;
+      font-size:1.2rem; touch-action:none;
+      transition:background 0.1s;
+    }
+    button.key:active, button.key.active { background:#444; }
+    button.key.clear {
+      flex:0 0 20%; min-width:80px; max-width:120px;
+      background:#800;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div id="errorOverlay"></div>
+
+  <!-- Auto-resizing textarea -->
+  <textarea id="textInput" rows="1" placeholder="" autofocus></textarea>
+
+  <div id="keyboard">
+    <div id="keyboard-resizer"><div id="notch"></div></div>
+  </div>
+
+  <!-- Tesseract.js -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script>
+    const errorOv  = document.getElementById('errorOverlay');
+    const canvas   = document.getElementById('canvas');
+    const ctx      = canvas.getContext('2d');
+    const textInput= document.getElementById('textInput');
+    const keyboard = document.getElementById('keyboard');
+    const resizer  = document.getElementById('keyboard-resizer');
+
+    let videoEl;
+    let ocrActive=false, ocrBusy=false;
+    let state={x:0,y:0,scale:1,rot:0,mode:null};
+
+    // Auto-resize function
+    function autoResize(){
+      textInput.style.height = 'auto';
+      textInput.style.height = textInput.scrollHeight + 'px';
+    }
+    textInput.addEventListener('input', autoResize);
+    autoResize();
+
+    // Display errors
+    function displayError(msg, autoHide=false, retryFn){
+      errorOv.innerHTML=''; errorOv.onclick=null;
+      errorOv.append(msg);
+      if(retryFn){
+        const btn=document.createElement('button');
+        btn.textContent='Retry'; btn.style.marginLeft='1rem';
+        btn.onclick=e=>{e.stopPropagation();errorOv.style.display='none'; retryFn();};
+        errorOv.append(btn);
+      }
+      errorOv.style.display='block';
+      errorOv.onclick=()=>errorOv.style.display='none';
+      if(autoHide) setTimeout(()=>errorOv.style.display='none',5000);
+    }
+
+    // Start camera
+    async function startCamera(){
+      try {
+        const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
+        const [track]=stream.getVideoTracks();
+        const caps=track.getCapabilities();
+        if(caps.focusMode){
+          try{await track.applyConstraints({advanced:[{focusMode:'continuous'}]});}
+          catch(e){console.warn(e);}
+        }
+        videoEl=document.createElement('video');
+        videoEl.srcObject=stream;
+        videoEl.playsInline=videoEl.muted=true;
+        videoEl.onerror=()=>displayError('Video error',false,()=>videoEl.play());
+        videoEl.onloadedmetadata=async()=>{
+          canvas.width=videoEl.videoWidth;
+          canvas.height=videoEl.videoHeight;
+          try{await videoEl.play(); requestAnimationFrame(draw);}
+          catch(e){displayError('Playback blocked',true,()=>videoEl.play());}
+        };
+      } catch(err){
+        let msg='Camera unavailable.';
+        if(err.name==='NotAllowedError') msg='Permission denied.';
+        else if(/NotFound|DevicesNotFound/.test(err.name)) msg='No camera.';
+        displayError(msg,false,startCamera);
+        console.error(err);
+      }
+    }
+    function draw(){
+      if(videoEl?.readyState>=2) ctx.drawImage(videoEl,0,0,canvas.width,canvas.height);
+      requestAnimationFrame(draw);
+    }
+
+    // QWERTY keyboard layout
+    const layout=[
+      ['1','2','3','4','5','6','7','8','9','0'],
+      ['Q','W','E','R','T','Y','U','I','O','P'],
+      ['A','S','D','F','G','H','J','K','L'],
+      ['Z','X','C','V','B','N','M','←','CLR']
+    ];
+    layout.forEach(row=>{
+      const rowDiv=document.createElement('div'); rowDiv.className='key-row';
+      row.forEach(k=>{
+        const btn=document.createElement('button');
+        btn.type='button';
+        btn.className='key'+(k==='CLR'?' clear':'');
+        btn.textContent=k==='CLR'?'Clear':k;
+        btn.addEventListener('touchstart',()=>btn.classList.add('active'));
+        btn.addEventListener('touchend',()=>btn.classList.remove('active'));
+        btn.addEventListener('touchcancel',()=>btn.classList.remove('active'));
+        btn.addEventListener('click',()=>{
+          if(k==='CLR') textInput.value='';
+          else if(k==='←') textInput.value=textInput.value.slice(0,-1);
+          else textInput.value+=k;
+          autoResize();
+          textInput.scrollLeft=textInput.scrollWidth;
+        });
+        rowDiv.append(btn);
+      });
+      keyboard.append(rowDiv);
+    });
+
+    // Resize keyboard
+    let sy=0, sh=0;
+    resizer.addEventListener('touchstart',e=>{
+      sy=e.touches[0].clientY; sh=keyboard.offsetHeight;
+    });
+    resizer.addEventListener('touchmove',e=>{
+      e.preventDefault();
+      const dy=sy-e.touches[0].clientY;
+      let h=Math.max(window.innerHeight*0.15,Math.min(window.innerHeight*0.6,sh+dy));
+      keyboard.style.height=h+'px';
+      textInput.style.bottom=`calc(${h}px + 20px)`;
+    });
+
+    // Drag/pinch on textarea + OCR on hold
+    let lastDist=0, lastAng=0;
+    textInput.addEventListener('touchstart',e=>{
+      if(e.touches.length===1){
+        state.mode='drag';
+        state.startX=e.touches[0].clientX-state.x;
+        state.startY=e.touches[0].clientY-state.y;
+        ocrActive=true; requestAnimationFrame(runOCR);
+      } else if(e.touches.length===2){
+        state.mode='zoom';
+        const [a,b]=e.touches;
+        lastDist=Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY);
+        lastAng=Math.atan2(b.clientY-a.clientY,b.clientX-a.clientX);
+        state.origScale=state.scale; state.origRot=state.rot;
+      }
+    });
+    textInput.addEventListener('touchmove',e=>{
+      e.preventDefault();
+      if(state.mode==='drag'&&e.touches.length===1){
+        state.x=e.touches[0].clientX-state.startX;
+        state.y=e.touches[0].clientY-state.startY;
+      } else if(state.mode==='zoom'&&e.touches.length===2){
+        const [a,b]=e.touches;
+        const d=Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY);
+        const ang=Math.atan2(b.clientY-a.clientY,b.clientX-a.clientX);
+        state.scale=Math.min(4,Math.max(0.5,state.origScale*(d/lastDist)));
+        state.rot=state.origRot+(ang-lastAng);
+      }
+      textInput.style.transform=
+        `translate(${state.x}px,${state.y}px) scale(${state.scale}) rotate(${state.rot}rad) translateX(-50%)`;
+    });
+    textInput.addEventListener('touchend',e=>{
+      state.mode=null; ocrActive=false;
+    });
+
+    // OCR routine
+    async function runOCR(){
+      if(!ocrActive||ocrBusy) return;
+      ocrBusy=true;
+      const r=textInput.getBoundingClientRect(), c=canvas.getBoundingClientRect();
+      const sx=(r.left-c.left)*(canvas.width/c.width),
+            sy=(r.top-c.top)*(canvas.height/c.height),
+            sw=r.width*(canvas.width/c.width),
+            sh=r.height*(canvas.height/c.height);
+      const img=ctx.getImageData(sx,sy,sw,sh);
+      const oC=document.createElement('canvas');
+      oC.width=sw; oC.height=sh;
+      oC.getContext('2d').putImageData(img,0,0);
+      try {
+        const result = await Tesseract.recognize(oC, 'eng', {logger:m=>{}});
+        if(result?.data?.text){
+          textInput.value=result.data.text.trim();
+          autoResize();
+        }
+      } catch(e){}
+      ocrBusy=false;
+      if(ocrActive) setTimeout(runOCR, 1000);
+    }
+
+    startCamera();
+  </script>
+</body>
+</html>
