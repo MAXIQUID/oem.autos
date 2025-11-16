@@ -3,89 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OEM.Autos Legal & Compliance</title>
+<title>OEM.Autos Information & Policies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0 1rem; background: #f9f9f9; color: #111; }
-  h1, h2, h3 { margin-top: 1.5rem; }
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.5rem; border-bottom: 1px solid #ccc; padding-bottom: 0.3rem; }
-  h3 { font-size: 1.2rem; }
-  section { margin-bottom: 2rem; background: #fff; padding: 1rem; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.05);}
-  a { color: #0073e6; text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  #cookie-consent { position: fixed; bottom: 0; left: 0; right: 0; background: #222; color: #fff; padding: 1rem; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
-  #cookie-consent button { margin-left: 1rem; padding: 0.5rem 1rem; border: none; border-radius: 3px; cursor: pointer; }
-  #cookie-consent button.accept { background: #4caf50; color: #fff; }
-  #cookie-consent button.reject { background: #f44336; color: #fff; }
+/* CSS will be inserted here */
 </style>
 </head>
 <body>
 
-<h1>OEM.Autos Legal & Compliance</h1>
+<header class="page-header">
+  <h1 class="page-title">OEM.Autos Information & Policies</h1>
+</header>
 
-<section id="terms-of-use">
-  <h2>Terms of Use</h2>
-  <p>Welcome to OEM.Autos. By using our platform, you agree to comply with these Terms of Use. Our service provides digital passports for items, indicating their provenance and sale status (fs/not-for-sale). Users are responsible for listing accurate information and ensuring items comply with applicable laws.</p>
-  <h3>User Responsibilities & Obligations</h3>
-  <ul>
-    <li>All item information must be accurate; misrepresentation may result in suspension or liability.</li>
-    <li>Users acknowledge that OEM.Autos is not liable for item accuracy, availability, or condition.</li>
-    <li>Unauthorized use of the platform, including automated scraping or redistribution of digital passport data without permission, is prohibited.</li>
-  </ul>
-  <p>Governing law: Delaware, United States. Venue: Maricopa County, Arizona.</p>
-</section>
+<main class="content-wrapper">
+  
+  <section id="terms-of-use" class="policy-card">
+    <h2 class="card-title">Terms of Use</h2>
+    <p>Welcome to OEM.Autos. By using our platform, you agree to comply with these Terms of Use. Our service provides digital passports for items, indicating their provenance and sale status (fs/not-for-sale). Users are responsible for listing accurate information and ensuring items comply with applicable laws.</p>
+    <h3 class="subsection-title">User Responsibilities & Obligations</h3>
+    <ul class="policy-list">
+      <li>All item information must be accurate; misrepresentation may result in suspension or liability.</li>
+      <li>Users acknowledge that OEM.Autos is not liable for item accuracy, availability, or condition.</li>
+      <li>Unauthorized use of the platform, including automated scraping or redistribution of digital passport data without permission, is prohibited.</li>
+    </ul>
+    <p>Governing law: Delaware, United States. Venue: Maricopa County, Arizona.</p>
+  </section>
 
-<section id="privacy-policy">
-  <h2>Privacy Policy</h2>
-  <p>OEM.Autos collects metadata through digital passports, including item details, user account information, and sale status. This information may be used to provide our services, improve user experience, and comply with legal obligations.</p>
-  <h3>Data Collection, Usage, and Retention</h3>
-  <ul>
-    <li>We collect only necessary information for digital passport management and platform operation.</li>
-    <li>Data may be shared with trusted third-party service providers strictly for operational purposes.</li>
-    <li>Users may request access, correction, or deletion of personal information in accordance with applicable law.</li>
-    <li>We implement reasonable security measures but cannot guarantee absolute protection.</li>
-  </ul>
-</section>
+  <section id="privacy-policy" class="policy-card">
+    <h2 class="card-title">Privacy Policy</h2>
+    <p>OEM.Autos collects metadata through digital passports, including item details, user account information, and sale status. This information may be used to provide our services, improve user experience, and comply with legal obligations.</p>
+    <h3 class="subsection-title">Data Collection, Usage, and Retention</h3>
+    <ul class="policy-list">
+      <li>We collect only necessary information for digital passport management and platform operation.</li>
+      <li>Data may be shared with trusted third-party service providers strictly for operational purposes.</li>
+      <li>Users may request access, correction, or deletion of personal information in accordance with applicable law.</li>
+      <li>We implement reasonable security measures but cannot guarantee absolute protection.</li>
+    </ul>
+  </section>
 
-<section id="public-agreement">
-  <h2>Public Agreement</h2>
-  <p>Third parties accessing OEM.Autos APIs, catalogs, or digital passport data agree to comply with the following:</p>
-  <ul>
-    <li>No redistribution, sale, or derivation of data without explicit written permission.</li>
-    <li>Use data solely for authorized purposes consistent with our platform objectives.</li>
-    <li>Protect data integrity and maintain auditability of all API interactions.</li>
-  </ul>
-</section>
+  <section id="public-agreement" class="policy-card">
+    <h2 class="card-title">Public Agreement</h2>
+    <p>Third parties accessing OEM.Autos APIs, catalogs, or digital passport data agree to comply with the following:</p>
+    <ul class="policy-list">
+      <li>No redistribution, sale, or derivation of data without explicit written permission.</li>
+      <li>Use data solely for authorized purposes consistent with our platform objectives.</li>
+      <li>Protect data integrity and maintain auditability of all API interactions.</li>
+    </ul>
+  </section>
 
-<section id="payment-return">
-  <h2>Payment and Return Policy</h2>
-  <p>Transactions on OEM.Autos adhere to the following principles:</p>
-  <ul>
-    <li>Items flagged "fs" (for sale) are eligible for purchase; items "not-for-sale" are excluded.</li>
-    <li>Refunds or returns are processed in accordance with item condition and seller agreements.</li>
-    <li>OEM.Autos is not liable for disputes arising from inaccurate item listings or misrepresented digital passports.</li>
-  </ul>
-</section>
+  <section id="payment-return" class="policy-card">
+    <h2 class="card-title">Payment and Return Policy</h2>
+    <p>Transactions on OEM.Autos adhere to the following principles:</p>
+    <ul class="policy-list">
+      <li>Items flagged "fs" (for sale) are eligible for purchase; items "not-for-sale" are excluded.</li>
+      <li>Refunds or returns are processed in accordance with item condition and seller agreements.</li>
+      <li>OEM.Autos is not liable for disputes arising from inaccurate item listings or misrepresented digital passports.</li>
+    </ul>
+  </section>
 
-<section id="cookies-tracking">
-  <h2>Cookies & Tracking</h2>
-  <p>OEM.Autos uses cookies for authentication, analytics, and user experience. Users must consent to non-essential cookies.</p>
-  <ul>
-    <li>Essential cookies are required for platform operation and cannot be disabled.</li>
-    <li>Non-essential cookies (analytics, personalization) require explicit consent.</li>
-  </ul>
-</section>
+  <section id="cookies-tracking" class="policy-card">
+    <h2 class="card-title">Cookies & Tracking</h2>
+    <p>OEM.Autos uses cookies for authentication, analytics, and user experience. Users must consent to non-essential cookies.</p>
+    <ul class="policy-list">
+      <li>Essential cookies are required for platform operation and cannot be disabled.</li>
+      <li>Non-essential cookies (analytics, personalization) require explicit consent.</li>
+    </ul>
+  </section>
+  
+</main>
 
-<div id="cookie-consent" style="display:none;">
-  <span>We use cookies to improve your experience. Accept or reject non-essential cookies.</span>
-  <div>
-    <button class="accept" onclick="handleCookieConsent(true)">Accept</button>
-    <button class="reject" onclick="handleCookieConsent(false)">Reject</button>
+<div id="cookie-consent" class="cookie-banner" style="display:none;">
+  <p class="banner-text">We use cookies to improve your experience. Accept or reject non-essential cookies.</p>
+  <div class="banner-actions">
+    <button class="btn btn-accept" onclick="handleCookieConsent(true)">Accept</button>
+    <button class="btn btn-reject" onclick="handleCookieConsent(false)">Reject</button>
   </div>
 </div>
 
 <script>
-  const consentKey = 'oem_autos_cookie_consent';
+  const consentKey = 'oem_autos_cookie_consent_v2';
   function handleCookieConsent(accepted) {
     localStorage.setItem(consentKey, accepted ? 'accepted' : 'rejected');
     document.getElementById('cookie-consent').style.display = 'none';
