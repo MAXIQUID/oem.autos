@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Apple Pay</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+
+    #amount {
+      font-size: 4rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    #label {
+      font-size: 1.2rem;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="amount">$0.00</div>
+  <div id="label">Tap to pay</div>
+  <audio id="ding" src="https://assets.codepen.io/3/apple-pay-chime.m4a" preload="auto"></audio>
+
+  <script>
+    let amount = 0;
+    const display = document.getElementById("amount");
+    const chime = document.getElementById("ding");
+
+    document.body.addEventListener("click", () => {
+      amount += 1;
+      display.textContent = `$${amount.toFixed(2)}`;
+      chime.currentTime = 0;
+      chime.play();
+      if (navigator.vibrate) navigator.vibrate(50);
+    });
+
+    // Hide UI if PWA installed or add to home screen
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      document.getElementById('label').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
