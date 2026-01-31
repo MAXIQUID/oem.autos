@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OEM.autos — Open ROE | VIN Decoder & Genuine + Recycled OEM Parts</title>
-    <meta name="description" content="Search by VIN or Year/Make/Model to find genuine OEM and high-quality recycled parts. Powered by dismantlers, dealers, and TwentyThirty’s nationwide recycling network.">
+    <title>TwentyThirty | OEM.autos — VIN-Based JIT Parts & Digital BOM</title>
+    <meta name="description" content="VIN-first dismantling & listing platform. Generate digital BOMs, activate labels, and list genuine & recycled OEM parts instantly.">
 
     <!-- Open Graph / Social -->
-    <meta property="og:title" content="OEM.autos — Open ROE Parts Explorer">
-    <meta property="og:description" content="Instant VIN lookup. Genuine + recycled OEM parts at the best prices.">
+    <meta property="og:title" content="TwentyThirty | OEM.autos — JIT Parts & Digital BOM">
+    <meta property="og:description" content="VIN-based inventory, parts activation, and instant listings. Powered by TwentyThirty's nationwide network.">
     <meta property="og:url" content="https://oem.autos/">
     <meta property="og:site_name" content="OEM.autos">
     <meta property="og:type" content="website">
@@ -16,18 +16,16 @@
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="OEM.autos — Open ROE Parts Explorer">
-    <meta name="twitter:description" content="VIN or YMM search → genuine + recycled OEM parts nationwide.">
+    <meta name="twitter:title" content="TwentyThirty | OEM.autos — JIT Parts & Digital BOM">
+    <meta name="twitter:description" content="VIN-first dismantling & instant OEM parts listings.">
 
     <!-- Canonical & Favicon -->
     <link rel="canonical" href="https://oem.autos/">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
-    <!-- Fonts -->
+    <!-- Fonts & Tailwind -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Tailwind CDN (fast for now – replace with build later) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -36,130 +34,154 @@
     </script>
 
     <style>
+        /* Brand Grid */
         .brand-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
         .brand-card { @apply bg-white border border-gray-200 rounded-lg p-6 text-center hover:shadow-lg transition-shadow; }
         .brand-card img { height: 48px; object-fit: contain; margin: 0 auto; }
-    </style>
-</head>
 
+        /* Technician workflow buttons */
+        .tech-btn { @apply bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition; }
+
+        /* Parts list */
+        .part-card { @apply bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-lg transition; }
+        .part-card img { max-height: 80px; margin: 0 auto; object-fit: contain; }
+    </style>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#ff2d2d">
+</head>
 <body class="bg-gray-50 text-gray-900">
 
     <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-40">
+    <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
             <a href="/" class="flex items-center space-x-3">
-                <img src="/logo.svg" alt="OEM.autos Logo" class="h-10 w-auto">
-                <span class="text-2xl font-bold text-red-600">OEM.autos</span>
+                <img src="/logo.svg" alt="TwentyThirty Logo" class="h-10 w-auto">
+                <span class="text-2xl font-bold text-red-600">TwentyThirty</span>
             </a>
             <div class="hidden md:flex items-center space-x-6">
-                <a href="#search" class="font-medium hover:text-red-600">Search Parts</a>
-                <a href="/dismantlers" class="font-medium hover:text-red-600">For Dismantlers</a>
-                <a href="/about" class="font-medium hover:text-red-600">About</a>
+                <a href="#vin" class="font-medium hover:text-red-600">VIN Lookup</a>
+                <a href="#brands" class="font-medium hover:text-red-600">Brands</a>
+                <a href="#about" class="font-medium hover:text-red-600">About</a>
             </div>
         </div>
     </header>
 
-    <!-- Hero / Search Section -->
-    <section id="search" class="bg-gradient-to-b from-blue-900 to-blue-800 text-white py-20">
+    <!-- Hero / VIN Search -->
+    <section id="vin" class="bg-gradient-to-b from-blue-900 to-blue-800 text-white py-24">
         <div class="max-w-5xl mx-auto px-4 text-center">
-            <h1 class="text-4xl md:text-6xl font-bold mb-4">
-                Search Vehicle with VIN or Year/Make/Model
-            </h1>
-            <p class="text-xl md:text-2xl mb-10 opacity-90">
-                Your source for Open Source Auto Parts Data & Recycling
-            </p>
+            <h1 class="text-4xl md:text-6xl font-bold mb-4">VIN-Based Dismantling & Parts Activation</h1>
+            <p class="text-xl md:text-2xl mb-10 opacity-90">Instant digital BOM, JIT listings, and OEM parts tracking powered by TwentyThirty.</p>
 
             <!-- VIN Input -->
             <div class="max-w-2xl mx-auto mb-8">
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <input 
-                        type="text" 
-                        id="vinInput" 
-                        maxlength="17" 
-                        placeholder="Enter 17-digit VIN..." 
-                        class="px-6 py-4 text-lg rounded-lg text-gray-900 flex-1"
-                    >
-                    <button id="decodeBtn" class="bg-red-600 hover:bg-red-700 px-8 py-4 rounded-lg font-semibold text-lg transition">
-                        Decode VIN
-                    </button>
+                    <input type="text" id="vinInput" maxlength="17" placeholder="Enter 17-digit VIN..." 
+                        class="px-6 py-4 text-lg rounded-lg text-gray-900 flex-1">
+                    <button id="decodeBtn" class="tech-btn text-lg">Activate VIN</button>
                 </div>
             </div>
-
-            <!-- YMM Quick Select (optional fallback) -->
             <p class="text-lg opacity-80">or <a href="#ymm" class="underline hover:no-underline">choose Year → Make → Model</a></p>
         </div>
     </section>
 
-    <!-- Main Value Prop -->
-    <section class="py-16 bg-white">
-        <div class="max-w-6xl mx-auto px-4 text-center">
-            <h2 class="text-4xl font-bold mb-6">Shop Genuine + Recycled OEM Parts</h2>
-            <p class="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-                Powered by TwentyThirty’s nationwide network of dismantlers, recyclers, and dealership parts counters. 
-                Get the exact part you need — new or high-quality used — with full fitment guarantee and fast shipping.
-            </p>
+    <!-- Live Vehicle Info & Fuel Data -->
+    <section id="vehicleData" class="py-16 bg-white hidden">
+        <div class="max-w-6xl mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-6 text-center">Vehicle Information</h2>
+            <div id="vehicleInfo" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </div>
+    </section>
+
+    <!-- Parts Listing -->
+    <section id="parts" class="py-16 bg-gray-50 hidden">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">Parts Ready for JIT Listing</h2>
+            <div id="partsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
         </div>
     </section>
 
     <!-- Brand Grid -->
-    <section class="py-16 bg-gray-50">
+    <section id="brands" class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-12">Select Your Brand</h2>
             <div class="brand-grid">
-                <!-- Real live subdomains – keep these -->
                 <a href="https://acura.oem.autos" class="brand-card"><img src="/brands/acura.svg" alt="Acura"><span class="block mt-3 font-medium">Acura</span></a>
-                <a href="https://audi.oem.autos" class="brand-card"><img src="/brands/audi.svg" alt="Audi"><span class="block mt-3 font-medium">Audi</span></a>
                 <a href="https://bmw.oem.autos" class="brand-card"><img src="/brands/bmw.svg" alt="BMW"><span class="block mt-3 font-medium">BMW</span></a>
-                <a href="https://ford.oem.autos" class="brand-card"><img src="/brands/ford.svg" alt="Ford"><span class="block mt-3 font-medium">Ford</span></a>
-                <a href="https://g.oem.autos" class="brand-card"><img src="/brands/gm.svg" alt="GM"><span class="block mt-3 font-medium">GM</span></a>
-                <a href="https://honda.oem.autos" class="brand-card"><img src="/brands/honda.svg" alt="Honda"><span class="block mt-3 font-medium">Honda</span></a>
-                <a href="https://hyundai.oem.autos" class="brand-card"><img src="/brands/hyundai.svg" alt="Hyundai"><span class="block mt-3 font-medium">Hyundai</span></a>
                 <a href="https://toyota.oem.autos" class="brand-card"><img src="/brands/toyota.svg" alt="Toyota"><span class="block mt-3 font-medium">Toyota</span></a>
-                <!-- Add more as needed -->
+                <a href="https://ford.oem.autos" class="brand-card"><img src="/brands/ford.svg" alt="Ford"><span class="block mt-3 font-medium">Ford</span></a>
+                <a href="https://honda.oem.autos" class="brand-card"><img src="/brands/honda.svg" alt="Honda"><span class="block mt-3 font-medium">Honda</span></a>
+                <!-- Additional brands dynamically loaded via OEM repos -->
             </div>
-            <p class="text-center mt-10"><a href="/all-brands" class="text-red-600 font-semibold hover:underline">View all 30+ brands →</a></p>
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-2xl font-bold mb-4">Open ROE</p>
-            <p class="mb-6">Open Recycled Original Equipment — The future of sustainable auto parts</p>
+            <p class="text-2xl font-bold mb-4">TwentyThirty | Open ROE</p>
+            <p class="mb-6">VIN-based JIT dismantling & recycled OEM parts.</p>
             <p>
-                <a href="https://github.com/OpenROE" target="_blank" class="underline hover:text-red-400">GitHub</a> • 
+                <a href="https://github.com/MAXIQUID" target="_blank" class="underline hover:text-red-400">GitHub</a> • 
                 <a href="/privacy" class="underline hover:text-red-400">Privacy</a> • 
                 <a href="/terms" class="underline hover:text-red-400">Terms</a>
             </p>
-            <p class="text-sm text-gray-400 mt-8">© 2025 TwentyThirty, Inc. All rights reserved.</p>
+            <p class="text-sm text-gray-400 mt-8">© 2026 TwentyThirty, Inc. All rights reserved.</p>
         </div>
     </footer>
 
-    <!-- Basic VIN decode script (you’ll replace with real endpoint later) -->
+    <!-- Scripts -->
     <script>
-        document.getElementById('decodeBtn').addEventListener('click', () => {
-            const vin = document.getElementById('vinInput').value.trim();
-            if (vin.length === 17) {
-                // Placeholder – real flow goes to /vin/[vin] or API
-                window.location.href = `/vin/${vin.toUpperCase()}`;
-            } else if (vin.length > 0) {
-                alert('Please enter a valid 17-digit VIN');
-            }
+        const vinInput = document.getElementById('vinInput');
+        const decodeBtn = document.getElementById('decodeBtn');
+
+        decodeBtn.addEventListener('click', async () => {
+            const vin = vinInput.value.trim().toUpperCase();
+            if (vin.length !== 17) { alert('Enter a valid 17-digit VIN'); return; }
+
+            // 1️⃣ Fetch Vehicle Metadata (mockup)
+            const vehicleData = await fetch(`/api/vin/${vin}`).then(r => r.json());
+            
+            // 2️⃣ Render Vehicle Info
+            const vehicleSection = document.getElementById('vehicleData');
+            vehicleSection.classList.remove('hidden');
+            const vehicleInfo = document.getElementById('vehicleInfo');
+            vehicleInfo.innerHTML = `
+                <div class="p-4 bg-gray-100 rounded-lg">
+                    <h3 class="font-bold text-xl">${vehicleData.year} ${vehicleData.make} ${vehicleData.model}</h3>
+                    <p>Engine: ${vehicleData.engine}</p>
+                    <p>Transmission: ${vehicleData.transmission}</p>
+                    <p>Fuel Economy: ${vehicleData.mpg_city} / ${vehicleData.mpg_highway} MPG</p>
+                </div>
+            `;
+
+            // 3️⃣ Generate Parts (digital BOM)
+            const partsGrid = document.getElementById('partsGrid');
+            partsGrid.innerHTML = '';
+            vehicleData.parts.forEach(part => {
+                const div = document.createElement('div');
+                div.className = 'part-card';
+                div.innerHTML = `
+                    <img src="${part.image}" alt="${part.name}">
+                    <h4 class="mt-2 font-medium text-center">${part.name}</h4>
+                    <p class="text-sm text-gray-500 text-center">SKU: ${part.sku}</p>
+                    <button class="tech-btn mt-2 w-full" onclick="activatePart('${part.sku}')">Activate & List</button>
+                `;
+                partsGrid.appendChild(div);
+            });
+            document.getElementById('parts').classList.remove('hidden');
         });
 
-        // Allow Enter key
-        document.getElementById('vinInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') document.getElementById('decodeBtn').click();
-        });
-    </script>
+        // Activate individual part JIT
+        function activatePart(sku) {
+            fetch(`/api/parts/activate/${sku}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(res => alert(`Part ${sku} activated & listed!`));
+        }
 
-    <!-- Analytics (keep your existing ones) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8WWQDTHJMR"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-8WWQDTHJMR');
+        // Enter key triggers VIN decode
+        vinInput.addEventListener('keypress', e => { if (e.key === 'Enter') decodeBtn.click(); });
     </script>
 </body>
 </html>
