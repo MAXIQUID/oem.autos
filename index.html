@@ -1,187 +1,143 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TwentyThirty | OEM.autos — VIN-Based JIT Parts & Digital BOM</title>
-    <meta name="description" content="VIN-first dismantling & listing platform. Generate digital BOMs, activate labels, and list genuine & recycled OEM parts instantly.">
-
-    <!-- Open Graph / Social -->
-    <meta property="og:title" content="TwentyThirty | OEM.autos — JIT Parts & Digital BOM">
-    <meta property="og:description" content="VIN-based inventory, parts activation, and instant listings. Powered by TwentyThirty's nationwide network.">
-    <meta property="og:url" content="https://oem.autos/">
-    <meta property="og:site_name" content="OEM.autos">
-    <meta property="og:type" content="website">
-    <meta property="og:locale" content="en_US">
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="TwentyThirty | OEM.autos — JIT Parts & Digital BOM">
-    <meta name="twitter:description" content="VIN-first dismantling & instant OEM parts listings.">
-
-    <!-- Canonical & Favicon -->
-    <link rel="canonical" href="https://oem.autos/">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-
-    <!-- Fonts & Tailwind -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } }
-        }
-    </script>
-
-    <style>
-        /* Brand Grid */
-        .brand-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
-        .brand-card { @apply bg-white border border-gray-200 rounded-lg p-6 text-center hover:shadow-lg transition-shadow; }
-        .brand-card img { height: 48px; object-fit: contain; margin: 0 auto; }
-
-        /* Technician workflow buttons */
-        .tech-btn { @apply bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition; }
-
-        /* Parts list */
-        .part-card { @apply bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-lg transition; }
-        .part-card img { max-height: 80px; margin: 0 auto; object-fit: contain; }
-    </style>
-
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#ff2d2d">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TwentyThirty | OEM.autos</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Inter', sans-serif; margin:0; padding:0; background:#f5f5f5; color:#111; }
+  header { background:#111; color:#fff; padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; }
+  header h1 { margin:0; font-size:1.5rem; letter-spacing:1px; }
+  nav a { color:#fff; text-decoration:none; margin-left:1rem; font-weight:600; }
+  nav a:hover { text-decoration:underline; }
+  section { padding:4rem 2rem; max-width:1200px; margin:auto; }
+  h2 { font-size:2rem; margin-bottom:1rem; color:#222; }
+  p { line-height:1.6; margin-bottom:1rem; }
+  .hero { background:#222; color:#fff; text-align:center; padding:6rem 2rem; }
+  .hero h1 { font-size:3rem; margin-bottom:1rem; }
+  .hero p { font-size:1.2rem; margin-bottom:2rem; }
+  .btn { background:#ff3c00; color:#fff; padding:.8rem 1.6rem; border:none; border-radius:4px; cursor:pointer; font-weight:600; }
+  .btn:hover { background:#e63600; }
+  .grid { display:grid; gap:2rem; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); margin-top:2rem; }
+  .card { background:#fff; border-radius:6px; padding:1.5rem; box-shadow:0 2px 12px rgba(0,0,0,0.1); }
+  .vin-demo { display:flex; flex-direction:column; gap:1rem; max-width:400px; margin:2rem auto; }
+  .vin-demo input { padding:.6rem; font-size:1rem; border-radius:4px; border:1px solid #ccc; width:100%; }
+  .vin-demo button { width:100%; }
+  table { width:100%; border-collapse:collapse; margin-top:1rem; }
+  table th, table td { border:1px solid #ddd; padding:.6rem .8rem; text-align:left; }
+  table th { background:#f0f0f0; }
+  footer { background:#111; color:#fff; text-align:center; padding:2rem; margin-top:4rem; }
+</style>
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body>
 
-    <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-            <a href="/" class="flex items-center space-x-3">
-                <img src="/logo.svg" alt="TwentyThirty Logo" class="h-10 w-auto">
-                <span class="text-2xl font-bold text-red-600">TwentyThirty</span>
-            </a>
-            <div class="hidden md:flex items-center space-x-6">
-                <a href="#vin" class="font-medium hover:text-red-600">VIN Lookup</a>
-                <a href="#brands" class="font-medium hover:text-red-600">Brands</a>
-                <a href="#about" class="font-medium hover:text-red-600">About</a>
-            </div>
-        </div>
-    </header>
+<header>
+  <h1>TwentyThirty™ OEM.autos</h1>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#foe">FOE Standard</a>
+    <a href="#workflow">Workflow</a>
+    <a href="#marketplace">Marketplace</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
 
-    <!-- Hero / VIN Search -->
-    <section id="vin" class="bg-gradient-to-b from-blue-900 to-blue-800 text-white py-24">
-        <div class="max-w-5xl mx-auto px-4 text-center">
-            <h1 class="text-4xl md:text-6xl font-bold mb-4">VIN-Based Dismantling & Parts Activation</h1>
-            <p class="text-xl md:text-2xl mb-10 opacity-90">Instant digital BOM, JIT listings, and OEM parts tracking powered by TwentyThirty.</p>
+<section class="hero">
+  <h1>VIN-Native Inventory & Just-in-Time Dismantling</h1>
+  <p>Factory Original Equipment (FOE) parts, instantly listed as they are removed.</p>
+  <button class="btn" onclick="document.getElementById('vin-section').scrollIntoView({behavior:'smooth'});">Try VIN Demo</button>
+</section>
 
-            <!-- VIN Input -->
-            <div class="max-w-2xl mx-auto mb-8">
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <input type="text" id="vinInput" maxlength="17" placeholder="Enter 17-digit VIN..." 
-                        class="px-6 py-4 text-lg rounded-lg text-gray-900 flex-1">
-                    <button id="decodeBtn" class="tech-btn text-lg">Activate VIN</button>
-                </div>
-            </div>
-            <p class="text-lg opacity-80">or <a href="#ymm" class="underline hover:no-underline">choose Year → Make → Model</a></p>
-        </div>
-    </section>
+<section id="about">
+  <h2>About TwentyThirty™ OEM.autos</h2>
+  <p>Our platform transforms vehicle intake into instant, verified parts listings. Using VIN-based identification and FOE standards, technicians can label, image, and activate parts in real-time.</p>
+  <div class="grid">
+    <div class="card"><h3>VIN-Native Inventory</h3><p>Every vehicle gets a digital BOM tied to its VIN, tracking parts individually.</p></div>
+    <div class="card"><h3>Just-in-Time Dismantling</h3><p>Parts are listed instantly as they are removed, optimizing marketplace readiness.</p></div>
+    <div class="card"><h3>Marketplace Integration</h3><p>Seamless listings on eBay Motors, RevolutionParts, and other marketplaces.</p></div>
+    <div class="card"><h3>FOE Standard</h3><p>Factory Original Equipment schema ensures modular, traceable part data.</p></div>
+  </div>
+</section>
 
-    <!-- Live Vehicle Info & Fuel Data -->
-    <section id="vehicleData" class="py-16 bg-white hidden">
-        <div class="max-w-6xl mx-auto px-4">
-            <h2 class="text-3xl font-bold mb-6 text-center">Vehicle Information</h2>
-            <div id="vehicleInfo" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-        </div>
-    </section>
+<section id="foe">
+  <h2>FOE (Factory Original Equipment) Standard</h2>
+  <p>The FOE schema provides a modular, VIN-native structure for automotive parts:</p>
+  <pre>
+{
+  "vin": "WBA8E9G5XGNU12345",
+  "part_number": "230477",
+  "category": "Brake System > Rotors",
+  "condition": "Used - Excellent",
+  "images": ["rotor_front.jpg", "rotor_back.jpg"],
+  "timestamp_removed": "2026-01-31T14:22:00Z",
+  "technician": "John Doe",
+  "marketplace_status": "Listed"
+}
+  </pre>
+</section>
 
-    <!-- Parts Listing -->
-    <section id="parts" class="py-16 bg-gray-50 hidden">
-        <div class="max-w-7xl mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-12">Parts Ready for JIT Listing</h2>
-            <div id="partsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"></div>
-        </div>
-    </section>
+<section id="workflow">
+  <h2>Workflow / Dismantling Process</h2>
+  <ol>
+    <li>Vehicle Intake & Imaging</li>
+    <li>Pre-assign SKUs (up to 999 per vehicle)</li>
+    <li>Label & Activate Parts</li>
+    <li>Image & Verify Part Condition</li>
+    <li>Just-in-Time Listings Published</li>
+    <li>Continuous Marketplace Update</li>
+  </ol>
+</section>
 
-    <!-- Brand Grid -->
-    <section id="brands" class="py-16 bg-white">
-        <div class="max-w-7xl mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-12">Select Your Brand</h2>
-            <div class="brand-grid">
-                <a href="https://acura.oem.autos" class="brand-card"><img src="/brands/acura.svg" alt="Acura"><span class="block mt-3 font-medium">Acura</span></a>
-                <a href="https://bmw.oem.autos" class="brand-card"><img src="/brands/bmw.svg" alt="BMW"><span class="block mt-3 font-medium">BMW</span></a>
-                <a href="https://toyota.oem.autos" class="brand-card"><img src="/brands/toyota.svg" alt="Toyota"><span class="block mt-3 font-medium">Toyota</span></a>
-                <a href="https://ford.oem.autos" class="brand-card"><img src="/brands/ford.svg" alt="Ford"><span class="block mt-3 font-medium">Ford</span></a>
-                <a href="https://honda.oem.autos" class="brand-card"><img src="/brands/honda.svg" alt="Honda"><span class="block mt-3 font-medium">Honda</span></a>
-                <!-- Additional brands dynamically loaded via OEM repos -->
-            </div>
-        </div>
-    </section>
+<section id="vin-section">
+  <h2>VIN Demo</h2>
+  <p>Enter a VIN to simulate instant part extraction and listing:</p>
+  <div class="vin-demo">
+    <input type="text" id="vin-input" placeholder="Enter VIN (e.g. WBA8E9G5XGNU12345)">
+    <button class="btn" onclick="generateParts()">Generate Parts</button>
+    <div id="vin-results"></div>
+  </div>
+</section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-2xl font-bold mb-4">TwentyThirty | Open ROE</p>
-            <p class="mb-6">VIN-based JIT dismantling & recycled OEM parts.</p>
-            <p>
-                <a href="https://github.com/MAXIQUID" target="_blank" class="underline hover:text-red-400">GitHub</a> • 
-                <a href="/privacy" class="underline hover:text-red-400">Privacy</a> • 
-                <a href="/terms" class="underline hover:text-red-400">Terms</a>
-            </p>
-            <p class="text-sm text-gray-400 mt-8">© 2026 TwentyThirty, Inc. All rights reserved.</p>
-        </div>
-    </footer>
+<section id="marketplace">
+  <h2>Marketplace Integration</h2>
+  <p>Parts are automatically mapped to eBay Motors, RevolutionParts, and other marketplaces. Our CSV/API pipelines allow bulk uploads directly from the FOE database.</p>
+</section>
 
-    <!-- Scripts -->
-    <script>
-        const vinInput = document.getElementById('vinInput');
-        const decodeBtn = document.getElementById('decodeBtn');
+<section id="contact">
+  <h2>Contact / Join</h2>
+  <p>Email: <a href="mailto:nathanlivarchuk2@gmail.com">nathanlivarchuk2@gmail.com</a></p>
+  <p>GitHub: <a href="https://github.com/MAXIQUID" target="_blank">MAXIQUID</a></p>
+  <p>Become a Dismantler Partner and join our network.</p>
+</section>
 
-        decodeBtn.addEventListener('click', async () => {
-            const vin = vinInput.value.trim().toUpperCase();
-            if (vin.length !== 17) { alert('Enter a valid 17-digit VIN'); return; }
+<footer>
+  &copy; 2026 TwentyThirty™ OEM.autos | GPLv3 License
+</footer>
 
-            // 1️⃣ Fetch Vehicle Metadata (mockup)
-            const vehicleData = await fetch(`/api/vin/${vin}`).then(r => r.json());
-            
-            // 2️⃣ Render Vehicle Info
-            const vehicleSection = document.getElementById('vehicleData');
-            vehicleSection.classList.remove('hidden');
-            const vehicleInfo = document.getElementById('vehicleInfo');
-            vehicleInfo.innerHTML = `
-                <div class="p-4 bg-gray-100 rounded-lg">
-                    <h3 class="font-bold text-xl">${vehicleData.year} ${vehicleData.make} ${vehicleData.model}</h3>
-                    <p>Engine: ${vehicleData.engine}</p>
-                    <p>Transmission: ${vehicleData.transmission}</p>
-                    <p>Fuel Economy: ${vehicleData.mpg_city} / ${vehicleData.mpg_highway} MPG</p>
-                </div>
-            `;
+<script>
+  function generateParts() {
+    const vin = document.getElementById('vin-input').value.trim();
+    if(!vin) return alert('Enter a VIN');
+    const resultsDiv = document.getElementById('vin-results');
+    resultsDiv.innerHTML = 'Loading parts...';
 
-            // 3️⃣ Generate Parts (digital BOM)
-            const partsGrid = document.getElementById('partsGrid');
-            partsGrid.innerHTML = '';
-            vehicleData.parts.forEach(part => {
-                const div = document.createElement('div');
-                div.className = 'part-card';
-                div.innerHTML = `
-                    <img src="${part.image}" alt="${part.name}">
-                    <h4 class="mt-2 font-medium text-center">${part.name}</h4>
-                    <p class="text-sm text-gray-500 text-center">SKU: ${part.sku}</p>
-                    <button class="tech-btn mt-2 w-full" onclick="activatePart('${part.sku}')">Activate & List</button>
-                `;
-                partsGrid.appendChild(div);
-            });
-            document.getElementById('parts').classList.remove('hidden');
-        });
+    // Simulated parts generation
+    const parts = [
+      {part_number:'230477', name:'Brake Rotor', category:'Brakes', condition:'Used - Excellent'},
+      {part_number:'560123', name:'Starter Motor', category:'Engine', condition:'Used - Good'},
+      {part_number:'980112', name:'Tail Light', category:'Lighting', condition:'New'},
+      {part_number:'330445', name:'Air Filter', category:'Intake', condition:'New'}
+    ];
 
-        // Activate individual part JIT
-        function activatePart(sku) {
-            fetch(`/api/parts/activate/${sku}`, { method: 'POST' })
-                .then(r => r.json())
-                .then(res => alert(`Part ${sku} activated & listed!`));
-        }
+    let table = '<table><tr><th>Part #</th><th>Name</th><th>Category</th><th>Condition</th></tr>';
+    parts.forEach(p => {
+      table += `<tr><td>${p.part_number}</td><td>${p.name}</td><td>${p.category}</td><td>${p.condition}</td></tr>`;
+    });
+    table += '</table>';
+    resultsDiv.innerHTML = table;
+  }
+</script>
 
-        // Enter key triggers VIN decode
-        vinInput.addEventListener('keypress', e => { if (e.key === 'Enter') decodeBtn.click(); });
-    </script>
 </body>
 </html>
