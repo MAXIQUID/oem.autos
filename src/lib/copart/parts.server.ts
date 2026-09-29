@@ -122,7 +122,7 @@ export async function partsForVehicle(input: {
     return empty("This vehicle has no model to search.");
   }
 
-  const key = `${input.year}|${make}|${model}|ymm-v7`;
+  const key = `${input.year}|${make}|${model}|ymm-v8`;
   g.__copartParts ??= new Map();
   const cached = g.__copartParts.get(key);
   if (cached && Date.now() - cached.at < TTL_MS) return cached.value;

@@ -11,6 +11,7 @@ export type EbayHit = {
   location: string | null;
   shippingCents: number | null;
   buying: string | null;
+  buyNow: boolean;
   categoryId: string | null;
   categoryName: string | null;
   /** Numeric id for https://www.ebay.com/sl/list?mode=SellLikeItem&itemId= */

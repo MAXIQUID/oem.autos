@@ -62,19 +62,19 @@ function MarketPage() {
               <Fact label="Item" value={item.itemId} />
             </dl>
             {item.description ? <p className="mt-6 text-muted">{item.description}</p> : null}
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-col items-start gap-2">
+              <Button asChild>
+                <a href={item.url} target="_blank" rel="noreferrer">
+                  {item.buyNow ? "Buy now" : "View listing"}
+                </a>
+              </Button>
               {item.sellItemId ? (
-                <Button asChild>
+                <Button asChild variant="secondary">
                   <a href={sellSimilarUrl(item.sellItemId)} target="_blank" rel="noreferrer">
                     Sell similar
                   </a>
                 </Button>
               ) : null}
-              <Button asChild variant="secondary">
-                <a href={item.url} target="_blank" rel="noreferrer">
-                  Open on eBay
-                </a>
-              </Button>
             </div>
           </div>
         </div>

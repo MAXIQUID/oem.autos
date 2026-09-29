@@ -5,23 +5,77 @@ import type { EbayHit } from "@/lib/ebay/types";
 import { sellSimilarUrl } from "@/lib/ebay/sell";
 import type { PartsReport } from "@/lib/copart/types";
 import { formatUsd } from "@/lib/utils";
+const FILLER = new Set([
+  "a",
+  "an",
+  "and",
+  "for",
+  "fit",
+  "fits",
+  "the",
+  "with",
+  "oem",
+  "genuine",
+  "used",
+  "new",
+  "part",
+  "parts",
+  "assembly",
+  "assy",
+  "replacement",
+]);
+
+/** Same part, different sellers or word order, becomes one key. */
+function partKey(title: string): string {
+  const words = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .split(" ")
+    .filter((word) => word && !FILLER.has(word) && !/^(19|20)\d{2}$/.test(word));
+  words.sort();
+  return words.join(" ");
+}
+
+function cheaper(next: EbayHit, current: EbayHit): boolean {
+  return (next.priceCents ?? Number.POSITIVE_INFINITY) < (current.priceCents ?? Number.POSITIVE_INFINITY);
+}
+
+function dedupe(items: EbayHit[]): { item: EbayHit; extra: number }[] {
+  const map = new Map<string, { item: EbayHit; extra: number }>();
+  for (const item of items) {
+    const key = partKey(item.title) || item.itemId;
+    const prev = map.get(key);
+    if (!prev) {
+      map.set(key, { item, extra: 0 });
+      continue;
+    }
+    prev.extra += 1;
+    if (cheaper(item, prev.item)) prev.item = item;
+  }
+  return [...map.values()];
+}
 
 export function PartsBoard({ report }: { report: PartsReport }) {
   const [query, setQuery] = useState("");
   const needle = query.trim().toLowerCase();
   const groups = useMemo(() => {
-    if (!needle) return report.groups;
-    return report.groups
-      .map((group) => {
-        if (group.label.toLowerCase().includes(needle)) return group;
-        return {
-          ...group,
-          items: group.items.filter((item) => item.title.toLowerCase().includes(needle)),
-        };
-      })
-      .filter((group) => group.items.length > 0);
+    const filtered = needle
+      ? report.groups
+          .map((group) => {
+            if (group.label.toLowerCase().includes(needle)) return group;
+            return {
+              ...group,
+              items: group.items.filter((item) => item.title.toLowerCase().includes(needle)),
+            };
+          })
+          .filter((group) => group.items.length > 0)
+      : report.groups;
+    return filtered
+      .map((group) => ({ ...group, rows: dedupe(group.items) }))
+      .filter((group) => group.rows.length > 0);
   }, [needle, report.groups]);
-  const shown = groups.reduce((sum, group) => sum + group.items.length, 0);
+  const shown = groups.reduce((sum, group) => sum + group.rows.length, 0);
+  const matched = groups.reduce((sum, group) => sum + group.rows.reduce((n, row) => n + 1 + row.extra, 0), 0);
 
   if (report.error) return <p className="mt-6 text-sm text-danger">{report.error}</p>;
   if (report.groups.length === 0) {
@@ -47,7 +101,11 @@ export function PartsBoard({ report }: { report: PartsReport }) {
       </label>
       {needle ? (
         <p className="mt-2 text-sm text-muted">
-          {shown} of {report.shown} match “{query.trim()}”
+          {shown} parts from {matched} listings match “{query.trim()}”
+        </p>
+      ) : shown < report.shown ? (
+        <p className="mt-2 text-sm text-muted">
+          {shown} parts. {report.shown - shown} repeat listings are folded in.
         </p>
       ) : null}
       {groups.length === 0 ? (
@@ -57,11 +115,11 @@ export function PartsBoard({ report }: { report: PartsReport }) {
           <section key={group.id} className="mt-8 min-w-0">
             <h3 className="font-display text-2xl font-semibold tracking-tight">
               {group.label}
-              <span className="ml-2 text-muted">({group.items.length})</span>
+              <span className="ml-2 text-muted">({group.rows.length})</span>
             </h3>
             <ul className="mt-3 divide-y divide-border overflow-hidden rounded-xl bg-surface shadow-[var(--shadow-border)]">
-              {group.items.map((item) => (
-                <PartRow key={item.itemId} item={item} />
+              {group.rows.map((row) => (
+                <PartRow key={row.item.itemId} item={row.item} extra={row.extra} />
               ))}
             </ul>
           </section>
@@ -71,7 +129,7 @@ export function PartsBoard({ report }: { report: PartsReport }) {
   );
 }
 
-function PartRow({ item }: { item: EbayHit }) {
+function PartRow({ item, extra }: { item: EbayHit; extra: number }) {
   return (
     <li className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center">
       <Link
@@ -90,18 +148,24 @@ function PartRow({ item }: { item: EbayHit }) {
             {formatUsd(item.priceCents)}
             {item.condition ? ` · ${item.condition}` : ""}
             {item.location ? ` · ${item.location}` : ""}
+            {extra > 0 ? ` · ${extra} more like this` : ""}
           </span>
         </span>
       </Link>
-      {item.sellItemId ? (
-        <Button asChild size="sm" className="shrink-0">
-          <a href={sellSimilarUrl(item.sellItemId)} target="_blank" rel="noreferrer">
-            Sell similar
+      <div className="flex shrink-0 flex-col gap-2">
+        <Button asChild size="sm">
+          <a href={item.url} target="_blank" rel="noreferrer">
+            {item.buyNow ? "Buy now" : "View listing"}
           </a>
         </Button>
-      ) : (
-        <span className="text-xs text-subtle">No eBay item id</span>
-      )}
+        {item.sellItemId ? (
+          <Button asChild size="sm" variant="secondary">
+            <a href={sellSimilarUrl(item.sellItemId)} target="_blank" rel="noreferrer">
+              Sell similar
+            </a>
+          </Button>
+        ) : null}
+      </div>
     </li>
   );
 }

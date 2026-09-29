@@ -105,6 +105,7 @@ function mapHit(raw: RawSummary): EbayHit | null {
     location: loc || null,
     shippingCents: dollarsToCents(raw.shippingOptions?.[0]?.shippingCost?.value),
     buying: raw.buyingOptions?.[0]?.replaceAll("_", " ").toLowerCase() ?? null,
+    buyNow: (raw.buyingOptions ?? []).includes("FIXED_PRICE"),
     sellItemId: sellItemId(raw.itemId, raw.legacyItemId),
     ...pickCategory(raw),
   };
