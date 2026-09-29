@@ -42,10 +42,18 @@ export const getSalePage = createServerFn({ method: "GET" })
 
 export const lookupInventory = createServerFn({ method: "GET" })
   .validator(z.object({ q: z.string().trim().min(1).max(80) }))
-  .handler(async ({ data }): Promise<{ lot: number | null }> => {
+  .handler(async ({ data }): Promise<{ lot: number | null; vin: string | null }> => {
     const { findInventory } = await import("./feed.server");
+    const { isIndexableVin } = await import("@/lib/vin");
     const lot = await findInventory(data.q);
-    return { lot: lot?.lot ?? null };
+    return { lot: lot?.lot ?? null, vin: lot && isIndexableVin(lot.vin) ? lot.vin : null };
+  });
+
+export const getSaleVin = createServerFn({ method: "GET" })
+  .validator(z.object({ vin: z.string().trim().min(11).max(20) }))
+  .handler(async ({ data }): Promise<{ lot: CopartLot | null }> => {
+    const { getByVin } = await import("./feed.server");
+    return { lot: await getByVin(data.vin) };
   });
 
 export const getSaleLot = createServerFn({ method: "GET" })

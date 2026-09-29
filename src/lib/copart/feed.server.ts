@@ -519,3 +519,28 @@ export async function getLot(lot: number): Promise<CopartLot | null> {
   const feed = await ensureFeed();
   return feed.byLot.get(lot) ?? null;
 }
+
+export async function getByVin(vin: string): Promise<CopartLot | null> {
+  const clean = vin.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, "");
+  if (clean.length !== 17) return null;
+  const feed = await ensureFeed();
+  return feed.byVin.get(clean) ?? null;
+}
+
+const SITEMAP_SIZE = 10_000;
+
+export async function vinSitemap(page: number): Promise<{ vins: string[]; pages: number; updated: string } | null> {
+  const feed = await ensureFeed();
+  const pages = Math.max(1, Math.ceil(feed.byVin.size / SITEMAP_SIZE));
+  if (!Number.isInteger(page) || page < 1 || page > pages) return null;
+  const start = (page - 1) * SITEMAP_SIZE;
+  const end = start + SITEMAP_SIZE;
+  const vins: string[] = [];
+  let i = 0;
+  for (const vin of feed.byVin.keys()) {
+    if (i >= end) break;
+    if (i >= start) vins.push(vin);
+    i += 1;
+  }
+  return { vins, pages, updated: feed.updated };
+}

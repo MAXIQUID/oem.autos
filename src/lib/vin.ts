@@ -100,6 +100,10 @@ export function normalizeVin(input: string): string {
   return input.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, "").slice(0, 17);
 }
 
+export function isIndexableVin(vin: string): boolean {
+  return /^[A-HJ-NPR-Z0-9]{17}$/.test(vin);
+}
+
 export function computeCheckDigit(vin: string): string | null {
   if (vin.length !== 17) return null;
   let sum = 0;

@@ -1,6 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { VehicleLink } from "@/components/vehicle-link";
 import type { SaleFacet, VehicleFeed, VehicleSort } from "@/lib/copart/types";
 import { formatVin } from "@/lib/utils";
 
@@ -306,10 +307,10 @@ function VehicleRow({ lot }: { lot: VehicleFeed["results"][number] }) {
   const spec = [lot.drive, lot.engine, lot.trans].filter(Boolean).join(" · ");
   const place = [lot.damage, lot.city && lot.state ? `${lot.city}, ${lot.state}` : lot.state].filter(Boolean).join(" · ");
   return (
-    <Link to="/lot/$lot" params={{ lot: String(lot.lot) }} className="flex gap-3 p-3 hover:bg-surface-2 sm:gap-4 sm:p-4">
+    <VehicleLink lot={lot.lot} vin={lot.vin} className="flex gap-3 p-3 hover:bg-surface-2 sm:gap-4 sm:p-4">
       <div className="size-20 shrink-0 overflow-hidden rounded-md bg-surface-2 sm:size-24">
         {lot.thumb ? (
-          <img src={lot.thumb} alt="" loading="lazy" className="media h-full w-full object-cover" />
+          <img src={lot.thumb} alt={`${lot.year} ${lot.make} ${lot.model}${lot.vin ? ` VIN ${lot.vin}` : ""}`} loading="lazy" className="media h-full w-full object-cover" />
         ) : (
           <div className="flex h-full items-end p-2 font-mono text-xs text-subtle">No photo</div>
         )}
@@ -323,6 +324,6 @@ function VehicleRow({ lot }: { lot: VehicleFeed["results"][number] }) {
         {place ? <p className="mt-1 truncate text-sm text-subtle">{place}</p> : null}
         <p className="mt-2 text-sm font-medium text-accent">View vehicle</p>
       </div>
-    </Link>
+    </VehicleLink>
   );
 }

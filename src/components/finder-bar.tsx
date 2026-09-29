@@ -34,6 +34,10 @@ export function FinderBar() {
       setBusy(true);
       try {
         const found = await lookupInventory({ data: { q: vin.length === 17 ? vin : query } });
+        if (found.vin) {
+          await navigate({ to: "/vin/$vin", params: { vin: found.vin } });
+          return;
+        }
         if (found.lot) {
           await navigate({ to: "/lot/$lot", params: { lot: String(found.lot) } });
           return;
