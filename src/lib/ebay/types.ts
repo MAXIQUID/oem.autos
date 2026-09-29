@@ -13,6 +13,8 @@ export type EbayHit = {
   buying: string | null;
   categoryId: string | null;
   categoryName: string | null;
+  /** Numeric id for https://www.ebay.com/sl/list?mode=SellLikeItem&itemId= */
+  sellItemId: string | null;
 };
 
 export type EbaySearchResult = {

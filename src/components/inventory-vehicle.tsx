@@ -188,9 +188,10 @@ function PartsPanel({ lotId, label }: { lotId: string; label: string }) {
 
   return (
     <section className="mt-12">
-      <h2 className="font-display text-3xl font-semibold tracking-tight">Used OEM parts</h2>
+      <h2 className="font-display text-3xl font-semibold tracking-tight">Parts to list</h2>
       <p className="mt-1 max-w-2xl text-sm text-muted">
-        Live used listings whose titles name this {label}. Asking prices, highest first.
+        Used eBay listings whose titles name this {label}. Sell similar opens eBay’s form with that
+        item filled in. Nothing is listed until you submit it on eBay.
       </p>
       {!report ? (
         <p className="mt-6 text-sm text-subtle">Searching eBay for used OEM parts…</p>

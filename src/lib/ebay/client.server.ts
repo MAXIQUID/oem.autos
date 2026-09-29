@@ -1,5 +1,6 @@
 import type { EbayAspect, EbayHit, EbayItem, EbaySearchResult } from "./types";
 import { env } from "@/lib/env.server";
+import { sellItemId } from "./sell";
 
 const TOKEN_URL = "https://api.ebay.com/identity/v1/oauth2/token";
 const SEARCH_URL = "https://api.ebay.com/buy/browse/v1/item_summary/search";
@@ -69,6 +70,7 @@ type RawSummary = {
   shippingOptions?: { shippingCost?: { value?: string } }[];
   categories?: { categoryId?: string; categoryName?: string }[];
   leafCategoryIds?: string[];
+  legacyItemId?: string;
 };
 
 const PARENT_CATEGORIES = new Set(["6000", "6028", PARTS_CATEGORY]);
@@ -103,6 +105,7 @@ function mapHit(raw: RawSummary): EbayHit | null {
     location: loc || null,
     shippingCents: dollarsToCents(raw.shippingOptions?.[0]?.shippingCost?.value),
     buying: raw.buyingOptions?.[0]?.replaceAll("_", " ").toLowerCase() ?? null,
+    sellItemId: sellItemId(raw.itemId, raw.legacyItemId),
     ...pickCategory(raw),
   };
 }

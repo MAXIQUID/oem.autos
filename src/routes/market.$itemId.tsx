@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/page-shell";
 import { getMarketItem } from "@/lib/oem/queries";
 import { formatUsd } from "@/lib/utils";
+import { sellSimilarUrl } from "@/lib/ebay/sell";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/market/$itemId")({
   loader: ({ params }) => getMarketItem({ data: { itemId: params.itemId } }),
@@ -60,14 +62,20 @@ function MarketPage() {
               <Fact label="Item" value={item.itemId} />
             </dl>
             {item.description ? <p className="mt-6 text-muted">{item.description}</p> : null}
-            <a
-              href={item.url}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-8 inline-flex h-12 items-center rounded-md bg-paper px-5 font-medium text-ink hover:bg-accent"
-            >
-              Open on eBay
-            </a>
+            <div className="mt-8 flex flex-wrap gap-3">
+              {item.sellItemId ? (
+                <Button asChild>
+                  <a href={sellSimilarUrl(item.sellItemId)} target="_blank" rel="noreferrer">
+                    Sell similar
+                  </a>
+                </Button>
+              ) : null}
+              <Button asChild variant="secondary">
+                <a href={item.url} target="_blank" rel="noreferrer">
+                  Open on eBay
+                </a>
+              </Button>
+            </div>
           </div>
         </div>
         {item.aspects.length ? (

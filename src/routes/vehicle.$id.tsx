@@ -100,7 +100,11 @@ function Parts({ id }: { id: string }) {
 
   return (
     <section className="mt-10 min-w-0">
-      <h2 className="font-display text-3xl font-semibold tracking-tight">Used OEM parts</h2>
+      <h2 className="font-display text-3xl font-semibold tracking-tight">Parts to list</h2>
+      <p className="mt-1 max-w-2xl text-sm text-muted">
+        Used eBay listings for this vehicle. Sell similar opens eBay’s form with that item filled
+        in. Nothing is listed until you submit it on eBay.
+      </p>
       {!report ? (
         <p className="mt-4 text-sm text-subtle">Searching used OEM listings…</p>
       ) : (
