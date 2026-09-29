@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OEM.autos | Unified VIN & Selector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--primary-blue:#007bff;--primary-blue-dark:#004d99;--light-bg:#f4f6f9;--white:#ffffff;--glass-bg:rgba(255,255,255,0.95);--border-color:#e9ecef;--text-main:#212529;--text-muted:#6c757d;--shadow-sm:0 2px 8px rgba(0,0,0,0.05);--shadow-lg:0 10px 25px rgba(0,0,0,0.1);--radius:16px;--spacing:1rem;--transition:all 0.3s cubic-bezier(0.25,0.8,0.25,1);
+}
+body{font-family:'Inter',sans-serif;margin:0;background:var(--light-bg);color:var(--text-main);min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+h1{margin:2rem 0 1rem;color:var(--primary-blue-dark);font-weight:800;letter-spacing:-0.5px;}
+#sticky-sentinel{position:absolute;top:0;left:0;right:0;height:1px;visibility:hidden;pointer-events:none;}
+.sticky-wrapper{position:sticky;top:0;z-index:100;width:100%;max-width:650px;padding:var(--spacing);background:transparent;transition:var(--transition);}
+.sticky-wrapper.is-stuck{background:var(--glass-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--shadow-lg);padding-top:1rem;padding-bottom:1rem;margin-top:-1rem;border-bottom-left-radius:var(--radius);border-bottom-right-radius:var(--radius);}
+.controls-container{display:flex;flex-direction:column;gap:1rem;}
+.vin-search{display:flex;gap:0.5rem;}
+.vin-input{flex:1;padding:12px 16px;border:1px solid var(--border-color);border-radius:12px;font-family:monospace;text-transform:uppercase;font-size:1rem;outline:none;box-shadow:var(--shadow-sm);transition:var(--transition);}
+.vin-input:focus{border-color:var(--primary-blue);box-shadow:0 0 0 3px rgba(0,123,255,0.15);}
+.btn-primary{background:var(--primary-blue);color:white;border:none;border-radius:12px;padding:0 20px;font-weight:600;cursor:pointer;transition:var(--transition);}
+.btn-primary:hover{background:var(--primary-blue-dark);transform:translateY(-1px);}
+.carousel-row{display:flex;gap:0.5rem;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:4px;-webkit-overflow-scrolling:touch;}
+.carousel-row::-webkit-scrollbar{display:none;}
+.pill{flex:0 0 auto;scroll-snap-align:start;padding:8px 16px;background:var(--white);border:1px solid var(--border-color);border-radius:99px;font-size:0.9rem;cursor:pointer;transition:var(--transition);white-space:nowrap;user-select:none;}
+.pill:hover{border-color:var(--primary-blue);}
+.pill.active{background:var(--primary-blue);color:white;border-color:var(--primary-blue);box-shadow:0 4px 10px rgba(0,123,255,0.3);}
+.pill.skeleton{background:#e9ecef;color:transparent;pointer-events:none;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%{opacity:0.6;}50%{opacity:1;}100%{opacity:0.6;}}
+#result-container{width:100%;max-width:650px;padding:0 var(--spacing) var(--spacing);margin-top:1rem;}
+.card{background:var(--white);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-sm);}
+.data-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1.5rem;margin-top:1.5rem;}
+.data-item small{display:block;color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.data-item strong{font-size:1.1rem;color:var(--text-main);}
+.vin-viz{display:flex;font-family:monospace;margin-bottom:1.5rem;background:#f8f9fa;padding:10px;border-radius:8px;}
+.vin-chunk{text-align:center;padding:0 4px;}
+.vin-chunk span{display:block;}
+.vin-chunk .lbl{font-size:0.6rem;color:#aaa;margin-top:4px;}
+.c-wmi{color:#6f42c1;font-weight:bold;flex:3;}
+.c-vds{color:#fd7e14;font-weight:bold;flex:6;}
+.c-vis{color:#28a745;font-weight:bold;flex:8;}
+</style>
+</head>
+<body>
+<h1>OEM.autos</h1>
+<div id="sticky-sentinel"></div>
+<div class="sticky-wrapper" id="sticky-header">
+  <div class="controls-container">
+    <div class="vin-search">
+      <input type="text" id="vin-input" class="vin-input" placeholder="Enter 17-Character VIN" maxlength="17">
+      <button id="btn-decode" class="btn-primary">Decode</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div id="year-carousel" class="carousel-row"></div>
+      <div id="make-carousel" class="carousel-row"></div>
+      <div id="model-carousel" class="carousel-row"></div>
+      <div id="option-carousel" class="carousel-row"></div>
+    </div>
+  </div>
+</div>
+<div id="result-container">
+  <div id="result-content" class="card">
+    <p style="text-align:center;color:#888;">
+      Start by typing a VIN or selecting a Year above.<br>
+      <small>Your progress is saved automatically.</small>
+    </p>
+  </div>
+</div>
+<script>
+class Cache {
+  constructor(){this.prefix='oem_cache_v2_';this.expiry=3600*1000;}
+  get(k){try{const v=JSON.parse(localStorage.getItem(this.prefix+k));if(!v)return null;if(Date.now()-v.timestamp>this.expiry){localStorage.removeItem(this.prefix+k);return null;}return v.value;}catch{return null;}}
+  set(k,d){try{localStorage.setItem(this.prefix+k,JSON.stringify({value:d,timestamp:Date.now()}));}catch{}}
+  saveState(state){localStorage.setItem('oem_state',JSON.stringify({vin:state.vin,year:state.year,make:state.make,model:state.model,option:state.option}));}
+  loadState(){try{return JSON.parse(localStorage.getItem('oem_state'))||{};}catch{return {};}}
+}
+const cache=new Cache();
+const els={vin:document.getElementById('vin-input'),btn:document.getElementById('btn-decode'),year:document.getElementById('year-carousel'),make:document.getElementById('make-carousel'),model:document.getElementById('model-carousel'),option:document.getElementById('option-carousel'),result:document.getElementById('result-content'),sticky:document.getElementById('sticky-header'),sentinel:document.getElementById('sticky-sentinel')};
+const state={vin:'',year:null,make:null,model:null,option:null,years:[],makes:[],models:[],options:[],details:null,loading:false};
+new IntersectionObserver(e=>{els.sticky.classList.toggle('is-stuck',!e[0].isIntersecting);},{threshold:[1]}).observe(els.sentinel);
+async function fetchJSON(url){const cached=cache.get(url);if(cached)return cached;try{const r=await fetch(url);const j=await r.json();cache.set(url,j);return j;}catch{return null;}}
+async function fetchXML(url){const cached=cache.get(url);if(cached)return cached;try{const r=await fetch(url);const txt=await r.text();const doc=new DOMParser().parseFromString(txt,'application/xml');cache.set(url,doc);return doc;}catch{return null;}}
+function saveState(){cache.saveState(state);}
+function setPills(container,items,value,onClick){container.innerHTML='';items.forEach(i=>{const p=document.createElement('div');p.className='pill'+(i.value===value?' active':'');p.textContent=i.text;p.onclick=()=>onClick(i.value);container.appendChild(p);});if(container.querySelector('.active'))container.querySelector('.active').scrollIntoView({inline:'center',behavior:'smooth'});}
+async function loadYears(){state.years=[];for(let y=2026;y>=1984;y--)state.years.push({text:y,value:y});setPills(els.year,state.years,state.year,val=>{state.year=val;state.make=null;state.model=null;state.option=null;saveState();loadMakes();});}
+async function loadMakes(){if(!state.year)return;state.makes=[];const doc=await fetchXML(`https://www.fueleconomy.gov/ws/rest/vehicle/menu/make?year=${state.year}`);if(doc){state.makes=Array.from(doc.getElementsByTagName('menuItem')).map(x=>({text:x.querySelector('text').textContent,value:x.querySelector('value').textContent}));}setPills(els.make,state.makes,state.make,val=>{state.make=val;state.model=null;state.option=null;saveState();loadModels();});}
+async function loadModels(){if(!state.year||!state.make)return;state.models=[];const doc=await fetchXML(`https://www.fueleconomy.gov/ws/rest/vehicle/menu/model?year=${state.year}&make=${state.make}`);if(doc){state.models=Array.from(doc.getElementsByTagName('menuItem')).map(x=>({text:x.querySelector('text').textContent,value:x.querySelector('value').textContent}));}setPills(els.model,state.models,state.model,val=>{state.model=val;state.option=null;saveState();loadOptions();});}
+async function loadOptions(){if(!state.year||!state.make||!state.model)return;state.options=[];const doc=await fetchXML(`https://www.fueleconomy.gov/ws/rest/vehicle/menu/options?year=${state.year}&make=${state.make}&model=${state.model}`);if(doc){state.options=Array.from(doc.getElementsByTagName('menuItem')).map(x=>({text:x.querySelector('text').textContent,value:x.querySelector('value').textContent}));}setPills(els.option,state.options,state.option,val=>{state.option=val;saveState();loadDetails();});}
+async function loadDetails(){if(!state.option)return;els.result.innerHTML='<p style="text-align:center;">Loading...</p>';const doc=await fetchXML(`https://www.fueleconomy.gov/ws/rest/vehicle/${state.option}`);if(doc){const data={};Array.from(doc.documentElement.children).forEach(c=>data[c.tagName]=c.textContent);state.details=data;renderDetails();}}
+function renderDetails(){if(!state.details){els.result.innerHTML='<p>No data</p>';return;}const d=state.details;const vin=state.vin.toUpperCase();els.result.innerHTML=`<div class="vin-viz"><div class="vin-chunk c-wmi"><span>${vin.slice(0,3)}</span><span class="lbl">WMI</span></div><div class="vin-chunk c-vds"><span>${vin.slice(3,9)}</span><span class="lbl">VDS</span></div><div class="vin-chunk c-vis"><span>${vin.slice(9,17)}</span><span class="lbl">VIS</span></div></div><h2>${d.ModelYear||state.year||''} ${d.Make||state.make||''} ${d.Model||state.model||''}</h2><div class="data-grid"><div class="data-item"><small>Manufacturer</small><strong>${d.Manufacturer||''}</strong></div><div class="data-item"><small>Engine</small><strong>${d.EngineCylinders||''} Cyl ${d.DisplacementL||''}L</strong></div><div class="data-item"><small>Fuel</small><strong>${d.FuelTypePrimary||''}</strong></div><div class="data-item"><small>Body</small><strong>${d.BodyClass||''}</strong></div><div class="data-item"><small>Drive</small><strong>${d.DriveType||''}</strong></div></div>`;}
+async function decodeVIN(){const vin=els.vin.value.trim();if(vin.length!==17)return alert('VIN must be 17 characters');state.vin=vin;saveState();els.result.innerHTML='<p style="text-align:center;">Decoding VIN...</p>';const data=await fetchJSON(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`);if(data&&data.Results){const clean={};data.Results.forEach(r=>{if(r.Value&&r.Value!=='null')clean[r.Variable.replace(/ /g,'')]=r.Value;});state.details=clean;renderDetails();}}
+els.btn.addEventListener('click',decodeVIN);
+els.vin.addEventListener('keypress',e=>{if(e.key==='Enter')decodeVIN();});
+(async()=>{loadYears();const saved=cache.loadState();if(saved.vin){state.vin=saved.vin;els.vin.value=state.vin;decodeVIN();}if(saved.year){state.year=saved.year;loadMakes();}if(saved.make){state.make=saved.make;loadModels();}if(saved.model){state.model=saved.model;loadOptions();}if(saved.option){state.option=saved.option;loadDetails();}})();
+</script>
+</body>
+</html>
