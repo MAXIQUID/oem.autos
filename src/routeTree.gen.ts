@@ -13,7 +13,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SaleRouteImport } from './routes/sale'
 import { Route as SearchRouteImport } from './routes/search'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as VehiclesRouteImport } from './routes/vehicles'
 import { Route as YardRouteImport } from './routes/yard'
 import { Route as ListingSkuRouteImport } from './routes/listing.$sku'
@@ -43,11 +42,6 @@ const SaleRoute = SaleRouteImport.update({
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VehiclesRoute = VehiclesRouteImport.update({
@@ -106,7 +100,6 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sale': typeof SaleRoute
   '/search': typeof SearchRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vehicles': typeof VehiclesRoute
   '/yard': typeof YardRoute
   '/listing/$sku': typeof ListingSkuRoute
@@ -123,7 +116,6 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sale': typeof SaleRoute
   '/search': typeof SearchRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vehicles': typeof VehiclesRoute
   '/yard': typeof YardRoute
   '/listing/$sku': typeof ListingSkuRoute
@@ -141,7 +133,6 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sale': typeof SaleRoute
   '/search': typeof SearchRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vehicles': typeof VehiclesRoute
   '/yard': typeof YardRoute
   '/listing/$sku': typeof ListingSkuRoute
@@ -160,7 +151,6 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sale'
     | '/search'
-    | '/sitemap.xml'
     | '/vehicles'
     | '/yard'
     | '/listing/$sku'
@@ -177,7 +167,6 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sale'
     | '/search'
-    | '/sitemap.xml'
     | '/vehicles'
     | '/yard'
     | '/listing/$sku'
@@ -194,7 +183,6 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sale'
     | '/search'
-    | '/sitemap.xml'
     | '/vehicles'
     | '/yard'
     | '/listing/$sku'
@@ -212,7 +200,6 @@ export interface RootRouteChildren {
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SaleRoute: typeof SaleRoute
   SearchRoute: typeof SearchRoute
-  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   VehiclesRoute: typeof VehiclesRoute
   YardRoute: typeof YardRoute
   ListingSkuRoute: typeof ListingSkuRoute
@@ -252,13 +239,6 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vehicles': {
@@ -350,7 +330,6 @@ const rootRouteChildren: RootRouteChildren = {
   RobotsDottxtRoute: RobotsDottxtRoute,
   SaleRoute: SaleRoute,
   SearchRoute: SearchRoute,
-  SitemapDotxmlRoute: SitemapDotxmlRoute,
   VehiclesRoute: VehiclesRoute,
   YardRoute: YardRoute,
   ListingSkuRoute: ListingSkuRoute,
