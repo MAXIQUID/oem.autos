@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SaleRouteImport } from './routes/sale'
 import { Route as SearchRouteImport } from './routes/search'
@@ -23,11 +24,17 @@ import { Route as SitemapsSplatRouteImport } from './routes/sitemaps/$'
 import { Route as VehicleIdRouteImport } from './routes/vehicle.$id'
 import { Route as VinSitemapPageRouteImport } from './routes/vin-sitemap.$page'
 import { Route as VinVinRouteImport } from './routes/vin.$vin'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as VinVinAssemblyRouteImport } from './routes/vin.$vin.$assembly'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
@@ -95,6 +102,11 @@ const VinVinRoute = VinVinRouteImport.update({
   path: '/vin/$vin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VinVinAssemblyRoute = VinVinAssemblyRouteImport.update({
   id: '/$assembly',
   path: '/$assembly',
@@ -103,6 +115,7 @@ const VinVinAssemblyRoute = VinVinAssemblyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sale': typeof SaleRoute
   '/search': typeof SearchRoute
@@ -116,10 +129,12 @@ export interface FileRoutesByFullPath {
   '/vehicle/$id': typeof VehicleIdRoute
   '/vin-sitemap/$page': typeof VinSitemapPageRoute
   '/vin/$vin': typeof VinVinRouteWithChildren
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/vin/$vin/$assembly': typeof VinVinAssemblyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sale': typeof SaleRoute
   '/search': typeof SearchRoute
@@ -133,11 +148,13 @@ export interface FileRoutesByTo {
   '/vehicle/$id': typeof VehicleIdRoute
   '/vin-sitemap/$page': typeof VinSitemapPageRoute
   '/vin/$vin': typeof VinVinRouteWithChildren
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/vin/$vin/$assembly': typeof VinVinAssemblyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sale': typeof SaleRoute
   '/search': typeof SearchRoute
@@ -151,12 +168,14 @@ export interface FileRoutesById {
   '/vehicle/$id': typeof VehicleIdRoute
   '/vin-sitemap/$page': typeof VinSitemapPageRoute
   '/vin/$vin': typeof VinVinRouteWithChildren
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/vin/$vin/$assembly': typeof VinVinAssemblyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/login'
     | '/robots.txt'
     | '/sale'
     | '/search'
@@ -170,10 +189,12 @@ export interface FileRouteTypes {
     | '/vehicle/$id'
     | '/vin-sitemap/$page'
     | '/vin/$vin'
+    | '/api/auth/$'
     | '/vin/$vin/$assembly'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/login'
     | '/robots.txt'
     | '/sale'
     | '/search'
@@ -187,10 +208,12 @@ export interface FileRouteTypes {
     | '/vehicle/$id'
     | '/vin-sitemap/$page'
     | '/vin/$vin'
+    | '/api/auth/$'
     | '/vin/$vin/$assembly'
   id:
     | '__root__'
     | '/'
+    | '/login'
     | '/robots.txt'
     | '/sale'
     | '/search'
@@ -204,11 +227,13 @@ export interface FileRouteTypes {
     | '/vehicle/$id'
     | '/vin-sitemap/$page'
     | '/vin/$vin'
+    | '/api/auth/$'
     | '/vin/$vin/$assembly'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LoginRoute: typeof LoginRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SaleRoute: typeof SaleRoute
   SearchRoute: typeof SearchRoute
@@ -222,6 +247,7 @@ export interface RootRouteChildren {
   VehicleIdRoute: typeof VehicleIdRoute
   VinSitemapPageRoute: typeof VinSitemapPageRoute
   VinVinRoute: typeof VinVinRouteWithChildren
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -231,6 +257,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/robots.txt': {
@@ -324,6 +357,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VinVinRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vin/$vin/$assembly': {
       id: '/vin/$vin/$assembly'
       path: '/$assembly'
@@ -347,6 +387,7 @@ const VinVinRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LoginRoute: LoginRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SaleRoute: SaleRoute,
   SearchRoute: SearchRoute,
@@ -360,6 +401,7 @@ const rootRouteChildren: RootRouteChildren = {
   VehicleIdRoute: VehicleIdRoute,
   VinSitemapPageRoute: VinSitemapPageRoute,
   VinVinRoute: VinVinRouteWithChildren,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
