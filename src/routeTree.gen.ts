@@ -19,6 +19,7 @@ import { Route as ListingSkuRouteImport } from './routes/listing.$sku'
 import { Route as LotLotRouteImport } from './routes/lot.$lot'
 import { Route as MarketItemIdRouteImport } from './routes/market.$itemId'
 import { Route as PartOemRouteImport } from './routes/part.$oem'
+import { Route as SitemapsSplatRouteImport } from './routes/sitemaps/$'
 import { Route as VehicleIdRouteImport } from './routes/vehicle.$id'
 import { Route as VinSitemapPageRouteImport } from './routes/vin-sitemap.$page'
 import { Route as VinVinRouteImport } from './routes/vin.$vin'
@@ -74,6 +75,11 @@ const PartOemRoute = PartOemRouteImport.update({
   path: '/part/$oem',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapsSplatRoute = SitemapsSplatRouteImport.update({
+  id: '/sitemaps/$',
+  path: '/sitemaps/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VehicleIdRoute = VehicleIdRouteImport.update({
   id: '/vehicle/$id',
   path: '/vehicle/$id',
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/lot/$lot': typeof LotLotRoute
   '/market/$itemId': typeof MarketItemIdRoute
   '/part/$oem': typeof PartOemRoute
+  '/sitemaps/$': typeof SitemapsSplatRoute
   '/vehicle/$id': typeof VehicleIdRoute
   '/vin-sitemap/$page': typeof VinSitemapPageRoute
   '/vin/$vin': typeof VinVinRouteWithChildren
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/lot/$lot': typeof LotLotRoute
   '/market/$itemId': typeof MarketItemIdRoute
   '/part/$oem': typeof PartOemRoute
+  '/sitemaps/$': typeof SitemapsSplatRoute
   '/vehicle/$id': typeof VehicleIdRoute
   '/vin-sitemap/$page': typeof VinSitemapPageRoute
   '/vin/$vin': typeof VinVinRouteWithChildren
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/lot/$lot': typeof LotLotRoute
   '/market/$itemId': typeof MarketItemIdRoute
   '/part/$oem': typeof PartOemRoute
+  '/sitemaps/$': typeof SitemapsSplatRoute
   '/vehicle/$id': typeof VehicleIdRoute
   '/vin-sitemap/$page': typeof VinSitemapPageRoute
   '/vin/$vin': typeof VinVinRouteWithChildren
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/lot/$lot'
     | '/market/$itemId'
     | '/part/$oem'
+    | '/sitemaps/$'
     | '/vehicle/$id'
     | '/vin-sitemap/$page'
     | '/vin/$vin'
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/lot/$lot'
     | '/market/$itemId'
     | '/part/$oem'
+    | '/sitemaps/$'
     | '/vehicle/$id'
     | '/vin-sitemap/$page'
     | '/vin/$vin'
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/lot/$lot'
     | '/market/$itemId'
     | '/part/$oem'
+    | '/sitemaps/$'
     | '/vehicle/$id'
     | '/vin-sitemap/$page'
     | '/vin/$vin'
@@ -206,6 +218,7 @@ export interface RootRouteChildren {
   LotLotRoute: typeof LotLotRoute
   MarketItemIdRoute: typeof MarketItemIdRoute
   PartOemRoute: typeof PartOemRoute
+  SitemapsSplatRoute: typeof SitemapsSplatRoute
   VehicleIdRoute: typeof VehicleIdRoute
   VinSitemapPageRoute: typeof VinSitemapPageRoute
   VinVinRoute: typeof VinVinRouteWithChildren
@@ -283,6 +296,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PartOemRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemaps/$': {
+      id: '/sitemaps/$'
+      path: '/sitemaps/$'
+      fullPath: '/sitemaps/$'
+      preLoaderRoute: typeof SitemapsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vehicle/$id': {
       id: '/vehicle/$id'
       path: '/vehicle/$id'
@@ -336,6 +356,7 @@ const rootRouteChildren: RootRouteChildren = {
   LotLotRoute: LotLotRoute,
   MarketItemIdRoute: MarketItemIdRoute,
   PartOemRoute: PartOemRoute,
+  SitemapsSplatRoute: SitemapsSplatRoute,
   VehicleIdRoute: VehicleIdRoute,
   VinSitemapPageRoute: VinSitemapPageRoute,
   VinVinRoute: VinVinRouteWithChildren,

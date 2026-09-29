@@ -1,11 +1,11 @@
-import { createReadStream, createWriteStream, existsSync, mkdirSync, rmSync } from "node:fs";
+import { createReadStream, createWriteStream, existsSync, readdirSync, rmSync } from "node:fs";
 import { createInterface } from "node:readline";
 import { pipeline } from "node:stream/promises";
 import { Readable } from "node:stream";
 
 const SITE = "https://oem.autos";
 const CHUNK = 10_000;
-const OUT_DIR = "public/sitemaps";
+const OUT_DIR = "public";
 const INDEX_PATH = "public/sitemap.xml";
 
 function parseCsvLine(line) {
@@ -75,7 +75,7 @@ async function vinsFrom(path) {
 }
 
 function writeChunk(page, vins) {
-  const file = createWriteStream(`${OUT_DIR}/vin-${page}.xml`);
+  const file = createWriteStream(`${OUT_DIR}/vin-sitemap-${page}.xml`);
   file.write('<?xml version="1.0" encoding="UTF-8"?>\n');
   file.write('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n');
   for (const vin of vins) file.write(`<url><loc>${SITE}/vin/${vin}</loc></url>\n`);
@@ -95,8 +95,10 @@ if (!path) {
 const vins = await vinsFrom(path);
 if (!vins.length) throw new Error("write-sitemaps: feed had no VINs");
 
-rmSync(OUT_DIR, { recursive: true, force: true });
-mkdirSync(OUT_DIR, { recursive: true });
+rmSync(OUT_DIR + "/sitemaps", { recursive: true, force: true });
+for (const name of readdirSync(OUT_DIR)) {
+  if (/^vin-sitemap-\d+\.xml$/.test(name)) rmSync(`${OUT_DIR}/${name}`);
+}
 const pages = Math.ceil(vins.length / CHUNK);
 for (let page = 1; page <= pages; page += 1) {
   const slice = vins.slice((page - 1) * CHUNK, page * CHUNK);
@@ -106,7 +108,7 @@ for (let page = 1; page <= pages; page += 1) {
 const index = [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-  ...Array.from({ length: pages }, (_, i) => `<sitemap><loc>${SITE}/sitemaps/vin-${i + 1}.xml</loc></sitemap>`),
+  ...Array.from({ length: pages }, (_, i) => `<sitemap><loc>${SITE}/vin-sitemap-${i + 1}.xml</loc></sitemap>`),
   "</sitemapindex>",
   "",
 ].join("\n");
