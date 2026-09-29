@@ -3,7 +3,7 @@ import { SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { VehicleLink } from "@/components/vehicle-link";
 import type { SaleFacet, VehicleFeed, VehicleSort } from "@/lib/copart/types";
-import { formatVin } from "@/lib/utils";
+import { formatUsd, formatVin } from "@/lib/utils";
 
 export type VehicleSearch = {
   q?: string;
@@ -107,8 +107,13 @@ export function VehicleFeedView({ feed }: { feed: VehicleFeed }) {
     if (!filtersOpen) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setFiltersOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
     };
   }, [filtersOpen]);
 
@@ -149,12 +154,12 @@ export function VehicleFeedView({ feed }: { feed: VehicleFeed }) {
 
       <div className="mt-6 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-8">
         <aside className="hidden lg:block">
-          <div className="sticky top-20 max-h-dvh overflow-y-auto pb-10">
+          <div className="sticky top-chrome max-h-dvh overflow-y-auto pb-10">
             <FacetColumn feed={feed} search={search} onPick={pick} compact />
           </div>
         </aside>
 
-        <section className={loading ? "min-w-0 opacity-60" : "min-w-0"}>
+        <section className={loading ? "min-w-0 opacity-60" : "min-w-0"} aria-busy={loading}>
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -182,7 +187,17 @@ export function VehicleFeedView({ feed }: { feed: VehicleFeed }) {
           </div>
 
           {feed.results.length === 0 ? (
-            <p className="mt-8 text-muted">No vehicles match these filters.</p>
+            <div className="mt-8 rounded-xl bg-surface px-5 py-8 shadow-[var(--shadow-border)]">
+              <p className="font-display text-2xl font-semibold">Nothing matches</p>
+              <p className="mt-2 text-sm text-muted">Clear a filter or search a VIN. The index only lists vehicles on the current sale sheet.</p>
+              <button
+                type="button"
+                onClick={() => void navigate({ to: "/vehicles", search: {} })}
+                className="mt-4 inline-flex h-11 items-center rounded-md bg-paper px-4 text-sm font-medium text-ink"
+              >
+                Clear filters
+              </button>
+            </div>
           ) : (
             <ul className="mt-4 divide-y divide-border overflow-hidden rounded-xl bg-surface shadow-[var(--shadow-border)]">
               {feed.results.map((lot) => (
@@ -229,8 +244,8 @@ export function VehicleFeedView({ feed }: { feed: VehicleFeed }) {
         <div className="fixed inset-0 z-40 flex flex-col bg-bg lg:hidden">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <h2 className="font-display text-2xl font-semibold">Filters</h2>
-            <button type="button" className="h-11 px-2 text-sm text-muted" onClick={() => setFiltersOpen(false)}>
-              Close
+            <button type="button" className="inline-flex size-11 items-center justify-center text-muted hover:text-fg" onClick={() => setFiltersOpen(false)} aria-label="Close filters">
+              <X className="size-5" aria-hidden />
             </button>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 pb-28">
@@ -306,11 +321,13 @@ function FacetColumn({
 function VehicleRow({ lot }: { lot: VehicleFeed["results"][number] }) {
   const spec = [lot.drive, lot.engine, lot.trans].filter(Boolean).join(" · ");
   const place = [lot.damage, lot.city && lot.state ? `${lot.city}, ${lot.state}` : lot.state].filter(Boolean).join(" · ");
+  const price = lot.bidCents ?? lot.binCents;
+  const priceLabel = lot.bidCents ? "High bid" : lot.binCents ? "Buy now" : "";
   return (
     <VehicleLink lot={lot.lot} vin={lot.vin} className="flex gap-3 p-3 hover:bg-surface-2 sm:gap-4 sm:p-4">
-      <div className="size-20 shrink-0 overflow-hidden rounded-md bg-surface-2 sm:size-24">
+      <div className="size-20 shrink-0 overflow-hidden rounded-md bg-surface-2 sm:size-28">
         {lot.thumb ? (
-          <img src={lot.thumb} alt={`${lot.year} ${lot.make} ${lot.model}${lot.vin ? ` VIN ${lot.vin}` : ""}`} loading="lazy" className="media h-full w-full object-cover" />
+          <img src={lot.thumb} alt="" loading="lazy" className="media h-full w-full object-cover" />
         ) : (
           <div className="flex h-full items-end p-2 font-mono text-xs text-subtle">No photo</div>
         )}
@@ -320,9 +337,13 @@ function VehicleRow({ lot }: { lot: VehicleFeed["results"][number] }) {
           {lot.year} {lot.make} {lot.model}
         </h3>
         <p className="mt-1 truncate font-mono text-xs tracking-wide text-muted">{lot.vin ? formatVin(lot.vin) : "VIN unlisted"}</p>
+        {price ? <p className="mt-1 font-mono text-sm tabular-nums text-fg sm:hidden">{formatUsd(price)}</p> : null}
         {spec ? <p className="mt-1 truncate text-sm text-fg">{spec}</p> : null}
         {place ? <p className="mt-1 truncate text-sm text-subtle">{place}</p> : null}
-        <p className="mt-2 text-sm font-medium text-accent">View vehicle</p>
+      </div>
+      <div className="hidden shrink-0 text-right sm:block">
+        <p className="font-mono text-sm tabular-nums text-fg">{price ? formatUsd(price) : "—"}</p>
+        {priceLabel ? <p className="mt-1 text-xs text-subtle">{priceLabel}</p> : null}
       </div>
     </VehicleLink>
   );

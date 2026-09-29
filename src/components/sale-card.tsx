@@ -23,7 +23,7 @@ export function SaleCard({ lot }: { lot: CopartLot }) {
           <div className="flex h-full items-end p-3 font-mono text-xs text-subtle">No photo</div>
         )}
         {isIndexableVin(lot.vin) ? (
-          <div className="absolute left-2 top-2 max-w-[calc(100%-1rem)] truncate rounded-sm bg-ink/80 px-2 py-1 font-mono text-[11px] tracking-wide text-paper">
+          <div className="absolute inset-x-2 top-2 truncate rounded-sm bg-ink/80 px-2 py-1 font-mono text-xs tracking-wide text-paper">
             {lot.vin}
           </div>
         ) : null}

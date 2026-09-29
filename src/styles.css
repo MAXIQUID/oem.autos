@@ -29,6 +29,8 @@
 
   --shadow-border: 0 0 0 1px rgba(239, 236, 228, 0.08);
   --shadow-border-hover: 0 0 0 1px rgba(239, 236, 228, 0.14);
+
+  --spacing-chrome: 4rem;
 }
 
 @layer base {
@@ -65,6 +67,16 @@
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-paper);
+    outline-offset: 2px;
+  }
+
+  select option {
+    background: var(--color-surface);
+    color: var(--color-fg);
   }
 
   img.media {

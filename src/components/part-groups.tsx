@@ -22,9 +22,9 @@ export function PartsBoard({ report }: { report: PartsReport }) {
             {group.label}
             <span className="ml-2 text-muted">({group.items.length})</span>
           </h3>
-          <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
+          <div className="mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-3">
             {group.items.map((item) => (
-              <div key={item.itemId} className="w-52 shrink-0">
+              <div key={item.itemId} className="w-52 shrink-0 snap-start">
                 <EbayCard item={item} />
               </div>
             ))}

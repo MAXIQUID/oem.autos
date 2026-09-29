@@ -59,9 +59,9 @@ export function FinderBar() {
   }
 
   return (
-    <div className="border-b border-border bg-bg/95">
+    <div>
       <form
-        className="mx-auto flex max-w-6xl gap-2 px-4 py-3"
+        className="flex gap-2"
         onSubmit={(e) => {
           e.preventDefault();
           void submit(text);
@@ -70,9 +70,11 @@ export function FinderBar() {
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="VIN, lot number, or vehicle"
-          aria-label="VIN, lot number, or vehicle"
+          placeholder="VIN, lot, year make model"
+          aria-label="Search by VIN, lot, or vehicle"
+          aria-invalid={error ? true : undefined}
           spellCheck={false}
+          autoCapitalize="characters"
           className={field}
         />
         <button
@@ -83,7 +85,11 @@ export function FinderBar() {
           {busy ? "Searching" : "Search"}
         </button>
       </form>
-      {error ? <p className="mx-auto max-w-6xl px-4 pb-3 text-sm text-danger">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="mt-2 text-sm text-danger">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

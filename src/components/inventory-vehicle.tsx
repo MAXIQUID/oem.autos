@@ -91,8 +91,13 @@ export function InventoryVehicle({ lot }: { lot: CopartLot }) {
         <div>
           <h1 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">{name}</h1>
           <p className="mt-2 text-muted">{[lot.trim, lot.body, lot.color].filter(Boolean).join(" · ")}</p>
-          <p className="mt-4 font-mono text-sm tracking-wide text-fg">{indexed ? formatVin(lot.vin) : "VIN unlisted"}</p>
-          <dl className="mt-6 grid grid-cols-2 gap-4 text-sm">
+          {indexed ? <VinCopy vin={lot.vin} /> : <p className="mt-4 text-sm text-subtle">VIN unlisted</p>}
+          <div className="mt-6 grid grid-cols-3 gap-px overflow-hidden rounded-xl bg-border shadow-[var(--shadow-border)]">
+            <Money label="High bid" value={formatUsd(lot.bidCents)} />
+            <Money label="Buy now" value={formatUsd(lot.binCents)} />
+            <Money label="Retail" value={formatUsd(lot.retailCents)} />
+          </div>
+          <dl className="mt-6 grid grid-cols-2 gap-x-4 gap-y-4 text-sm">
             <Fact label="Damage" value={lot.damage || "—"} />
             <Fact label="Secondary" value={lot.secondary || "—"} />
             <Fact label="Odometer" value={lot.miles ? formatMiles(lot.miles) : "—"} />
@@ -105,15 +110,41 @@ export function InventoryVehicle({ lot }: { lot: CopartLot }) {
             <Fact label="Fuel" value={lot.fuel || "—"} />
             <Fact label="Yard" value={lot.yard || `${lot.city}, ${lot.state}`} />
             <Fact label="Sale" value={lot.saleDate} />
-            <Fact label="High bid" value={formatUsd(lot.bidCents)} />
-            <Fact label="Buy it now" value={formatUsd(lot.binCents)} />
-            <Fact label="Retail" value={formatUsd(lot.retailCents)} />
             <Fact label="Repair est." value={formatUsd(lot.repairCents)} />
           </dl>
         </div>
       </div>
       <PartsPanel lotId={String(lot.lot)} label={name} />
     </main>
+  );
+}
+
+function VinCopy({ vin }: { vin: string }) {
+  const [copied, setCopied] = useState(false);
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void navigator.clipboard.writeText(vin).then(() => {
+          setCopied(true);
+          window.setTimeout(() => setCopied(false), 1400);
+        });
+      }}
+      className="mt-4 inline-flex h-11 max-w-full items-center gap-3 rounded-md bg-surface-2 px-3 font-mono text-sm tracking-wide text-fg shadow-[var(--shadow-border)]"
+    >
+      <span className="truncate">{formatVin(vin)}</span>
+      <span className="font-sans text-xs text-muted">{copied ? "Copied" : "Copy VIN"}</span>
+    </button>
+  );
+}
+
+function Money({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-bg px-3 py-4">
+      <p className="font-mono text-lg tabular-nums text-fg">{value}</p>
+      <p className="mt-1 text-xs uppercase tracking-widest text-subtle">{label}</p>
+    </div>
   );
 }
 
