@@ -38,14 +38,9 @@ export function VinForm({
       ? "17-character VIN, or an OEM number"
       : ""
     : decoded.validLength
-      ? [
-          decoded.checkDigitOk === false ? "check digit off" : null,
-          decoded.year,
-          decoded.make,
-          decoded.country,
-        ]
-          .filter(Boolean)
-          .join(" · ")
+      ? decoded.checkDigitOk === false
+        ? "Check digit does not match. This is not a resolved vehicle."
+        : "Check digit matches. Identity is resolved from the sale sheet or NHTSA, not this box."
       : `${decoded.vin.length}/17`;
 
   return (
@@ -72,7 +67,7 @@ export function VinForm({
         />
         <Button type="submit" size={size === "lg" ? "lg" : "sm"} className="shrink-0">
           <Search className="size-4" />
-          {size === "lg" ? "Decode" : "Go"}
+          {size === "lg" ? "Search" : "Go"}
         </Button>
       </div>
       {hint ? <p className="mt-2 font-mono text-xs text-subtle">{hint}</p> : null}

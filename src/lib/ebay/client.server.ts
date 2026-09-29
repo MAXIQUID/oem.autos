@@ -1,7 +1,5 @@
 import type { EbayAspect, EbayHit, EbayItem, EbaySearchResult } from "./types";
-
-const CLIENT_ID = process.env.EBAY_CLIENT_ID?.trim() ?? "";
-const CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET?.trim() ?? "";
+import { env } from "@/lib/env.server";
 
 const TOKEN_URL = "https://api.ebay.com/identity/v1/oauth2/token";
 const SEARCH_URL = "https://api.ebay.com/buy/browse/v1/item_summary/search";
@@ -33,7 +31,9 @@ function phrase(q: string): string {
 }
 
 async function accessToken(): Promise<string> {
-  if (!CLIENT_ID || !CLIENT_SECRET) throw new Error("eBay credentials are not configured");
+  const clientId = env("EBAY_CLIENT_ID");
+  const clientSecret = env("EBAY_CLIENT_SECRET");
+  if (!clientId || !clientSecret) throw new Error("eBay integration is not configured.");
   const now = Date.now();
   if (g.__ebayToken && g.__ebayToken.expiresAt > now + 60_000) return g.__ebayToken.token;
   const body = new URLSearchParams({ grant_type: "client_credentials", scope: SCOPE });
@@ -41,7 +41,7 @@ async function accessToken(): Promise<string> {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString("base64")}`,
+      Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
     },
     body,
     signal: AbortSignal.timeout(8000),

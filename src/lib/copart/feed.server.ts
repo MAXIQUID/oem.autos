@@ -6,8 +6,7 @@ import { pipeline } from "node:stream/promises";
 import type { CopartLot, SaleFacet, SalePage, SaleSort, VehicleFeed, VehicleSort } from "./types";
 import { SALE_SORTS, VEHICLE_SORTS } from "./types";
 import { facetKeys, type FacetDim } from "./facets";
-
-const FEED_URL = process.env.COPART_FEED_URL?.trim() ?? "";
+import { env } from "@/lib/env.server";
 
 const FILE = "/tmp/copart-sales.csv";
 const FILE_TTL_MS = 20 * 60 * 1000;
@@ -111,9 +110,10 @@ function parseCsvLine(line: string): string[] {
 }
 
 async function ensureFile(): Promise<void> {
-  if (!FEED_URL) throw new Error("Copart feed URL is not configured");
+  const feedUrl = env("COPART_FEED_URL");
+  if (!feedUrl) throw new Error("Copart feed is not configured.");
   if (existsSync(FILE) && Date.now() - statSync(FILE).mtimeMs < FILE_TTL_MS) return;
-  const res = await fetch(FEED_URL, {
+  const res = await fetch(feedUrl, {
     headers: { "User-Agent": "OEM.autos/1.0" },
     signal: AbortSignal.timeout(90_000),
   });
