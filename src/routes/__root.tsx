@@ -14,7 +14,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "E-commerce for the used auto parts market. OEM.autos connects US salvage yards with buyers so a part is easier to find and purchase.",
+          "Search OEM parts and salvage cars. Free VIN decoder and the current US automobile sale sheet.",
       },
       { name: "theme-color", content: "#0c0d0b" },
     ],

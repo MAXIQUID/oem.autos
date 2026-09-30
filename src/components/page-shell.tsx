@@ -5,6 +5,7 @@ import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { FinderBar } from "@/components/finder-bar";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { SiteNav } from "@/components/site-nav";
 
 export function PageShell({ children }: { children: ReactNode }) {
   return (
@@ -25,6 +26,9 @@ export function PageShell({ children }: { children: ReactNode }) {
             <FinderBar />
           </div>
         </div>
+        <div className="mx-auto max-w-6xl px-4 pb-2">
+          <SiteNav />
+        </div>
       </header>
       <div id="content" className="flex-1">
         {children}
@@ -43,7 +47,7 @@ function AccountSlot() {
       to="/login"
       className="inline-flex h-10 shrink-0 items-center rounded-md bg-paper px-3 text-sm font-medium text-ink hover:bg-accent"
     >
-      Sign in
+      Create account
     </Link>
   );
 }

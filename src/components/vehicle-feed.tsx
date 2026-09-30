@@ -149,7 +149,9 @@ export function VehicleFeedView({ feed }: { feed: VehicleFeed }) {
           </button>
         </div>
       ) : (
-        <p className="mt-3 max-w-xl text-sm text-subtle">Search a VIN above, or narrow the index by year, make, and model.</p>
+        <p className="mt-3 max-w-xl text-sm text-subtle">
+          Search OEM parts and salvage cars. Use the VIN decoder, or narrow this index by year, make, and model.
+        </p>
       )}
 
       <div className="mt-6 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-8">

@@ -11,7 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as DecoderRouteImport } from './routes/decoder'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MakesRouteImport } from './routes/makes'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SaleRouteImport } from './routes/sale'
 import { Route as SearchRouteImport } from './routes/search'
@@ -38,9 +42,29 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DecoderRoute = DecoderRouteImport.update({
+  id: '/decoder',
+  path: '/decoder',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MakesRoute = MakesRouteImport.update({
+  id: '/makes',
+  path: '/makes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
@@ -122,7 +146,11 @@ const VinVinAssemblyRoute = VinVinAssemblyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/decoder': typeof DecoderRoute
+  '/faq': typeof FaqRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
+  '/makes': typeof MakesRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sale': typeof SaleRoute
   '/search': typeof SearchRoute
@@ -142,7 +170,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/decoder': typeof DecoderRoute
+  '/faq': typeof FaqRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
+  '/makes': typeof MakesRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sale': typeof SaleRoute
   '/search': typeof SearchRoute
@@ -163,7 +195,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/decoder': typeof DecoderRoute
+  '/faq': typeof FaqRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/login': typeof LoginRoute
+  '/makes': typeof MakesRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sale': typeof SaleRoute
   '/search': typeof SearchRoute
@@ -185,7 +221,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/decoder'
+    | '/faq'
+    | '/how-it-works'
     | '/login'
+    | '/makes'
     | '/robots.txt'
     | '/sale'
     | '/search'
@@ -205,7 +245,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/decoder'
+    | '/faq'
+    | '/how-it-works'
     | '/login'
+    | '/makes'
     | '/robots.txt'
     | '/sale'
     | '/search'
@@ -225,7 +269,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/decoder'
+    | '/faq'
+    | '/how-it-works'
     | '/login'
+    | '/makes'
     | '/robots.txt'
     | '/sale'
     | '/search'
@@ -246,7 +294,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  DecoderRoute: typeof DecoderRoute
+  FaqRoute: typeof FaqRoute
+  HowItWorksRoute: typeof HowItWorksRoute
   LoginRoute: typeof LoginRoute
+  MakesRoute: typeof MakesRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SaleRoute: typeof SaleRoute
   SearchRoute: typeof SearchRoute
@@ -279,11 +331,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/decoder': {
+      id: '/decoder'
+      path: '/decoder'
+      fullPath: '/decoder'
+      preLoaderRoute: typeof DecoderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/makes': {
+      id: '/makes'
+      path: '/makes'
+      fullPath: '/makes'
+      preLoaderRoute: typeof MakesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/robots.txt': {
@@ -408,7 +488,11 @@ const VinVinRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  DecoderRoute: DecoderRoute,
+  FaqRoute: FaqRoute,
+  HowItWorksRoute: HowItWorksRoute,
   LoginRoute: LoginRoute,
+  MakesRoute: MakesRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SaleRoute: SaleRoute,
   SearchRoute: SearchRoute,
