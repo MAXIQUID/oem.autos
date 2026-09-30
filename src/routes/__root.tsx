@@ -14,7 +14,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "Used OEM parts from US salvage yards. Find the donor, then buy or list the part on eBay.",
+          "E-commerce for the used auto parts market. OEM.autos connects US salvage yards with buyers so a part is easier to find and purchase.",
       },
       { name: "theme-color", content: "#0c0d0b" },
     ],

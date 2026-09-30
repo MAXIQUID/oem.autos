@@ -8,7 +8,7 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "OEM.autos connects US salvage yards with people buying used OEM parts. Find the donor, then buy or list the part on eBay.",
+          "OEM.autos is e-commerce for the used auto parts market. It connects US salvage yards with buyers.",
       },
     ],
     links: [{ rel: "canonical", href: "https://oem.autos/about" }],
@@ -22,9 +22,9 @@ function AboutPage() {
       <main className="mx-auto w-full max-w-2xl px-4 py-12">
         <h1 className="font-display text-5xl font-semibold tracking-tight">OEM.autos</h1>
         <p className="mt-6 text-lg text-muted">
-          OEM.autos connects salvage yards in the United States with people who need a used OEM
-          part. The point is a simpler search, and a purchase that starts from the right donor
-          vehicle.
+          E-commerce for the used auto parts market. OEM.autos connects salvage yards in the United
+          States with people who need a used OEM part, so finding it and starting the purchase is
+          simpler.
         </p>
         <div className="mt-10 space-y-4 text-muted">
           <p>

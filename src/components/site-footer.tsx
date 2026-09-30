@@ -6,7 +6,7 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
         <p>
           <span className="font-display text-lg font-semibold tracking-tight text-fg">OEM.autos</span>
-          <span className="mt-1 block">Used OEM parts from US salvage, found by the donor.</span>
+          <span className="mt-1 block">E-commerce for used OEM parts, from US salvage yards.</span>
         </p>
         <nav className="flex gap-4">
           <Link to="/vehicles" className="hover:text-fg">
