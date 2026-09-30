@@ -14,7 +14,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "VIN-native used OEM parts. Vehicle → assemblies → OEM part → actual used inventory.",
+          "Used OEM parts from US salvage yards. Find the donor, then buy or list the part on eBay.",
       },
       { name: "theme-color", content: "#0c0d0b" },
     ],
